@@ -6,13 +6,13 @@ export const crearAsignacion = async (body, user) => {
     throw new Error("Solo profesores o superadmin pueden crear asignaciones");
   }
 
-  const { title, description, deadline, module } = body; 
+  const { title, description, dueDate, module } = body; 
 
   const nueva = await assignmentRepository.crear({
     module: Number(module),
     title,
     description,
-    dueDate: new Date(deadline),
+    dueDate: new Date(dueDate),
     cohort: user?.cohort || body.cohort || 1,
     createdBy: user.id,
   });
@@ -33,11 +33,11 @@ export const obtenerAsignacionPorId = async (id) => {
 };
 
 export const actualizarAsignacion = async (id, body) => {
-  const { title, description, deadline } = body;
+  const { title, description, dueDate } = body;
   const data = {
     ...(title && { title }),
     ...(description && { description }),
-    ...(deadline && { dueDate: new Date(deadline) }),
+    ...(dueDate && { dueDate: new Date(dueDate) }),
   };
   return await assignmentRepository.actualizar(id, data);
 };
