@@ -1,11 +1,17 @@
 import repositorioEntrega from "../repository/submissionRepository.mjs";
+import { ReviewSlot } from "../models/ReviewSlot.mjs";
 
-export const crearEntrega = async ({ assignment, githubLink, renderLink, studentId }) => {
+export const crearEntrega = async (slotId, user, body) => {
+  const slot = await ReviewSlot.findById(slotId);
+  if (!slot) {
+    throw new Error("Turno no encontrado");
+  }
+
   return await repositorioEntrega.crear({
-    assignment,
-    githubLink,
-    renderLink,
-    student: studentId,
+    assignment: slot.assignment,
+    student: user.id,
+    githubLink: body.link,
+    comentarios: body.comentarios,
   });
 };
 
@@ -21,12 +27,13 @@ export const actualizarEntrega = async (id, data, user) => {
   const entrega = await repositorioEntrega.obtenerPorId(id);
   if (!entrega) throw new Error("Entrega no encontrada");
 
-  // Validar si el usuario es dueño o profesor/superadmin
-  if (entrega.student.toString() !== user.id && user.role !== "profesor" && user.role !== "superadmin") {
+  const esPropia = entrega.student.toString() === user.id;
+  const esProfesor = ["profesor", "superadmin"].includes(user.role);
+
+  if (!esPropia && !esProfesor) {
     throw new Error("No autorizado a modificar esta entrega");
   }
 
-  // Bloquear si ya fue evaluada
   if (["aprobado", "desaprobado"].includes(entrega.reviewStatus)) {
     throw new Error("No se puede modificar una entrega ya evaluada");
   }
@@ -37,4 +44,5 @@ export const actualizarEntrega = async (id, data, user) => {
 export const eliminarEntrega = async (id) => {
   return await repositorioEntrega.eliminar(id);
 };
+
 

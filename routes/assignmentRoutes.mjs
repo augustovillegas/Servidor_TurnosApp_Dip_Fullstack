@@ -10,12 +10,12 @@ const router = express.Router();
 
 router.get("/", auth, obtenerAsignacionesController);
 
-router.get("/:id", auth, [param("id", "ID inválido").isMongoId()], validateRequest, obtenerAsignacionPorIdController);
+router.get("/:id", auth, param("id", "ID inválido").isMongoId(), validateRequest, obtenerAsignacionPorIdController);
 
 router.post("/", auth, allowRoles("profesor"), assignmentValidator, validateRequest, crearAsignacionController);
 
-router.put("/:id", auth, allowRoles("profesor"), [param("id", "ID inválido").isMongoId()], assignmentValidator, validateRequest, actualizarAsignacionController);
+router.put("/:id", auth, allowRoles("profesor"), param("id", "ID inválido").isMongoId(), assignmentValidator, validateRequest, actualizarAsignacionController);
 
-router.delete("/:id", auth, allowRoles("profesor"), [param("id", "ID inválido").isMongoId()], validateRequest, eliminarAsignacionController);
+router.delete("/:id", auth, allowRoles("profesor"), param("id", "ID inválido").isMongoId(), validateRequest, eliminarAsignacionController);
 
 export default router;

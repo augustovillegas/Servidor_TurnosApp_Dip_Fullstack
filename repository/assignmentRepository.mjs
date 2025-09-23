@@ -3,8 +3,9 @@ import { IRepository } from "./IRepository.mjs";
 
 
 class RepositorioAsignacion extends IRepository {
-async obtenerTodos() {
-return await Assignment.find();
+    
+async obtenerTodos(filtro = {}) {
+return await Assignment.find(filtro);
 }
 
 

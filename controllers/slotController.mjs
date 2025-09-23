@@ -1,85 +1,69 @@
-import {
-  crear,
-  solicitarTurno,
-  actualizarEstadoRevision,
-  cancelarTurno,
-} from "../services/slotService.mjs";
-import { errorHandler } from "../middlewares/errorHandler.mjs";
-import { ReviewSlot } from "../models/ReviewSlot.mjs";
+import * as slotService from "../services/slotService.mjs";
 
-const mapEstado = (slot, estado) => {
-  const plain = slot?.toObject ? slot.toObject() : slot;
-  return { ...plain, estado };
-};
-
-export const createSlotController = async (req, res) => {
+export const createSlotController = async (req, res, next) => {
   try {
-    const data = {
-      assignment: req.body.assignment,
-      cohort: req.user?.cohort || req.body.cohort || "default-cohort",
-      date: req.body.date,
-      startTime: req.body.startTime,
-      endTime: req.body.endTime,
-    };
-
-    const newSlot = await crear(data, req.user);
-    res.status(201).json(mapEstado(newSlot, "pendiente"));
+    const slot = await slotService.crear(req.body, req.user);
+    res.status(201).json(slot);
   } catch (error) {
-    console.error("Error al crear turno:", error);
-    errorHandler(error, req, res);
+    next(error);
   }
 };
 
-export const solicitarTurnoController = async (req, res) => {
+export const solicitarTurnoController = async (req, res, next) => {
   try {
-    const slot = await ReviewSlot.findById(req.params.id);
-    if (!slot) return res.status(404).json({ msg: "Turno no encontrado" });
-
-    if (req.user.role === "alumno" && req.user.cohort !== slot.cohort) {
-      return res
-        .status(403)
-        .json({ msg: "No podés solicitar turnos de otra cohorte" });
-    }
-
-    const updatedSlot = await solicitarTurno(req.params.id, req.user);
-    res.status(200).json(mapEstado(updatedSlot, "pendiente"));
+    const turno = await slotService.solicitarTurno(req.params.id, req.user);
+    res.status(200).json(turno);
   } catch (error) {
-    console.error("Error al solicitar turno:", error);
-    errorHandler(error, req, res);
+    next(error);
   }
 };
 
-export const actualizarEstadoRevisionController = async (req, res) => {
+export const cancelarTurnoController = async (req, res, next) => {
   try {
-    const estado = req.body.estado;
-    const updatedSlot = await actualizarEstadoRevision(
+    const turno = await slotService.cancelarTurno(req.params.id, req.user);
+    res.status(200).json(turno);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const actualizarEstadoRevisionController = async (req, res, next) => {
+  try {
+    const { estado } = req.body;
+    const turno = await slotService.actualizarEstadoRevision(
       req.params.id,
       estado,
       req.user
     );
-    res.status(200).json(mapEstado(updatedSlot, estado));
+    res.status(200).json(turno);
   } catch (error) {
-    console.error("Error al actualizar estado de revisión:", error);
-    errorHandler(error, req, res);
+    next(error);
   }
 };
 
-export const cancelarTurnoController = async (req, res) => {
+export const obtenerTurnosController = async (req, res, next) => {
   try {
-    const updatedSlot = await cancelarTurno(req.params.id, req.user);
-    res.status(200).json(mapEstado(updatedSlot, "cancelado"));
+    const turnos = await slotService.obtenerTurnosPorFiltro(req.query);
+    res.status(200).json(turnos);
   } catch (error) {
-    console.error("Error al cancelar turno:", error);
-    errorHandler(error, req, res);
+    next(error);
   }
 };
 
-export const misSolicitudesController = async (req, res) => {
+export const obtenerMisTurnosController = async (req, res, next) => {
   try {
-    const solicitudes = await obtenerPorUsuario(req.user._id);
-    res.json(solicitudes);
+    const turnos = await slotService.obtenerPorUsuario(req.user.id);
+    res.status(200).json(turnos);
   } catch (error) {
-    console.error("Error al obtener mis solicitudes:", error);
-    errorHandler(error, req, res);
+    next(error);
+  }
+};
+
+export const misSolicitudesController = async (req, res, next) => {
+  try {
+    const result = await slotService.obtenerSolicitudesPorAlumno(req.user._id);
+    res.json(result);
+  } catch (error) {
+    next(error);
   }
 };

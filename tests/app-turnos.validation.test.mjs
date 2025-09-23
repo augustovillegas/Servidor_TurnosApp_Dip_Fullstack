@@ -1,4 +1,3 @@
-// tests/app-turnos.validation.test.mjs
 import { describe, test, expect, beforeAll, afterAll } from "vitest";
 import request from "supertest";
 import app from "../server.mjs";
@@ -32,6 +31,7 @@ beforeAll(async () => {
     email: "profesor@test.com",
     password: "test123",
     role: "profesor",
+    cohort: 1,
   });
   idProfesor = resProfesor.body.user._id;
 
@@ -74,6 +74,10 @@ beforeAll(async () => {
     .patch(`/api/auth/aprobar/${resAlumno2.body.user._id}`)
     .set("Authorization", `Bearer ${tokenProfesor}`);
 
+  await request(app)
+    .patch(`/api/auth/aprobar/${idProfesor}`)
+    .set("Authorization", `Bearer ${tokenSuperadmin}`);
+
   const resAsignacion = await request(app)
     .post("/api/assignments")
     .set("Authorization", `Bearer ${tokenProfesor}`)
@@ -81,6 +85,8 @@ beforeAll(async () => {
       title: "TP Integrador",
       description: "Desarrollar un CRUD",
       deadline: "2025-12-31",
+      module: 1,
+      cohort: 1,
     });
   idAssignment = resAsignacion.body._id;
 
@@ -362,5 +368,171 @@ describe("❌ Validaciones de flujos de usuario", () => {
   test("Obtener entregas sin auth falla", async () => {
     const res = await request(app).get(`/api/submissions/${idAlumno}`);
     expect(res.status).toBe(401);
+  });
+
+  // 🔽 TESTS FUNCIONALES DE ÉXITO ADICIONALES 🔽
+
+  test("❌ Validaciones de flujos de usuario > Profesor obtiene lista de sus asignaciones", async () => {
+    // Creamos una asignación válida primero
+    await request(app)
+      .post("/api/assignments")
+      .set("Authorization", `Bearer ${tokenProfesor}`)
+      .send({
+        title: "Tarea para listar",
+        description: "Esta tarea es visible para el profesor",
+        module: 1, 
+        deadline: "2025-12-31T23:59:59Z",
+        cohort: 1,
+      });
+
+    // Luego hacemos la petición
+    const res = await request(app)
+      .get("/api/assignments")
+      .set("Authorization", `Bearer ${tokenProfesor}`);
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("❌ Validaciones de flujos de usuario > Alumno solicita turno correctamente", async () => {
+    const resAsignacion = await request(app)
+      .post("/api/assignments")
+      .set("Authorization", `Bearer ${tokenProfesor}`)
+      .send({
+        title: "Tarea para solicitar turno",
+        description: "Turno asignable",
+        module: 1,
+        deadline: "2025-12-31T23:59:59Z",
+        cohort: 1,
+      });
+    expect(resAsignacion.status).toBe(201);
+    const idAssignment = resAsignacion.body._id;
+
+    const resTurno = await request(app)
+      .post("/api/slots")
+      .set("Authorization", `Bearer ${tokenProfesor}`)
+      .send({
+        assignment: idAssignment,
+        date: "2025-10-15T14:00:00Z",
+        cohort: 1,
+      });
+    expect(resTurno.status).toBe(201);
+    const idTurno = resTurno.body._id;
+
+    const resSolicitar = await request(app)
+      .patch(`/api/slots/${idTurno}/solicitar`)
+      .set("Authorization", `Bearer ${tokenAlumno}`);
+
+    expect(resSolicitar.status).toBe(200);
+  });
+
+  test("Alumno edita entrega agregando renderLink", async () => {
+    // Create a new slot and an assignment to associate the submission with
+    const resSlot = await request(app)
+      .post("/api/slots")
+      .set("Authorization", `Bearer ${tokenProfesor}`)
+      .send({
+        assignment: idAssignment,
+        date: "2025-11-20T10:00:00Z",
+        cohort: 1,
+      });
+    const idTurno = resSlot.body._id;
+
+    // Create the submission and get the ID
+    const resEntrega = await request(app)
+      .post(`/api/submissions/${idTurno}`)
+      .set("Authorization", `Bearer ${tokenAlumno}`)
+      .send({
+        link: "https://github.com/alumno/proyecto-test",
+      });
+
+    const entregaId = resEntrega.body._id;
+
+    // Now, the PUT request will work correctly
+    const res = await request(app)
+      .put(`/api/submissions/${entregaId}`)
+      .set("Authorization", `Bearer ${tokenAlumno}`)
+      .send({
+        renderLink: "https://vercel.app/alumno/test",
+      });
+
+    expect(res.status).toBe(200);
+  });
+
+  test("Alumno puede ver sus entregas", async () => {
+    const res = await request(app)
+      .get(`/api/submissions/${idAlumno}`)
+      .set("Authorization", `Bearer ${tokenAlumno}`);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test("Profesor obtiene entregas del alumno", async () => {
+    const res = await request(app)
+      .get(`/api/submissions/${idAlumno}`)
+      .set("Authorization", `Bearer ${tokenProfesor}`);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test("❌ Validaciones de flujos de usuario > Alumno cancela turno solicitado", async () => {
+    const resAsignacion = await request(app)
+      .post("/api/assignments")
+      .set("Authorization", `Bearer ${tokenProfesor}`)
+      .send({
+        title: "Asignación para cancelar turno",
+        description: "El alumno pedirá y luego cancelará",
+        module: 1,
+        deadline: "2025-12-31T23:59:59Z",
+        cohort: 1,
+      });
+    expect(resAsignacion.status).toBe(201);
+    const idAsignacion = resAsignacion.body._id;
+
+    const resTurno = await request(app)
+      .post("/api/slots")
+      .set("Authorization", `Bearer ${tokenProfesor}`)
+      .send({
+        assignment: idAsignacion,
+        date: "2025-11-01T10:00:00Z",
+        cohort: 1,
+      });
+    expect(resTurno.status).toBe(201);
+    const idTurnoNuevo = resTurno.body._id;
+
+    const resSolicitar = await request(app)
+      .patch(`/api/slots/${idTurnoNuevo}/solicitar`)
+      .set("Authorization", `Bearer ${tokenAlumno}`);
+    expect(resSolicitar.status).toBe(200);
+
+    const resCancelar = await request(app)
+      .patch(`/api/slots/${idTurnoNuevo}/cancelar`)
+      .set("Authorization", `Bearer ${tokenAlumno}`);
+    expect(resCancelar.status).toBe(200);
+  });
+
+  test("Filtro de turnos por cohorte devuelve resultados coherentes", async () => {
+    const res = await request(app)
+      .get(`/api/slots?cohort=1`)
+      .set("Authorization", `Bearer ${tokenAlumno}`);
+    expect(res.status).toBe(200);
+    expect(res.body[0]?.cohort).toBe(1);
+  });
+
+  test("Superadmin puede listar todos los usuarios", async () => {
+    const res = await request(app)
+      .get(`/api/auth/usuarios`)
+      .set("Authorization", `Bearer ${tokenSuperadmin}`);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test("Profesor puede buscar alumnos registrados", async () => {
+    const res = await request(app)
+      .get(`/api/auth/usuarios?role=alumno`)
+      .set("Authorization", `Bearer ${tokenProfesor}`);
+    expect(res.status).toBe(200);
+    expect(res.body.some((u) => u.role === "alumno")).toBe(true);
   });
 });

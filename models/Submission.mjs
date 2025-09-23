@@ -26,10 +26,16 @@ const submissionSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    reviewStatus: {
+      type: String,
+      enum: ["revisar", "aprobado", "desaprobado"],
+      default: "revisar",
+    },
   },
   { timestamps: true }
 );
 
 export const Submission = mongoose.model("Submission", submissionSchema);
+
 
 

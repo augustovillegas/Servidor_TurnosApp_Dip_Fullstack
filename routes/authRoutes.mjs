@@ -1,5 +1,5 @@
 import express from "express";
-import { aprobarUsuarioController, loginController, registerController } from "../controllers/authController.mjs";
+import { aprobarUsuarioController, listarUsuariosController, loginController, registerController } from "../controllers/authController.mjs";
 import { registerValidator, loginValidator } from "../validators/authValidator.mjs";
 import { validateRequest } from "../middlewares/validationResult.mjs";
 import { auth } from "../middlewares/auth.mjs";
@@ -12,6 +12,8 @@ router.post("/login", loginValidator, validateRequest, loginController);
 router.post("/register", registerValidator, validateRequest, registerController);
 
 router.patch("/aprobar/:id", auth, allowRoles("superadmin","profesor"), aprobarUsuarioController);
+
+router.get("/usuarios", auth, allowRoles("superadmin", "profesor"), listarUsuariosController);
 
 
 export default router;
