@@ -36,7 +36,7 @@ export const obtenerAsignacionPorIdController = async (req, res, next) => {
 
 export const actualizarAsignacionController = async (req, res, next) => {
   try {
-    const asignacion = await servicioAsignacion.actualizarAsignacion(req.params.id, req.body);
+    const asignacion = await servicioAsignacion.actualizarAsignacion(req.params.id, req.body, req.user);
     res.json(asignacion);
   } catch (err) {
     next(err);
@@ -45,7 +45,7 @@ export const actualizarAsignacionController = async (req, res, next) => {
 
 export const eliminarAsignacionController = async (req, res, next) => {
   try {
-    await servicioAsignacion.eliminarAsignacion(req.params.id);
+    await servicioAsignacion.eliminarAsignacion(req.params.id, req.user);
     res.status(204).end();
   } catch (err) {
     next(err);

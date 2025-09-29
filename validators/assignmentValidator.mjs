@@ -1,19 +1,13 @@
 import { body } from "express-validator";
 
 export const assignmentValidator = [
-  body("title", "El título es requerido").trim().notEmpty(),
-
-  body("description", "La descripción es requerida").trim().notEmpty(),
-
-  // module ya lo pone el controller → lo dejamos opcional
-  body("module")
-    .optional()
-    .isInt()
-    .withMessage("El módulo debe ser un número entero"),
-
-  // aceptar tanto dueDate como deadline
-  body(["dueDate"], "La fecha de entrega debe tener formato ISO (YYYY-MM-DD)")
+  body("title").notEmpty().withMessage("El título es requerido").trim(),
+  body("description").notEmpty().withMessage("La descripción es requerida").trim(),
+  body("module").isInt({ min: 1 }).withMessage("El módulo debe ser un número entero").toInt(),
+  body(["dueDate"])
     .notEmpty()
+    .withMessage("La fecha de entrega es requerida")
     .isISO8601()
+    .withMessage("Formato inválido (usar YYYY-MM-DD)")
     .toDate(),
 ];

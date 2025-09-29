@@ -1,29 +1,14 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userRepository from "../repository/userRepository.mjs";
+import { sanitizeUser } from "../utils/sanitizeUser.mjs";
 
-export const register = async ({
-  name,
-  nombre,
-  apellido,
-  email,
-  password,
-  cohort,
-  role = "alumno",
-}) => {
+export const register = async ({ name, nombre, apellido, email, password, cohort, role = "alumno" }) => {
   const exists = await userRepository.obtenerPorEmail(email);
-  if (exists) {
-    const err = new Error("Email ya registrado");
-    err.status = 400;
-    throw err;
-  }
+  if (exists) throw new Error("Email ya registrado");
 
   const fullName = name || [nombre, apellido].filter(Boolean).join(" ").trim();
-  if (!fullName) {
-    const err = new Error("El nombre es requerido");
-    err.status = 400;
-    throw err;
-  }
+  if (!fullName) throw new Error("El nombre es requerido");
 
   const passwordHash = await bcrypt.hash(password, 10);
 
@@ -36,26 +21,17 @@ export const register = async ({
     isApproved: false,
   });
 
-  return user;
+  return sanitizeUser(user);
 };
 
 export const login = async ({ email, password }) => {
   const user = await userRepository.obtenerPorEmail(email);
   const valid = user && (await bcrypt.compare(password, user.passwordHash));
+  if (!valid) throw new Error("Credenciales incorrectas");
 
-  if (!valid) {
-    const err = new Error("Credenciales incorrectas");
-    err.status = 401;
-    throw err;
-  }
+  const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
-
-  return { token, user };
+  return { token, user: sanitizeUser(user) };
 };
 
 export const aprobarUsuario = async (id) => {
@@ -64,8 +40,6 @@ export const aprobarUsuario = async (id) => {
 
 export const listarUsuarios = async (role) => {
   const all = await userRepository.obtenerTodos();
-  if (role) {
-    return all.filter((u) => u.role === role);
-  }
-  return all;
+  const filtered = role ? all.filter((u) => u.role === role) : all;
+  return filtered.map(sanitizeUser);
 };

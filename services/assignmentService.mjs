@@ -21,10 +21,7 @@ export const crearAsignacion = async (body, user) => {
 };
 
 export const obtenerTodasAsignaciones = async (user) => {
-  const filtro =
-    user.role === "profesor" && user.id
-      ? { createdBy: user.id }
-      : {};
+  const filtro = user.role === "profesor" && user.id ? { createdBy: user.id }: {};
   return await assignmentRepository.obtenerTodos(filtro);
 };
 
@@ -32,7 +29,14 @@ export const obtenerAsignacionPorId = async (id) => {
   return await assignmentRepository.obtenerPorId(id);
 };
 
-export const actualizarAsignacion = async (id, body) => {
+export const actualizarAsignacion = async (id, body, user) => {
+  const asignacion = await assignmentRepository.obtenerPorId(id);
+  if (!asignacion) throw new Error("Asignación no encontrada");
+
+  if (user.role !== "superadmin" && asignacion.createdBy?.toString() !== user.id) {
+    throw new Error("No autorizado a modificar esta asignación");
+  }
+  
   const { title, description, dueDate } = body;
   const data = {
     ...(title && { title }),
@@ -42,8 +46,13 @@ export const actualizarAsignacion = async (id, body) => {
   return await assignmentRepository.actualizar(id, data);
 };
 
-export const eliminarAsignacion = async (id) => {
+export const eliminarAsignacion = async (id, user) => {
+  const asignacion = await assignmentRepository.obtenerPorId(id);
+  if (!asignacion) throw new Error("Asignación no encontrada");
+  
+  if (user.role !== "superadmin" && asignacion.createdBy?.toString() !== user.id) {
+    throw new Error("No autorizado a eliminar esta asignación");
+  }
+
   return await assignmentRepository.eliminar(id);
 };
-
-

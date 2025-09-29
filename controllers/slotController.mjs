@@ -61,7 +61,7 @@ export const obtenerMisTurnosController = async (req, res, next) => {
 
 export const misSolicitudesController = async (req, res, next) => {
   try {
-    const result = await slotService.obtenerSolicitudesPorAlumno(req.user._id);
+    const result = await slotService.obtenerSolicitudesPorAlumno(req.user.id);
     res.json(result);
   } catch (error) {
     next(error);

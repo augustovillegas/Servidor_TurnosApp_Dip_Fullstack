@@ -15,6 +15,16 @@ const slotSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    startTime: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+    endTime: {
+      type: String,
+      default: null,
+      trim: true,
+    },
     student: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
