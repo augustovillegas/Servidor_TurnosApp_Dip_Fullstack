@@ -1,5 +1,10 @@
 import * as authService from "../services/authService.mjs";
 
+// Verificación de disponibilidad sin dependencias externas
+export const pingController = (_req, res) => {
+  res.status(200).json({ status: "ok" });
+};
+
 // Registro de usuario
 export const registerController = async (req, res, next) => {
   try {
