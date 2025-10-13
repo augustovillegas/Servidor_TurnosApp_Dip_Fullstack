@@ -7,6 +7,9 @@ import authRoutes from "./routes/authRoutes.mjs";
 import submissionRoutes from "./routes/submissionRoutes.mjs";
 import assignmentRoutes from "./routes/assignmentRoutes.mjs";
 import slotRoutes from "./routes/slotRoutes.mjs";
+import turnosRoutes from "./routes/turnosRoutes.mjs";
+import entregasRoutes from "./routes/entregasRoutes.mjs";
+import usuariosRoutes from "./routes/usuariosRoutes.mjs";
 import { errorHandler } from "./middlewares/errorHandler.mjs";
 
 // Cargar variables de entorno
@@ -30,6 +33,9 @@ app.use(express.json());
 await conectarDB();
 
 // Rutas
+app.use("/turnos", turnosRoutes);
+app.use("/entregas", entregasRoutes);
+app.use("/usuarios", usuariosRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/submissions", submissionRoutes);

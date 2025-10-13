@@ -26,7 +26,12 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  isApproved: { type: Boolean, default: false }
+  isApproved: { type: Boolean, default: false },
+  status: {
+    type: String,
+    enum: ["Pendiente", "Aprobado", "Rechazado"],
+    default: "Pendiente",
+  }
 }, { timestamps: true });
 
 export const User = mongoose.model("User", userSchema);

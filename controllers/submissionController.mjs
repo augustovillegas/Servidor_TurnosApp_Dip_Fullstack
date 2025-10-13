@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {
   crearEntrega,
   obtenerEntregasPorUsuario,
@@ -5,6 +6,7 @@ import {
   actualizarEntrega,
   eliminarEntrega,
 } from "../services/submissionService.mjs";
+import * as frontendSubmissionService from "../services/frontendSubmissionService.mjs";
 
 export const crearEntregaController = async (req, res, next) => {
   try {
@@ -51,3 +53,72 @@ export const eliminarEntregaController = async (req, res, next) => {
   }
 };
 
+export const listarEntregasFrontendController = async (req, res, next) => {
+  try {
+    const entregas = await frontendSubmissionService.listarEntregas(req.query);
+    res.json(entregas);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const obtenerEntregaFrontendController = async (req, res, next) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    const entrega = await frontendSubmissionService.obtenerEntrega(
+      req.params.id
+    );
+    if (!entrega) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    res.json(entrega);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const crearEntregaFrontendController = async (req, res, next) => {
+  try {
+    const entrega = await frontendSubmissionService.crearEntrega(req.body);
+    res.status(201).json(entrega);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const actualizarEntregaFrontendController = async (req, res, next) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    const entrega = await frontendSubmissionService.actualizarEntrega(
+      req.params.id,
+      req.body
+    );
+    if (!entrega) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    res.json(entrega);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const eliminarEntregaFrontendController = async (req, res, next) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    const eliminada = await frontendSubmissionService.eliminarEntrega(
+      req.params.id
+    );
+    if (!eliminada) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+};

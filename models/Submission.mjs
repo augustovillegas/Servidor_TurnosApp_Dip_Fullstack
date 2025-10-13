@@ -5,12 +5,22 @@ const submissionSchema = new mongoose.Schema(
     assignment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Assignment",
-      required: true,
+      required: false,
     },
     student: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
+    },
+    alumnoNombre: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    sprint: {
+      type: Number,
+      default: 1,
+      min: 1,
     },
     githubLink: {
       type: String,
@@ -30,6 +40,11 @@ const submissionSchema = new mongoose.Schema(
       type: String,
       enum: ["revisar", "aprobado", "desaprobado"],
       default: "revisar",
+    },
+    estado: {
+      type: String,
+      enum: ["A revisar", "Aprobado", "Rechazado"],
+      default: "A revisar",
     },
   },
   { timestamps: true }

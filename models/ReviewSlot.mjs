@@ -5,11 +5,16 @@ const slotSchema = new mongoose.Schema(
     assignment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Assignment",
-      required: true,
+      required: false,
     },
     cohort: {
       type: Number,
       required: true,
+    },
+    reviewNumber: {
+      type: Number,
+      default: 1,
+      min: 1,
     },
     date: {
       type: Date,
@@ -25,6 +30,24 @@ const slotSchema = new mongoose.Schema(
       default: null,
       trim: true,
     },
+    start: {
+      type: Date,
+      default: null,
+    },
+    end: {
+      type: Date,
+      default: null,
+    },
+    room: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    zoomLink: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     student: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -38,6 +61,16 @@ const slotSchema = new mongoose.Schema(
       type: String,
       enum: ["revisar", "aprobado", "desaprobado"],
       default: "revisar",
+    },
+    estado: {
+      type: String,
+      enum: ["Disponible", "Solicitado", "Aprobado", "Rechazado"],
+      default: "Disponible",
+    },
+    comentarios: {
+      type: String,
+      trim: true,
+      default: "",
     },
   },
   { timestamps: true }
