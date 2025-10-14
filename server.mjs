@@ -36,10 +36,10 @@ await conectarDB();
 app.use("/turnos", turnosRoutes);
 app.use("/entregas", entregasRoutes);
 app.use("/usuarios", usuariosRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/assignments", assignmentRoutes);
-app.use("/api/submissions", submissionRoutes);
-app.use("/api/slots", slotRoutes);
+app.use("/auth", authRoutes);
+app.use("/assignments", assignmentRoutes);
+app.use("/submissions", submissionRoutes);
+app.use("/slots", slotRoutes);
 
 // Middleware de manejo de errores
 app.use(errorHandler);
