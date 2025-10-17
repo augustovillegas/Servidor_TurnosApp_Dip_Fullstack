@@ -61,7 +61,7 @@ describe.sequential("Slots", () => {
     const slotId = turnoRes.res.body._id;
 
     const aprobado = await request(app)
-      .patch(`/api/slots/${slotId}/estado`)
+      .patch(`/slots/${slotId}/estado`)
       .set("Authorization", `Bearer ${context.profesorOwner.token}`)
       .send({ estado: "aprobado" });
 
@@ -69,7 +69,7 @@ describe.sequential("Slots", () => {
     expect(aprobado.body.reviewStatus).toBe("aprobado");
 
     const pendiente = await request(app)
-      .patch(`/api/slots/${slotId}/estado`)
+      .patch(`/slots/${slotId}/estado`)
       .set("Authorization", `Bearer ${context.profesorOwner.token}`)
       .send({ estado: "pendiente" });
 
@@ -83,7 +83,7 @@ describe.sequential("Slots", () => {
     const slotId = turnoRes.res.body._id;
 
     const intento = await request(app)
-      .patch(`/api/slots/${slotId}/estado`)
+      .patch(`/slots/${slotId}/estado`)
       .set("Authorization", `Bearer ${context.alumnoC1.token}`)
       .send({ estado: "aprobado" });
 
@@ -97,7 +97,7 @@ describe.sequential("Slots", () => {
     const slotId = turnoRes.res.body._id;
 
     const cambio = await request(app)
-      .patch(`/api/slots/${slotId}/estado`)
+      .patch(`/slots/${slotId}/estado`)
       .set("Authorization", `Bearer ${context.profesorOwner.token}`)
       .send({ estado: "desconocido" });
 
@@ -118,3 +118,4 @@ describe.sequential("Slots", () => {
     expect(segunda.body.msg).toContain("Turno ya reservado");
   });
 });
+

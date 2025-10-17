@@ -1,25 +1,42 @@
 import { ReviewSlot } from "../models/ReviewSlot.mjs";
 import { IRepository } from "./IRepository.mjs";
 
+function populateSlot(query) {
+  return query
+    .populate({
+      path: "assignment",
+      select: "module title description createdBy",
+    })
+    .populate({
+      path: "student",
+      select: "name role cohort",
+    });
+}
+
 class SlotRepository extends IRepository {
   async obtenerTodos(filtro = {}) {
-    return await ReviewSlot.find(filtro);
+    const query = ReviewSlot.find(filtro);
+    return await populateSlot(query);
   }
   async obtenerPorId(id) {
-    return await ReviewSlot.findById(id);
+    const query = ReviewSlot.findById(id);
+    return await populateSlot(query);
   }
   async obtenerPorAssignment(assignmentId) {
-    return await ReviewSlot.find({ assignment: assignmentId });
+    const query = ReviewSlot.find({ assignment: assignmentId });
+    return await populateSlot(query);
   }
   async crear(data) {
-    return await ReviewSlot.create(data);
+    const creado = await ReviewSlot.create(data);
+    return await this.obtenerPorId(creado._id);
   }
   async actualizar(id, data) {
-    return await ReviewSlot.findByIdAndUpdate(id, data, { new: true });
+    await ReviewSlot.findByIdAndUpdate(id, data);
+    return await this.obtenerPorId(id);
   }
-  async eliminar(id) {return await ReviewSlot.findByIdAndDelete(id);
+  async eliminar(id) {
+    return await ReviewSlot.findByIdAndDelete(id);
   }
 }
 
 export default new SlotRepository();
-

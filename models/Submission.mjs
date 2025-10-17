@@ -22,6 +22,11 @@ const submissionSchema = new mongoose.Schema(
       default: 1,
       min: 1,
     },
+    module: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     githubLink: {
       type: String,
       required: true,

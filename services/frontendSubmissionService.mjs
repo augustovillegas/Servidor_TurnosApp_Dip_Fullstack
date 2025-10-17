@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Submission } from "../models/Submission.mjs";
+import { ensureModuleLabel, moduleToLabel } from "../utils/moduleMap.mjs";
 
 const ESTADO_TO_REVIEW_STATUS = {
   "A revisar": "revisar",
@@ -37,6 +38,7 @@ function toFrontend(submission) {
     ? submission.toObject({ virtuals: false })
     : submission;
   const estado = extractEstado(doc);
+  const modulo = doc.module || moduleToLabel(doc.assignment?.module);
   return {
     id: doc._id?.toString() || doc.id,
     sprint: doc.sprint ?? doc.assignment?.module ?? null,
@@ -47,6 +49,7 @@ function toFrontend(submission) {
     estado,
     alumno: doc.alumnoNombre || doc.student?.name || "",
     alumnoId: doc.student?._id?.toString() || doc.student?.toString() || null,
+    modulo: modulo || "",
     fechaEntrega: doc.createdAt
       ? new Date(doc.createdAt).toISOString()
       : null,
@@ -67,6 +70,13 @@ function buildPayload(input = {}) {
 
   if ("comentarios" in input) {
     payload.comentarios = normaliseString(input.comentarios);
+  }
+
+  if ("modulo" in input) {
+    const moduloLabel = ensureModuleLabel(input.modulo);
+    if (moduloLabel) {
+      payload.module = moduloLabel;
+    }
   }
 
   const sprintValue = coerceNumber(input.sprint);
@@ -103,20 +113,36 @@ function buildPayload(input = {}) {
 
 export async function listarEntregas(query = {}) {
   const filtro = {};
+  const moduloFiltro = ensureModuleLabel(query.modulo);
+
   if (query.alumno && mongoose.Types.ObjectId.isValid(query.alumno)) {
     filtro.student = query.alumno;
   } else if (query.alumnoNombre) {
     filtro.alumnoNombre = query.alumnoNombre;
   }
+  if (query.alumnoId && mongoose.Types.ObjectId.isValid(query.alumnoId)) {
+    filtro.student = query.alumnoId;
+  }
 
   if (query.estado && ESTADO_TO_REVIEW_STATUS[query.estado]) {
     filtro.estado = query.estado;
   }
+  if (moduloFiltro) {
+    filtro.module = moduloFiltro;
+  }
 
-  const submissions = await Submission.find(filtro)
+  let submissions = await Submission.find(filtro)
     .populate("student", "name role")
     .populate("assignment", "module title")
     .sort({ createdAt: -1 });
+
+  if (moduloFiltro) {
+    submissions = submissions.filter((submission) => {
+      const label =
+        submission.module || moduleToLabel(submission.assignment?.module);
+      return label && label === moduloFiltro;
+    });
+  }
 
   return submissions.map(toFrontend);
 }
@@ -145,11 +171,22 @@ export async function crearEntrega(data) {
     comentarios: payload.comentarios ?? "",
     estado: payload.estado ?? "A revisar",
     reviewStatus: payload.reviewStatus ?? "revisar",
+    module: payload.module ?? null,
   });
 
   const completo = await Submission.findById(submission._id)
     .populate("student", "name role")
     .populate("assignment", "module title");
+
+  if (!payload.module && completo?.assignment?.module) {
+    const moduleLabel = moduleToLabel(completo.assignment.module);
+    if (moduleLabel) {
+      completo.module = moduleLabel;
+      await Submission.findByIdAndUpdate(submission._id, {
+        module: moduleLabel,
+      });
+    }
+  }
 
   return toFrontend(completo);
 }
@@ -178,6 +215,9 @@ export async function actualizarEntrega(id, data) {
   if (payload.student !== undefined) {
     submission.student = payload.student;
   }
+  if (payload.module !== undefined) {
+    submission.module = payload.module;
+  }
   if (payload.alumnoNombre !== undefined) {
     submission.alumnoNombre = payload.alumnoNombre;
   }
@@ -192,6 +232,14 @@ export async function actualizarEntrega(id, data) {
   const actualizado = await Submission.findById(id)
     .populate("student", "name role")
     .populate("assignment", "module title");
+
+  if (!payload.module && payload.assignment && actualizado?.assignment?.module) {
+    const moduleLabel = moduleToLabel(actualizado.assignment.module);
+    if (moduleLabel) {
+      actualizado.module = moduleLabel;
+      await Submission.findByIdAndUpdate(id, { module: moduleLabel });
+    }
+  }
 
   return toFrontend(actualizado);
 }

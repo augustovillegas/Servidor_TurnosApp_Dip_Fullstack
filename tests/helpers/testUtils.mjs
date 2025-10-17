@@ -82,7 +82,7 @@ export async function ensureSuperadmin() {
 
   const app = await getApp();
   const loginRes = await request(app)
-    .post("/api/auth/login")
+    .post("/auth/login")
     .send({ email: "admin@app.com", password: "admin123" });
 
   if (loginRes.status !== 200) {
@@ -101,7 +101,7 @@ export async function ensureSuperadmin() {
 export async function registerAndLogin({ prefix, role = "alumno", cohort = 1, approvedByToken }) {
   const app = await getApp();
   const email = `${prefix}-${uniqueValue("user")}@test.com`;
-  const registerRes = await request(app).post("/api/auth/register").send({
+  const registerRes = await request(app).post("/auth/register").send({
     name: `${prefix} Test`,
     email,
     password,
@@ -119,7 +119,7 @@ export async function registerAndLogin({ prefix, role = "alumno", cohort = 1, ap
 
   if (approvedByToken) {
     const approveRes = await request(app)
-      .patch(`/api/auth/aprobar/${userId}`)
+      .patch(`/auth/aprobar/${userId}`)
       .set("Authorization", `Bearer ${approvedByToken}`);
 
     if (approveRes.status !== 200) {
@@ -129,7 +129,7 @@ export async function registerAndLogin({ prefix, role = "alumno", cohort = 1, ap
     }
   }
 
-  const loginRes = await request(app).post("/api/auth/login").send({ email, password });
+  const loginRes = await request(app).post("/auth/login").send({ email, password });
 
   if (loginRes.status !== 200) {
     throw new Error(
@@ -151,7 +151,7 @@ export async function crearAsignacion(token, overrides = {}) {
   };
 
   const res = await request(app)
-    .post("/api/assignments")
+    .post("/assignments")
     .set("Authorization", `Bearer ${token}`)
     .send(payload);
 
@@ -167,7 +167,7 @@ export async function crearTurno(token, assignmentId, overrides = {}) {
   };
 
   const res = await request(app)
-    .post("/api/slots")
+    .post("/slots")
     .set("Authorization", `Bearer ${token}`)
     .send(payload);
 
@@ -177,14 +177,14 @@ export async function crearTurno(token, assignmentId, overrides = {}) {
 export async function reservarTurno(token, slotId) {
   const app = await getApp();
   return await request(app)
-    .patch(`/api/slots/${slotId}/solicitar`)
+    .patch(`/slots/${slotId}/solicitar`)
     .set("Authorization", `Bearer ${token}`);
 }
 
 export async function cancelarTurno(token, slotId) {
   const app = await getApp();
   return await request(app)
-    .patch(`/api/slots/${slotId}/cancelar`)
+    .patch(`/slots/${slotId}/cancelar`)
     .set("Authorization", `Bearer ${token}`);
 }
 
@@ -197,7 +197,7 @@ export async function crearEntrega(token, slotId, overrides = {}) {
   if (overrides.comentarios !== undefined) payload.comentarios = overrides.comentarios;
 
   return await request(app)
-    .post(`/api/submissions/${slotId}`)
+    .post(`/submissions/${slotId}`)
     .set("Authorization", `Bearer ${token}`)
     .send(payload);
 }
@@ -278,3 +278,7 @@ export async function createBaseUsers() {
     alumnoC2,
   };
 }
+
+
+
+

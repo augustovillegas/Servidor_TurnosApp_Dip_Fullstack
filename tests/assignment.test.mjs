@@ -28,7 +28,7 @@ describe.sequential("Assignments", () => {
 
   test("Alumno no puede crear una asignacion", async () => {
     const res = await request(app)
-      .post("/api/assignments")
+      .post("/assignments")
       .set("Authorization", `Bearer ${context.alumnoC1.token}`)
       .send({
         title: "Intento invalido",
@@ -44,7 +44,7 @@ describe.sequential("Assignments", () => {
 
   test("Asignacion con dueDate invalido devuelve 400", async () => {
     const res = await request(app)
-      .post("/api/assignments")
+      .post("/assignments")
       .set("Authorization", `Bearer ${context.profesorOwner.token}`)
       .send({
         title: "Fecha invalida",
@@ -79,7 +79,7 @@ describe.sequential("Assignments", () => {
     const assignmentId = creada.body._id;
 
     const update = await request(app)
-      .put(`/api/assignments/${assignmentId}`)
+      .put(`/assignments/${assignmentId}`)
       .set("Authorization", `Bearer ${context.profesorAjeno.token}`)
       .send({
         title: "Actualizacion no permitida",
@@ -97,7 +97,7 @@ describe.sequential("Assignments", () => {
     const assignmentId = creada.body._id;
 
     const update = await request(app)
-      .put(`/api/assignments/${assignmentId}`)
+      .put(`/assignments/${assignmentId}`)
       .set("Authorization", `Bearer ${context.superadmin.token}`)
       .send({
         title: "Actualizada por superadmin",
@@ -116,14 +116,14 @@ describe.sequential("Assignments", () => {
     const assignmentId = creada.body._id;
 
     const eliminacion = await request(app)
-      .delete(`/api/assignments/${assignmentId}`)
+      .delete(`/assignments/${assignmentId}`)
       .set("Authorization", `Bearer ${context.profesorAjeno.token}`);
 
     expect(eliminacion.status).toBe(500);
     expect(eliminacion.body.msg).toContain("No autorizado");
 
     const consulta = await request(app)
-      .get(`/api/assignments/${assignmentId}`)
+      .get(`/assignments/${assignmentId}`)
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(consulta.status).toBe(200);
@@ -135,13 +135,13 @@ describe.sequential("Assignments", () => {
     const assignmentId = creada.body._id;
 
     const eliminacion = await request(app)
-      .delete(`/api/assignments/${assignmentId}`)
+      .delete(`/assignments/${assignmentId}`)
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(eliminacion.status).toBe(204);
 
     const consulta = await request(app)
-      .get(`/api/assignments/${assignmentId}`)
+      .get(`/assignments/${assignmentId}`)
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(consulta.status).toBe(404);
@@ -153,7 +153,7 @@ describe.sequential("Assignments", () => {
     await crearAsignacion(context.profesorAjeno.token, { title: "Asignacion ajena" });
 
     const listadoOwner = await request(app)
-      .get("/api/assignments")
+      .get("/assignments")
       .set("Authorization", `Bearer ${context.profesorOwner.token}`);
 
     expect(listadoOwner.status).toBe(200);
@@ -166,7 +166,7 @@ describe.sequential("Assignments", () => {
   test("Campos extra se ignoran al crear una asignacion", async () => {
     const nombreExtra = uniqueValue("campo-extra");
     const res = await request(app)
-      .post("/api/assignments")
+      .post("/assignments")
       .set("Authorization", `Bearer ${context.profesorOwner.token}`)
       .send({
         title: "Con campo extra",
@@ -181,4 +181,5 @@ describe.sequential("Assignments", () => {
     expect(res.body.campoExtra).toBeUndefined();
   });
 });
+
 

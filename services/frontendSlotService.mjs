@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 import slotRepository from "../repository/slotRepository.mjs";
+import {
+  ensureModuleLabel,
+  labelToModule,
+  moduleToLabel,
+} from "../utils/moduleMap.mjs";
 
 const ESTADO_TO_REVIEW_STATUS = {
   Disponible: "revisar",
@@ -22,6 +27,71 @@ const timeFormatter = new Intl.DateTimeFormat("en-GB", {
   hour12: false,
   timeZone: "UTC",
 });
+
+function normaliseObjectId(value) {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  if (value.toString) return value.toString();
+  return null;
+}
+
+function resolveModulo(doc) {
+  const assignmentModule = doc.assignment?.module;
+  if (assignmentModule !== undefined && assignmentModule !== null) {
+    const label = moduleToLabel(assignmentModule);
+    if (label) {
+      return label;
+    }
+  }
+
+  if (doc.module !== undefined && doc.module !== null) {
+    if (typeof doc.module === "string") {
+      const ensured = ensureModuleLabel(doc.module);
+      if (ensured) {
+        return ensured;
+      }
+    } else {
+      const label = moduleToLabel(doc.module);
+      if (label) {
+        return label;
+      }
+    }
+  }
+
+  if (doc.cohort !== undefined && doc.cohort !== null) {
+    const label = moduleToLabel(doc.cohort);
+    if (label) {
+      return label;
+    }
+  }
+
+  return null;
+}
+
+function resolveProfesorId(doc) {
+  const assignmentOwner = doc.assignment?.createdBy;
+  return normaliseObjectId(assignmentOwner ?? doc.profesorId);
+}
+
+function calculateDuracion(start, end, doc) {
+  if (start && end) {
+    const diff = Math.max(0, end.getTime() - start.getTime());
+    return Math.round(diff / (60 * 1000));
+  }
+  if (doc?.duracion !== undefined) {
+    const numeric = Number(doc.duracion);
+    if (!Number.isNaN(numeric)) {
+      return numeric;
+    }
+  }
+  if (doc?.duration !== undefined) {
+    const numeric = Number(doc.duration);
+    if (!Number.isNaN(numeric)) {
+      return numeric;
+    }
+  }
+  return null;
+}
 
 function coerceNumber(value) {
   const numeric = Number(value);
@@ -191,6 +261,10 @@ function toFrontend(slot) {
   const end = doc.end
     ? parseIsoDate(doc.end)
     : deriveEndFromLegacy(doc, start);
+  const modulo = resolveModulo(doc);
+  const solicitanteId = normaliseObjectId(doc.student?._id ?? doc.student);
+  const profesorId = resolveProfesorId(doc);
+  const duracion = calculateDuracion(start, end, doc);
 
   return {
     id: doc._id?.toString() || doc.id,
@@ -203,6 +277,12 @@ function toFrontend(slot) {
     start: start ? start.toISOString() : null,
     end: end ? end.toISOString() : null,
     comentarios: doc.comentarios || "",
+    titulo: doc.assignment?.title || doc.titulo || "",
+    descripcion: doc.assignment?.description || doc.descripcion || "",
+    modulo: modulo || "",
+    duracion,
+    solicitanteId,
+    profesorId,
   };
 }
 
@@ -258,6 +338,19 @@ function buildPersistencePayload(input = {}) {
     } else if (mongoose.Types.ObjectId.isValid(input.alumnoId)) {
       payload.student = new mongoose.Types.ObjectId(input.alumnoId);
     }
+  }
+
+  if (!("alumnoId" in input) && "solicitanteId" in input) {
+    if (!input.solicitanteId) {
+      payload.student = null;
+    } else if (mongoose.Types.ObjectId.isValid(input.solicitanteId)) {
+      payload.student = new mongoose.Types.ObjectId(input.solicitanteId);
+    }
+  }
+
+  const moduloValue = labelToModule(input.modulo);
+  if (moduloValue !== undefined) {
+    payload.cohort = moduloValue;
   }
 
   const cohortValue = coerceNumber(input.cohort);
@@ -374,12 +467,29 @@ export async function listarTurnos(query = {}) {
   if (reviewValue !== undefined) {
     filtro.reviewNumber = reviewValue;
   }
+  if (query.userId && mongoose.Types.ObjectId.isValid(query.userId)) {
+    filtro.student = query.userId;
+  }
 
   const raw = await slotRepository.obtenerTodos(filtro);
-  const mapped = raw.map(toFrontend);
+  let mapped = raw.map(toFrontend);
+
+  if (query.userId && !mongoose.Types.ObjectId.isValid(query.userId)) {
+    const userFilter = query.userId.toString().trim();
+    mapped = mapped.filter((slot) => slot.solicitanteId === userFilter);
+  }
+
+  if (query.modulo) {
+    const moduloNormalised = ensureModuleLabel(query.modulo);
+    if (moduloNormalised) {
+      mapped = mapped.filter(
+        (slot) => slot.modulo && slot.modulo.toUpperCase() === moduloNormalised
+      );
+    }
+  }
 
   if (query.estado && VALID_ESTADOS.includes(query.estado)) {
-    return mapped.filter((slot) => slot.estado === query.estado);
+    mapped = mapped.filter((slot) => slot.estado === query.estado);
   }
 
   return mapped;

@@ -85,7 +85,7 @@ describe.sequential("Submissions", () => {
     });
 
     const res = await request(app)
-      .get(`/api/submissions/${context.alumnoC1.id}`)
+      .get(`/submissions/${context.alumnoC1.id}`)
       .set("Authorization", `Bearer ${context.alumnoC2.token}`);
 
     expect(res.status).toBe(500);
@@ -99,7 +99,7 @@ describe.sequential("Submissions", () => {
     });
 
     const update = await request(app)
-      .put(`/api/submissions/${submission.submissionId}`)
+      .put(`/submissions/${submission.submissionId}`)
       .set("Authorization", `Bearer ${context.alumnoC2.token}`)
       .send({ renderLink: "https://example.com/render" });
 
@@ -114,7 +114,7 @@ describe.sequential("Submissions", () => {
     });
 
     const res = await request(app)
-      .get(`/api/submissions/${context.alumnoC1.id}`)
+      .get(`/submissions/${context.alumnoC1.id}`)
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(res.status).toBe(200);
@@ -129,7 +129,7 @@ describe.sequential("Submissions", () => {
     });
 
     const aprobacion = await request(app)
-      .put(`/api/submissions/${submission.submissionId}`)
+      .put(`/submissions/${submission.submissionId}`)
       .set("Authorization", `Bearer ${context.profesorOwner.token}`)
       .send({ reviewStatus: "aprobado" });
 
@@ -137,7 +137,7 @@ describe.sequential("Submissions", () => {
     expect(aprobacion.body.reviewStatus).toBe("aprobado");
 
     const intentoAlumno = await request(app)
-      .put(`/api/submissions/${submission.submissionId}`)
+      .put(`/submissions/${submission.submissionId}`)
       .set("Authorization", `Bearer ${context.alumnoC1.token}`)
       .send({ renderLink: "https://example.com/render" });
 
@@ -145,5 +145,6 @@ describe.sequential("Submissions", () => {
     expect(intentoAlumno.body.msg).toContain("No se puede modificar una entrega ya evaluada");
   });
 });
+
 
 

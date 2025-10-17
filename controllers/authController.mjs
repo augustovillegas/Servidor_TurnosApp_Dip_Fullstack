@@ -25,6 +25,20 @@ export const loginController = async (req, res, next) => {
   }
 };
 
+export const sessionController = async (req, res, next) => {
+  try {
+    const user = await authService.getUserById(req.user?.id);
+    if (!user) {
+      return res
+        .status(401)
+        .json({ message: "Sesión inválida", msg: "Sesión inválida" });
+    }
+    res.status(200).json({ user });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Aprobar usuario
 export const aprobarUsuarioController = async (req, res, next) => {
   try {

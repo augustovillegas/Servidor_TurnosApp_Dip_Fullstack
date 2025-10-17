@@ -28,7 +28,7 @@ describe.sequential("Users", () => {
 
   test("Superadmin puede listar usuarios y los datos sensibles no se exponen", async () => {
     const res = await request(app)
-      .get("/api/auth/usuarios")
+      .get("/auth/usuarios")
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(res.status).toBe(200);
@@ -40,7 +40,7 @@ describe.sequential("Users", () => {
 
   test("Profesor puede filtrar usuarios por rol", async () => {
     const res = await request(app)
-      .get("/api/auth/usuarios?role=alumno")
+      .get("/auth/usuarios?role=alumno")
       .set("Authorization", `Bearer ${context.profesorOwner.token}`);
 
     expect(res.status).toBe(200);
@@ -52,7 +52,7 @@ describe.sequential("Users", () => {
 
   test("Alumno recibe 403 al listar usuarios", async () => {
     const res = await request(app)
-      .get("/api/auth/usuarios")
+      .get("/auth/usuarios")
       .set("Authorization", `Bearer ${context.alumnoC1.token}`);
 
     expect(res.status).toBe(403);
@@ -67,7 +67,7 @@ describe.sequential("Users", () => {
     });
 
     const approveRes = await request(app)
-      .patch(`/api/auth/aprobar/${pendiente.id}`)
+      .patch(`/auth/aprobar/${pendiente.id}`)
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(approveRes.status).toBe(200);
@@ -75,3 +75,4 @@ describe.sequential("Users", () => {
     expect(body.isApproved).toBe(true);
   });
 });
+

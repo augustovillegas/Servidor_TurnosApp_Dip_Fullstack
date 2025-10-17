@@ -1,5 +1,10 @@
 import userRepository from "../repository/userRepository.mjs";
 import { register } from "./authService.mjs";
+import {
+  ensureModuleLabel,
+  labelToModule,
+  moduleToLabel,
+} from "../utils/moduleMap.mjs";
 
 const VALID_ROLES = ["alumno", "profesor", "superadmin"];
 const VALID_ESTADOS = ["Pendiente", "Aprobado", "Rechazado"];
@@ -38,6 +43,7 @@ function mapToFrontend(user) {
     rol: capitalise(plain.role),
     estado: mapEstado(plain),
     cohort: plain.cohort,
+    modulo: moduleToLabel(plain.cohort) || "",
     creadoEn: plain.createdAt ? new Date(plain.createdAt).toISOString() : null,
   };
 }
@@ -46,11 +52,18 @@ export async function listarUsuarios(query = {}) {
   const usuarios = await userRepository.obtenerTodos();
   const estadoFiltro = normaliseEstado(query.estado);
   const rolFiltro = normaliseRole(query.rol);
+  const moduloFiltro = ensureModuleLabel(query.modulo);
 
   return usuarios
     .filter((usuario) => {
       if (estadoFiltro && mapEstado(usuario) !== estadoFiltro) return false;
       if (rolFiltro && usuario.role !== rolFiltro) return false;
+      if (moduloFiltro) {
+        const usuarioModulo = moduleToLabel(usuario.cohort);
+        if (!usuarioModulo || usuarioModulo.toUpperCase() !== moduloFiltro) {
+          return false;
+        }
+      }
       return true;
     })
     .map(mapToFrontend);
@@ -74,7 +87,19 @@ export async function crearUsuario(data) {
 
   const rol = normaliseRole(data.rol) || "alumno";
   const estado = normaliseEstado(data.estado) || "Pendiente";
-  const cohort = Number(data.cohort) || 1;
+  const moduloSeleccionado = ensureModuleLabel(data.modulo);
+  const cohortDesdeModulo =
+    moduloSeleccionado !== undefined && moduloSeleccionado !== null
+      ? labelToModule(moduloSeleccionado)
+      : undefined;
+  let cohort = cohortDesdeModulo;
+  if (cohort === undefined) {
+    const parsed = Number(data.cohort);
+    cohort = Number.isNaN(parsed) ? undefined : parsed;
+  }
+  if (cohort === undefined) {
+    cohort = 1;
+  }
 
   const creado = await register({
     name: data.nombre,
@@ -109,6 +134,17 @@ export async function actualizarUsuario(id, data) {
   const rol = normaliseRole(data.rol);
   if (rol) {
     usuario.role = rol;
+  }
+
+  if (data.modulo !== undefined) {
+    const moduloSeleccionado = ensureModuleLabel(data.modulo);
+    const cohortDesdeModulo =
+      moduloSeleccionado !== undefined && moduloSeleccionado !== null
+        ? labelToModule(moduloSeleccionado)
+        : undefined;
+    if (cohortDesdeModulo !== undefined) {
+      usuario.cohort = cohortDesdeModulo;
+    }
   }
 
   if (data.cohort !== undefined) {

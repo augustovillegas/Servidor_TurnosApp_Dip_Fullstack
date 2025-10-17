@@ -30,7 +30,7 @@ describe.sequential("Auth", () => {
   test("Registro de alumno válido deja pendiente la aprobación", async () => {
     const email = `${uniqueValue("alumno")}@test.com`;
 
-    const res = await request(app).post("/api/auth/register").send({
+    const res = await request(app).post("/auth/register").send({
       name: "Alumno Test",
       email,
       password,
@@ -46,7 +46,7 @@ describe.sequential("Auth", () => {
   test("Registro duplicado responde error de email ya registrado", async () => {
     const email = `${uniqueValue("duplicado")}@test.com`;
 
-    const first = await request(app).post("/api/auth/register").send({
+    const first = await request(app).post("/auth/register").send({
       name: "Original",
       email,
       password,
@@ -55,7 +55,7 @@ describe.sequential("Auth", () => {
     expect(first.status).toBe(201);
     expect(first.body.user.passwordHash).toBeUndefined();
 
-    const duplicate = await request(app).post("/api/auth/register").send({
+    const duplicate = await request(app).post("/auth/register").send({
       name: "Duplicado",
       email,
       password,
@@ -69,7 +69,7 @@ describe.sequential("Auth", () => {
   test("Login exitoso no expone passwordHash", async () => {
     const email = `${uniqueValue("login-ok")}@test.com`;
 
-    const registro = await request(app).post("/api/auth/register").send({
+    const registro = await request(app).post("/auth/register").send({
       name: "Login Ok",
       email,
       password,
@@ -78,7 +78,7 @@ describe.sequential("Auth", () => {
 
     expect(registro.status).toBe(201);
 
-    const loginOk = await request(app).post("/api/auth/login").send({ email, password });
+    const loginOk = await request(app).post("/auth/login").send({ email, password });
 
     expect(loginOk.status).toBe(200);
     expect(loginOk.body.user).toBeTruthy();
@@ -87,7 +87,7 @@ describe.sequential("Auth", () => {
 
   test("Login con contraseña incorrecta devuelve error", async () => {
     const email = `${uniqueValue("login")}@test.com`;
-    const registro = await request(app).post("/api/auth/register").send({
+    const registro = await request(app).post("/auth/register").send({
       name: "Login Test",
       email,
       password,
@@ -96,7 +96,7 @@ describe.sequential("Auth", () => {
 
     expect(registro.status).toBe(201);
 
-    const login = await request(app).post("/api/auth/login").send({
+    const login = await request(app).post("/auth/login").send({
       email,
       password: "incorrecta",
     });
@@ -113,14 +113,14 @@ describe.sequential("Auth", () => {
     });
 
     const approveRes = await request(app)
-      .patch(`/api/auth/aprobar/${profesor.id}`)
+      .patch(`/auth/aprobar/${profesor.id}`)
       .set("Authorization", `Bearer ${superadmin.token}`);
 
     expect(approveRes.status).toBe(200);
     expect(approveRes.body?.isApproved ?? approveRes.body?.user?.isApproved).toBe(true);
 
     const listado = await request(app)
-      .get("/api/auth/usuarios")
+      .get("/auth/usuarios")
       .set("Authorization", `Bearer ${superadmin.token}`);
 
     expect(listado.status).toBe(200);
@@ -137,12 +137,13 @@ describe.sequential("Auth", () => {
     });
 
     const res = await request(app)
-      .get("/api/auth/usuarios")
+      .get("/auth/usuarios")
       .set("Authorization", `Bearer ${alumno.token}`);
 
     expect(res.status).toBe(403);
     expect(res.body.msg).toContain("Acceso denegado");
   });
 });
+
 
 
