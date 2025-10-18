@@ -7,7 +7,12 @@ export const validateRequest = (req, res, next) => {
       campo: err.param,
       mensaje: err.msg,
     }));
-    return res.status(400).json({ errores: formatted });
+    const resumen = formatted.map((item) => item.mensaje).join("; ");
+    return res.status(400).json({
+      message: "Error de validacion",
+      msg: resumen || "Error de validacion",
+      errores: formatted,
+    });
   }
   next();
 };

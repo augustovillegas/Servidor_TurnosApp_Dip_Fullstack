@@ -7,12 +7,32 @@ export async function crear(data, usuario) {
     throw { status: 403, message: "No autorizado" };
   }
 
-  return await slotRepository.crear({
+  const cohortValue = Number(
+    data?.cohort ?? usuario?.cohort ?? 1
+  );
+  const payload = {
     ...data,
-    assignment: new mongoose.Types.ObjectId(data.assignment),
-    cohort: Number(data.cohort) || 1,
+    cohort: Number.isNaN(cohortValue) ? 1 : cohortValue,
     reviewStatus: "revisar",
-  });
+  };
+
+  if (data?.reviewNumber !== undefined) {
+    const reviewNumber = Number(data.reviewNumber);
+    payload.reviewNumber = Number.isNaN(reviewNumber) ? 1 : Math.max(1, reviewNumber);
+  } else if (!payload.reviewNumber) {
+    payload.reviewNumber = 1;
+  }
+
+  if (data?.assignment) {
+    if (!mongoose.Types.ObjectId.isValid(data.assignment)) {
+      throw { status: 400, message: "Assignment invalido" };
+    }
+    payload.assignment = new mongoose.Types.ObjectId(data.assignment);
+  } else {
+    delete payload.assignment;
+  }
+
+  return await slotRepository.crear(payload);
 }
 
 // Alumno solicita turno
@@ -63,11 +83,15 @@ export async function actualizarEstadoRevision(idTurno, estado, usuario) {
     cancelado: "desaprobado",
   };
 
-  if (!(estado in estadosValidos)) {
-    throw { status: 400, message: "Estado inválido" };
+  const estadoNormalizado = estado
+    ? estado.toString().trim().toLowerCase()
+    : "";
+
+  if (!estadoNormalizado || !(estadoNormalizado in estadosValidos)) {
+    throw { status: 400, message: "Estado invalido" };
   }
 
-  turno.reviewStatus = estadosValidos[estado];
+  turno.reviewStatus = estadosValidos[estadoNormalizado];
   await turno.save();
   return turno;
 }

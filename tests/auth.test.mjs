@@ -27,7 +27,7 @@ describe.sequential("Auth", () => {
     await disconnectTestDB();
   });
 
-  test("Registro de alumno válido deja pendiente la aprobación", async () => {
+  test("Registro de alumno valido deja pendiente la aprobacion", async () => {
     const email = `${uniqueValue("alumno")}@test.com`;
 
     const res = await request(app).post("/auth/register").send({
@@ -62,7 +62,7 @@ describe.sequential("Auth", () => {
       cohort: 2,
     });
 
-    expect(duplicate.status).toBe(500);
+    expect(duplicate.status).toBe(409);
     expect(duplicate.body.msg).toContain("Email ya registrado");
   });
 
@@ -85,7 +85,7 @@ describe.sequential("Auth", () => {
     expect(loginOk.body.user.passwordHash).toBeUndefined();
   });
 
-  test("Login con contraseña incorrecta devuelve error", async () => {
+  test("Login con contrasena incorrecta devuelve error", async () => {
     const email = `${uniqueValue("login")}@test.com`;
     const registro = await request(app).post("/auth/register").send({
       name: "Login Test",
@@ -101,7 +101,7 @@ describe.sequential("Auth", () => {
       password: "incorrecta",
     });
 
-    expect(login.status).toBe(500);
+    expect(login.status).toBe(401);
     expect(login.body.msg).toBe("Credenciales incorrectas");
   });
 

@@ -39,7 +39,7 @@ describe.sequential("Submissions", () => {
       githubLink: `https://github.com/${uniqueValue("repo")}`,
     });
 
-    expect(entrega.status).toBe(500);
+    expect(entrega.status).toBe(403);
     expect(entrega.body.msg).toContain("Debes reservar el turno");
   });
 
@@ -88,7 +88,7 @@ describe.sequential("Submissions", () => {
       .get(`/submissions/${context.alumnoC1.id}`)
       .set("Authorization", `Bearer ${context.alumnoC2.token}`);
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(403);
     expect(res.body.msg).toContain("No autorizado");
   });
 
@@ -103,7 +103,7 @@ describe.sequential("Submissions", () => {
       .set("Authorization", `Bearer ${context.alumnoC2.token}`)
       .send({ renderLink: "https://example.com/render" });
 
-    expect(update.status).toBe(500);
+    expect(update.status).toBe(403);
     expect(update.body.msg).toContain("No autorizado");
   });
 
@@ -141,7 +141,7 @@ describe.sequential("Submissions", () => {
       .set("Authorization", `Bearer ${context.alumnoC1.token}`)
       .send({ renderLink: "https://example.com/render" });
 
-    expect(intentoAlumno.status).toBe(500);
+    expect(intentoAlumno.status).toBe(409);
     expect(intentoAlumno.body.msg).toContain("No se puede modificar una entrega ya evaluada");
   });
 });
