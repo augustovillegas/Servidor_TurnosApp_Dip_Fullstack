@@ -2,18 +2,38 @@ import mongoose from "mongoose";
 import { Submission } from "../models/Submission.mjs";
 import { ensureModuleLabel, moduleToLabel } from "../utils/moduleMap.mjs";
 
-const ESTADO_TO_REVIEW_STATUS = {
-  "A revisar": "revisar",
-  Pendiente: "revisar",
-  Aprobado: "aprobado",
-  Rechazado: "desaprobado",
+const ESTADO_DEFAULT = "A revisar";
+const ESTADO_NORMALISED = new Set(["A revisar", "Aprobado", "Desaprobado"]);
+const ESTADO_ALIAS = {
+  revisar: "A revisar",
+  pendiente: "A revisar",
+  "a revisar": "A revisar",
+  aprobado: "Aprobado",
+  aprobada: "Aprobado",
+  desaprobado: "Desaprobado",
+  desaprobada: "Desaprobado",
+  rechazado: "Desaprobado",
+  rechazada: "Desaprobado",
 };
 
-const REVIEW_STATUS_TO_ESTADO = {
-  revisar: "A revisar",
-  aprobado: "Aprobado",
-  desaprobado: "Rechazado",
-};
+function normaliseEstado(value) {
+  if (value === undefined || value === null) return null;
+  const raw = value.toString().trim();
+  if (!raw) return null;
+  if (ESTADO_NORMALISED.has(raw)) {
+    return raw;
+  }
+  const lower = raw.toLowerCase();
+  return ESTADO_ALIAS[lower] || null;
+}
+
+function estadoDesdeDocumento(doc) {
+  return (
+    normaliseEstado(doc.estado) ??
+    normaliseEstado(doc.reviewStatus) ??
+    ESTADO_DEFAULT
+  );
+}
 
 function coerceNumber(value) {
   const numeric = Number(value);
@@ -26,10 +46,7 @@ function normaliseString(value) {
 }
 
 function extractEstado(doc) {
-  if (doc.estado && ESTADO_TO_REVIEW_STATUS[doc.estado]) {
-    return doc.estado;
-  }
-  return REVIEW_STATUS_TO_ESTADO[doc.reviewStatus] || "A revisar";
+  return estadoDesdeDocumento(doc);
 }
 
 function toFrontend(submission) {
@@ -84,10 +101,10 @@ function buildPayload(input = {}) {
     payload.sprint = sprintValue;
   }
 
-  const estado = input.estado || input.reviewStatus;
-  if (estado && ESTADO_TO_REVIEW_STATUS[estado]) {
+  const estado = normaliseEstado(input.estado ?? input.reviewStatus);
+  if (estado) {
     payload.estado = estado;
-    payload.reviewStatus = ESTADO_TO_REVIEW_STATUS[estado];
+    payload.reviewStatus = estado;
   }
 
   if ("alumnoId" in input) {
@@ -124,8 +141,15 @@ export async function listarEntregas(query = {}) {
     filtro.student = query.alumnoId;
   }
 
-  if (query.estado && ESTADO_TO_REVIEW_STATUS[query.estado]) {
-    filtro.estado = query.estado;
+  const estadoFiltro = normaliseEstado(query.estado);
+  if (estadoFiltro) {
+    if (estadoFiltro === "A revisar") {
+      filtro.estado = { $in: ["A revisar", "Pendiente"] };
+    } else if (estadoFiltro === "Desaprobado") {
+      filtro.estado = { $in: ["Desaprobado", "Rechazado"] };
+    } else {
+      filtro.estado = estadoFiltro;
+    }
   }
   if (moduloFiltro) {
     filtro.module = moduloFiltro;
@@ -142,6 +166,12 @@ export async function listarEntregas(query = {}) {
         submission.module || moduleToLabel(submission.assignment?.module);
       return label && label === moduloFiltro;
     });
+  }
+
+  if (estadoFiltro) {
+    submissions = submissions.filter(
+      (submission) => extractEstado(submission) === estadoFiltro
+    );
   }
 
   return submissions.map(toFrontend);
@@ -169,8 +199,8 @@ export async function crearEntrega(data) {
     githubLink,
     renderLink: payload.renderLink ?? null,
     comentarios: payload.comentarios ?? "",
-    estado: payload.estado ?? "A revisar",
-    reviewStatus: payload.reviewStatus ?? "revisar",
+    estado: payload.estado ?? ESTADO_DEFAULT,
+    reviewStatus: payload.reviewStatus ?? ESTADO_DEFAULT,
     module: payload.module ?? null,
   });
 
@@ -223,8 +253,7 @@ export async function actualizarEntrega(id, data) {
   }
   if (payload.estado) {
     submission.estado = payload.estado;
-    submission.reviewStatus =
-      payload.reviewStatus ?? ESTADO_TO_REVIEW_STATUS[payload.estado];
+    submission.reviewStatus = payload.reviewStatus ?? payload.estado;
   }
 
   await submission.save();

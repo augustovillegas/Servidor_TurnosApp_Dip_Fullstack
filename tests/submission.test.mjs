@@ -60,7 +60,7 @@ describe.sequential("Submissions", () => {
     expect(entrega.body.errores[0].mensaje).toContain("github.com");
   });
 
-  test("Entrega valida queda en estado revisar tras reservar correctamente", async () => {
+test("Entrega valida queda en estado 'A revisar' tras reservar correctamente", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
     const slotId = turnoRes.res.body._id;
@@ -74,7 +74,7 @@ describe.sequential("Submissions", () => {
     });
 
     expect(entrega.status).toBe(201);
-    expect(entrega.body.reviewStatus).toBe("revisar");
+    expect(entrega.body.reviewStatus).toBe("A revisar");
     expect(entrega.body.githubLink).toContain("github.com/");
   });
 
@@ -134,7 +134,7 @@ describe.sequential("Submissions", () => {
       .send({ reviewStatus: "aprobado" });
 
     expect(aprobacion.status).toBe(200);
-    expect(aprobacion.body.reviewStatus).toBe("aprobado");
+    expect(aprobacion.body.reviewStatus).toBe("Aprobado");
 
     const intentoAlumno = await request(app)
       .put(`/submissions/${submission.submissionId}`)

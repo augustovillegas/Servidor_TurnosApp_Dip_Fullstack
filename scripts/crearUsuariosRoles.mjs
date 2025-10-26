@@ -1,75 +1,100 @@
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+/**
+ * Crea profesores por módulo + alumnos por cohorte + pendientes.
+ * Emails garantizados en dominio .com (se normaliza cualquier entrada).
+ */
+import {
+  MODULES,
+  COHORTS,
+  toPasswordToken,
+  pad2,
+  connectMongo,
+  disconnectMongo,
+  queueUser,
+  hashPasswords,
+  validateEmailsCom,
+} from "./lib/seedUtils.mjs";
 import { User } from "../models/User.mjs";
 
-dotenv.config();
+export async function crearUsuariosRoles() {
+  const seedUsers = [];
 
-const usersToEnsure = [
-  {
-    name: "Alumno Demo",
-    email: "alumno@adminapp.com",
-    password: "Alumno#2025",
-    role: "alumno",
-    cohort: 1,
-  },
-  {
-    name: "Profesor Demo",
-    email: "profesor@adminapp.com",
-    password: "Profesor#2025",
-    role: "profesor",
-    cohort: 1,
-  },
-  {
-    name: "Superadmin Demo",
-    email: "superadmin@adminapp.com",
-    password: "Superadmin#2025",
-    role: "superadmin",
-    cohort: 1,
-  },
-];
+  for (const mod of MODULES) {
+    const token = toPasswordToken(mod.name);
 
-const main = async () => {
-  const uri = process.env.MONGO_URL;
-  if (!uri) {
-    console.error("No se encontró MONGO_URL en las variables de entorno.");
-    process.exit(1);
-  }
+    // Profesor por módulo
+    queueUser(seedUsers, {
+      role: "profesor",
+      nombre: `Nombre Profesor ${mod.name}`,
+      apellido: `Apellido Profesor ${mod.name}`,
+      email: `profesor.${mod.slug}@adminapp.com`, // si luego alguien cambia por @local, se re-normaliza
+      plainPassword: `Prof-${token}-123`,
+      moduloName: mod.name,
+      moduloSlug: mod.slug,
+      moduleCode: mod.code,
+      estado: "Aprobado",
+      cohortLabel: "2025-Q4",
+    });
 
-  await mongoose.connect(uri);
+    // Alumnos por cohorte
+    let studentIndex = 1;
+    for (const cohort of COHORTS) {
+      for (let i = 0; i < cohort.count; i++) {
+        const suffix = pad2(studentIndex++);
+        const minor = pad2(i + 1);
+        queueUser(seedUsers, {
+          role: "alumno",
+          nombre: `Alumno ${suffix}`,
+          apellido: mod.name,
+          email: `alumno.${mod.slug}.${minor}@adminapp.com`,
+          plainPassword: `Alumno-${token}-${minor}`,
+          moduloName: mod.name,
+          moduloSlug: mod.slug,
+          moduleCode: mod.code,
+          estado: "Aprobado",
+          cohortLabel: cohort.label,
+          isRecursante: cohort.isRecursante,
+        });
+      }
+    }
 
-  for (const userData of usersToEnsure) {
-    const existing = await User.findOne({ email: userData.email });
-    const passwordHash = await bcrypt.hash(userData.password, 10);
-
-    if (existing) {
-      existing.name = userData.name;
-      existing.passwordHash = passwordHash;
-      existing.role = userData.role;
-      existing.cohort = userData.cohort;
-      existing.isApproved = true;
-      existing.status = "Aprobado";
-      await existing.save();
-      console.log(`Actualizado usuario existente: ${userData.email}`);
-    } else {
-      await User.create({
-        name: userData.name,
-        email: userData.email,
-        passwordHash,
-        role: userData.role,
-        cohort: userData.cohort,
-        isApproved: true,
-        status: "Aprobado",
+    // 2 pendientes por módulo
+    for (let idx = 1; idx <= 2; idx++) {
+      const n = pad2(idx);
+      queueUser(seedUsers, {
+        role: "alumno",
+        nombre: `Pendiente ${n}`,
+        apellido: mod.name,
+        email: `pendiente.${mod.slug}.${n}@adminapp.com`,
+        plainPassword: `Pendiente-${token}-${n}`,
+        moduloName: mod.name,
+        moduloSlug: mod.slug,
+        moduleCode: mod.code,
+        estado: "Pendiente",
+        cohortLabel: "2025-Q4",
       });
-      console.log(`Creado usuario nuevo: ${userData.email}`);
     }
   }
 
-  await mongoose.disconnect();
-  console.log("Completado.");
-};
+  // ✅ verificación estricta .com
+  const invalid = validateEmailsCom(seedUsers);
+  if (invalid.length) {
+    const list = invalid.map((i) => i.document.email).join(", ");
+    throw new Error(`Emails inválidos (.com requerido): ${list}`);
+  }
 
-main().catch((error) => {
-  console.error("Fallo al crear usuarios:", error);
-  mongoose.disconnect().finally(() => process.exit(1));
-});
+  await connectMongo();
+  await hashPasswords(seedUsers);
+  await User.collection.insertMany(seedUsers.map((s) => s.document), { ordered: true });
+  await disconnectMongo();
+
+  return seedUsers;
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  crearUsuariosRoles()
+    .then(() => console.log("✅ Usuarios por rol/módulo creados."))
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    });
+}

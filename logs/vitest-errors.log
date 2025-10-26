@@ -1,0 +1,613 @@
+
+[1m[44m DEV [49m[22m [34mv3.2.4 [39m[90mC:/Users/Asus/Desktop/Gestion de turnos APP[39m
+
+[90mstdout[2m | tests/assignment.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+[90mstdout[2m | tests/submission.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+
+[90mstdout[2m | tests/assignment.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+[90mstdout[2m | tests/submission.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+[90mstdout[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+
+[90mstdout[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+
+[90mstdout[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments
+[22m[39m✅ Conectado a MongoDB
+
+[90mstdout[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments
+[22m[39m[DB] Limpiando colecciones...
+
+[90mstdout[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions
+[22m[39m✅ Conectado a MongoDB
+
+[90mstdout[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions
+[22m[39m[DB] Limpiando colecciones...
+
+[90mstdout[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments
+[22m[39m[DB] Colecciones limpiadas.
+
+[90mstdout[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions
+[22m[39m[DB] Colecciones limpiadas.
+
+[0mPOST /auth/login [32m200[0m 1695.967 ms - 543[0m
+[0mPOST /auth/login [32m200[0m 1592.016 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 795.185 ms - 289[0m
+[0mPOST /auth/register [32m201[0m 899.997 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe54dcf39359aa330e7316 [32m200[0m 286.968 ms - 278[0m
+[0mPATCH /auth/aprobar/68fe54dc1f378ecb4211e7d6 [32m200[0m 186.795 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 843.272 ms - 493[0m
+[0mPOST /auth/login [32m200[0m 827.493 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 1503.903 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe54dff39359aa330e731c [32m200[0m 158.542 ms - 278[0m
+[0mPOST /auth/register [32m201[0m 2060.220 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe54df1f378ecb4211e7dc [32m200[0m 171.833 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 940.489 ms - 493[0m
+[0mPOST /auth/login [32m200[0m 816.515 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 877.231 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe54e1f39359aa330e7322 [32m200[0m 157.992 ms - 274[0m
+[0mPOST /auth/register [32m201[0m 1016.191 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe54e11f378ecb4211e7e2 [32m200[0m 224.579 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 872.668 ms - 486[0m
+[0mPOST /auth/login [32m200[0m 549.408 ms - 486[0m
+[0mPOST /auth/register [32m201[0m 755.752 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe54e3f39359aa330e7328 [32m200[0m 156.573 ms - 274[0m
+[0mPOST /auth/register [32m201[0m 789.652 ms - 285[0m
+[0mPOST /auth/login [32m200[0m 392.447 ms - 486[0m
+[0mPATCH /auth/aprobar/68fe54e31f378ecb4211e7e8 [32m200[0m 166.563 ms - 274[0m
+[0mPOST /assignments [33m403[0m 77.985 ms - 25[0m
+[0mPOST /auth/login [32m200[0m 419.195 ms - 486[0m
+[0mPOST /assignments [32m201[0m 205.887 ms - 298[0m
+[0mPOST /slots [32m201[0m 344.554 ms - 547[0m
+[90mstderr[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions[2m > [22m[2mAlumno no puede entregar sin reservar turno previamente
+[22m[39mError: Debes reservar el turno antes de entregar
+
+[0mPOST /submissions/68fe54e41f378ecb4211e7f1 [33m403[0m 155.462 ms - 105[0m
+[0mPOST /auth/login [32m200[0m 383.855 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 438.083 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe54e6f39359aa330e7335 [32m200[0m 193.414 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 379.075 ms - 493[0m
+[0mPOST /auth/login [32m200[0m 392.474 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 469.690 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe54e7f39359aa330e733b [32m200[0m 163.027 ms - 278[0m
+[0mPOST /auth/register [32m201[0m 935.218 ms - 289[0m
+[0mPOST /auth/login [32m200[0m 557.744 ms - 493[0m
+[0mPATCH /auth/aprobar/68fe54e71f378ecb4211e7fe [32m200[0m 262.893 ms - 278[0m
+[0mPOST /auth/register [32m201[0m 572.933 ms - 285[0m
+[0mPOST /auth/login [32m200[0m 430.203 ms - 493[0m
+[0mPATCH /auth/aprobar/68fe54e8f39359aa330e7341 [32m200[0m 193.540 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 428.116 ms - 486[0m
+[0mPOST /auth/register [32m201[0m 695.253 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe54e91f378ecb4211e804 [32m200[0m 157.317 ms - 278[0m
+[0mPOST /auth/register [32m201[0m 427.650 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe54e9f39359aa330e7347 [32m200[0m 149.088 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 441.401 ms - 493[0m
+[0mPOST /auth/login [32m200[0m 456.672 ms - 486[0m
+[0mPOST /assignments [33m400[0m 107.527 ms - 139[0m
+[0mPOST /auth/register [32m201[0m 441.684 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe54ea1f378ecb4211e80a [32m200[0m 151.586 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 347.014 ms - 486[0m
+[0mPOST /auth/register [32m201[0m 403.064 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe54eb1f378ecb4211e810 [32m200[0m 196.394 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 354.613 ms - 486[0m
+[0mPOST /assignments [32m201[0m 161.138 ms - 299[0m
+[0mPOST /auth/login [32m200[0m 393.862 ms - 543[0m
+[0mPOST /slots [32m201[0m 294.310 ms - 548[0m
+[0mPATCH /slots/68fe54ec1f378ecb4211e819/solicitar [32m200[0m 300.219 ms - 570[0m
+[0mPOST /auth/register [32m201[0m 538.913 ms - 289[0m
+[0mPOST /submissions/68fe54ec1f378ecb4211e819 [33m400[0m 83.948 ms - 133[0m
+[0mPATCH /auth/aprobar/68fe54ecf39359aa330e7354 [32m200[0m 153.523 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 400.598 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 515.658 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe54edf39359aa330e735a [32m200[0m 173.878 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 589.219 ms - 493[0m
+[0mPOST /auth/login [32m200[0m 338.984 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 464.837 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe54eff39359aa330e7360 [32m200[0m 147.359 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 429.938 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 652.481 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe54ef1f378ecb4211e829 [32m200[0m 144.173 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 417.699 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 621.099 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe54f0f39359aa330e7366 [32m200[0m 155.081 ms - 275[0m
+[0mPOST /auth/register [32m201[0m 506.309 ms - 290[0m
+[0mPOST /auth/login [32m200[0m 342.098 ms - 487[0m
+[0mPATCH /auth/aprobar/68fe54f11f378ecb4211e82f [32m200[0m 148.512 ms - 279[0m
+[0mPOST /assignments [32m201[0m 160.879 ms - 299[0m
+[0mPOST /auth/login [32m200[0m 430.504 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 537.502 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe54f21f378ecb4211e835 [32m200[0m 147.022 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 442.734 ms - 487[0m
+[0mPOST /auth/login [32m200[0m 454.771 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 734.140 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe54f31f378ecb4211e83b [32m200[0m 161.149 ms - 275[0m
+[0mPOST /auth/register [32m201[0m 525.774 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe54f3f39359aa330e7375 [32m200[0m 143.513 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 421.726 ms - 487[0m
+[0mPOST /assignments [32m201[0m 172.867 ms - 299[0m
+[0mPOST /auth/login [32m200[0m 467.118 ms - 494[0m
+[0mPOST /slots [32m201[0m 301.370 ms - 548[0m
+[0mPATCH /slots/68fe54f41f378ecb4211e844/solicitar [32m200[0m 304.456 ms - 570[0m
+[0mPOST /auth/register [32m201[0m 564.241 ms - 290[0m
+[0mPOST /submissions/68fe54f41f378ecb4211e844 [32m201[0m 217.531 ms - 394[0m
+[0mPATCH /auth/aprobar/68fe54f5f39359aa330e737b [32m200[0m 150.410 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 593.632 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 461.265 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe54f6f39359aa330e7381 [32m200[0m 160.295 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 316.611 ms - 487[0m
+[0mPOST /auth/login [32m200[0m 305.298 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 524.770 ms - 286[0m
+[0mPOST /auth/register [32m201[0m 470.881 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe54f7f39359aa330e7387 [32m200[0m 183.019 ms - 275[0m
+[0mPATCH /auth/aprobar/68fe54f71f378ecb4211e857 [32m200[0m 179.903 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 483.574 ms - 487[0m
+[0mPOST /auth/login [32m200[0m 362.981 ms - 494[0m
+[0mPOST /assignments [32m201[0m 168.143 ms - 299[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mProfesor ajeno no puede actualizar asignacion de otro profesor
+[22m[39mError: No autorizado a modificar esta asignación
+Error: No autorizado a modificar esta asignación
+    at Module.actualizarAsignacion (C:\Users\Asus\Desktop\Gestion de turnos APP\services\assignmentService.mjs:37:11)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at actualizarAsignacionController (C:\Users\Asus\Desktop\Gestion de turnos APP\controllers\assignmentController.mjs:39:24)
+[0mPUT /assignments/68fe54f8f39359aa330e738d [31m500[0m 168.734 ms - 107[0m
+
+[0mPOST /auth/register [32m201[0m 547.924 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe54f81f378ecb4211e85d [32m200[0m 165.859 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 325.093 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 430.795 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe54f91f378ecb4211e863 [32m200[0m 152.273 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 341.612 ms - 543[0m
+[0mPOST /auth/login [32m200[0m 329.171 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 400.957 ms - 286[0m
+[0mPOST /auth/register [32m201[0m 440.194 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe54faf39359aa330e7398 [32m200[0m 148.702 ms - 279[0m
+[0mPATCH /auth/aprobar/68fe54fa1f378ecb4211e869 [32m200[0m 157.351 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 539.393 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 511.070 ms - 487[0m
+[0mPOST /assignments [32m201[0m 158.408 ms - 299[0m
+[0mPOST /auth/register [32m201[0m 447.968 ms - 290[0m
+[0mPOST /slots [32m201[0m 319.356 ms - 548[0m
+[0mPATCH /auth/aprobar/68fe54fbf39359aa330e739e [32m200[0m 157.966 ms - 279[0m
+[0mPATCH /slots/68fe54fb1f378ecb4211e872/solicitar [32m200[0m 452.872 ms - 570[0m
+[0mPOST /auth/login [32m200[0m 362.197 ms - 494[0m
+[0mPOST /submissions/68fe54fb1f378ecb4211e872 [32m201[0m 418.316 ms - 379[0m
+[0mPOST /auth/register [32m201[0m 397.170 ms - 286[0m
+[90mstderr[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions[2m > [22m[2mAlumno no puede ver entregas de otro alumno
+[22m[39mError: No autorizado a consultar entregas de otro alumno
+
+[0mGET /submissions/68fe54f91f378ecb4211e863 [33m403[0m 74.806 ms - 121[0m
+[0mPATCH /auth/aprobar/68fe54fcf39359aa330e73a4 [32m200[0m 160.210 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 365.942 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 414.585 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe54fdf39359aa330e73aa [32m200[0m 144.476 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 543.802 ms - 487[0m
+[0mPOST /auth/login [32m200[0m 387.734 ms - 543[0m
+[0mPOST /assignments [32m201[0m 164.907 ms - 299[0m
+[0mPUT /assignments/68fe54fef39359aa330e73b0 [32m200[0m 234.881 ms - 289[0m
+[0mPOST /auth/register [32m201[0m 407.435 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe54ff1f378ecb4211e886 [32m200[0m 148.280 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 288.399 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 424.780 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe55001f378ecb4211e88c [32m200[0m 160.016 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 391.019 ms - 543[0m
+[0mPOST /auth/login [32m200[0m 421.937 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 390.201 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5500f39359aa330e73bc [32m200[0m 163.940 ms - 279[0m
+[0mPOST /auth/register [32m201[0m 406.813 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe55011f378ecb4211e892 [32m200[0m 209.913 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 409.209 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 613.391 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 656.905 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5502f39359aa330e73c2 [32m200[0m 145.103 ms - 279[0m
+[0mPOST /auth/register [32m201[0m 478.956 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe55021f378ecb4211e898 [32m200[0m 142.933 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 385.761 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 400.472 ms - 487[0m
+[0mPOST /assignments [32m201[0m 178.036 ms - 299[0m
+[0mPOST /auth/register [32m201[0m 507.981 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe5503f39359aa330e73c8 [32m200[0m 161.208 ms - 275[0m
+[0mPOST /slots [32m201[0m 291.159 ms - 548[0m
+[0mPOST /auth/login [32m200[0m 322.883 ms - 487[0m
+[0mPATCH /slots/68fe55031f378ecb4211e8a1/solicitar [32m200[0m 285.539 ms - 570[0m
+[0mPOST /submissions/68fe55031f378ecb4211e8a1 [32m201[0m 254.916 ms - 379[0m
+[0mPOST /auth/register [32m201[0m 419.768 ms - 286[0m
+[90mstderr[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions[2m > [22m[2mAlumno no puede editar entrega de otro estudiante
+[22m[39mError: No autorizado a modificar esta entrega
+
+[0mPUT /submissions/68fe55041f378ecb4211e8ab [33m403[0m 145.141 ms - 99[0m
+[0mPATCH /auth/aprobar/68fe5504f39359aa330e73ce [32m200[0m 145.128 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 352.528 ms - 487[0m
+[0mPOST /assignments [32m201[0m 164.609 ms - 299[0m
+[0mDELETE /assignments/68fe5505f39359aa330e73d4 [31m500[0m 165.735 ms - 105[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mProfesor ajeno no puede eliminar asignacion y la misma sigue disponible
+[22m[39mError: No autorizado a eliminar esta asignación
+Error: No autorizado a eliminar esta asignación
+    at Module.eliminarAsignacion (C:\Users\Asus\Desktop\Gestion de turnos APP\services\assignmentService.mjs:54:11)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at eliminarAsignacionController (C:\Users\Asus\Desktop\Gestion de turnos APP\controllers\assignmentController.mjs:48:5)
+
+[0mGET /assignments/68fe5505f39359aa330e73d4 [32m200[0m 159.349 ms - 299[0m
+[0mPOST /auth/login [32m200[0m 374.127 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 582.054 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe55061f378ecb4211e8b6 [32m200[0m 135.562 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 369.677 ms - 543[0m
+[0mPOST /auth/login [32m200[0m 442.982 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 425.598 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5507f39359aa330e73e1 [32m200[0m 149.177 ms - 279[0m
+[0mPOST /auth/register [32m201[0m 606.805 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe55081f378ecb4211e8bc [32m200[0m 145.917 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 595.058 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 489.310 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 466.665 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5508f39359aa330e73e7 [32m200[0m 142.232 ms - 279[0m
+[0mPOST /auth/register [32m201[0m 512.310 ms - 286[0m
+[0mPOST /auth/login [32m200[0m 359.754 ms - 494[0m
+[0mPATCH /auth/aprobar/68fe55091f378ecb4211e8c2 [32m200[0m 153.194 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 416.434 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 509.978 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe5509f39359aa330e73ed [32m200[0m 143.737 ms - 275[0m
+[0mPOST /auth/register [32m201[0m 552.288 ms - 286[0m
+[0mPOST /auth/login [32m200[0m 339.563 ms - 487[0m
+[0mPATCH /auth/aprobar/68fe550a1f378ecb4211e8c8 [32m200[0m 138.083 ms - 275[0m
+[0mPOST /auth/register [32m201[0m 433.538 ms - 286[0m
+[0mPOST /auth/login [32m200[0m 294.040 ms - 487[0m
+[0mPATCH /auth/aprobar/68fe550af39359aa330e73f3 [32m200[0m 126.406 ms - 275[0m
+[0mPOST /assignments [32m201[0m 158.201 ms - 299[0m
+[0mPOST /auth/login [32m200[0m 287.950 ms - 487[0m
+[0mPOST /slots [32m201[0m 298.316 ms - 548[0m
+[0mPOST /assignments [32m201[0m 147.792 ms - 299[0m
+[0mPATCH /slots/68fe550b1f378ecb4211e8d1/solicitar [32m200[0m 305.623 ms - 570[0m
+[0mDELETE /assignments/68fe550bf39359aa330e73f9 [32m204[0m 201.327 ms - -[0m
+[0mGET /assignments/68fe550bf39359aa330e73f9 [33m404[0m 164.425 ms - 35[0m
+[0mPOST /submissions/68fe550b1f378ecb4211e8d1 [32m201[0m 226.384 ms - 379[0m
+[0mGET /submissions/68fe55091f378ecb4211e8c2 [32m200[0m 131.967 ms - 381[0m
+[0mPOST /auth/login [32m200[0m 342.521 ms - 543[0m
+[0mPOST /auth/login [32m200[0m 295.690 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 403.023 ms - 290[0m
+[0mPOST /auth/register [32m201[0m 431.326 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe550ef39359aa330e7407 [32m200[0m 149.274 ms - 279[0m
+[0mPATCH /auth/aprobar/68fe550e1f378ecb4211e8e6 [32m200[0m 185.456 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 569.096 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 454.820 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 341.872 ms - 290[0m
+[0mPOST /auth/register [32m201[0m 316.916 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe550ff39359aa330e740d [32m200[0m 148.603 ms - 279[0m
+[0mPATCH /auth/aprobar/68fe550f1f378ecb4211e8ec [32m200[0m 151.859 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 322.719 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 435.500 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 409.297 ms - 286[0m
+[0mPOST /auth/register [32m201[0m 375.948 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe55101f378ecb4211e8f2 [32m200[0m 131.729 ms - 275[0m
+[0mPATCH /auth/aprobar/68fe5510f39359aa330e7413 [32m200[0m 128.830 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 307.098 ms - 487[0m
+[0mPOST /auth/login [32m200[0m 262.583 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 331.234 ms - 286[0m
+[0mPOST /auth/register [32m201[0m 364.581 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe55111f378ecb4211e8f8 [32m200[0m 148.244 ms - 275[0m
+[0mPATCH /auth/aprobar/68fe5511f39359aa330e7419 [32m200[0m 155.340 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 317.067 ms - 487[0m
+[0mPOST /auth/login [32m200[0m 277.967 ms - 487[0m
+[0mPOST /assignments [32m201[0m 151.399 ms - 299[0m
+[0mPOST /assignments [32m201[0m 144.909 ms - 279[0m
+[0mPOST /assignments [32m201[0m 126.815 ms - 279[0m
+[0mPOST /slots [32m201[0m 272.172 ms - 548[0m
+[0mPOST /assignments [32m201[0m 143.067 ms - 283[0m
+[0mGET /assignments [32m200[0m 137.404 ms - 561[0m
+[0mPATCH /slots/68fe55111f378ecb4211e901/solicitar [32m200[0m 305.185 ms - 570[0m
+[0mPOST /submissions/68fe55111f378ecb4211e901 [32m201[0m 252.862 ms - 379[0m
+[0mPUT /submissions/68fe55121f378ecb4211e90b [32m200[0m 237.532 ms - 377[0m
+[90mstderr[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions[2m > [22m[2mProfesor creador puede aprobar una entrega y el alumno ya no puede modificarla
+[22m[39mError: No se puede modificar una entrega ya evaluada
+
+[0mPUT /submissions/68fe55121f378ecb4211e90b [33m409[0m 147.351 ms - 113[0m
+ [32m✓[39m tests/submission.test.mjs [2m([22m[2m7 tests[22m[2m)[22m[33m 69898[2mms[22m[39m
+   [33m[2m✓[22m[39m Submissions[2m > [22mAlumno no puede entregar sin reservar turno previamente [33m 15629[2mms[22m[39m
+   [33m[2m✓[22m[39m Submissions[2m > [22mEntrega rechaza links que no son de GitHub [33m 8042[2mms[22m[39m
+   [33m[2m✓[22m[39m Submissions[2m > [22mEntrega valida queda en estado 'A revisar' tras reservar correctamente [33m 8357[2mms[22m[39m
+   [33m[2m✓[22m[39m Submissions[2m > [22mAlumno no puede ver entregas de otro alumno [33m 7650[2mms[22m[39m
+   [33m[2m✓[22m[39m Submissions[2m > [22mAlumno no puede editar entrega de otro estudiante [33m 7392[2mms[22m[39m
+   [33m[2m✓[22m[39m Submissions[2m > [22mSuperadmin puede consultar entregas de cualquier alumno [33m 7811[2mms[22m[39m
+   [33m[2m✓[22m[39m Submissions[2m > [22mProfesor creador puede aprobar una entrega y el alumno ya no puede modificarla [33m 6915[2mms[22m[39m
+[0mPOST /auth/login [32m200[0m 261.800 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 334.691 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5514f39359aa330e7430 [32m200[0m 137.649 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 316.803 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 417.518 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5515f39359aa330e7436 [32m200[0m 149.465 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 304.234 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 458.555 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe5516f39359aa330e743c [32m200[0m 161.767 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 319.128 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 433.459 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe5517f39359aa330e7442 [32m200[0m 171.018 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 323.302 ms - 487[0m
+[0mPOST /assignments [32m201[0m 163.028 ms - 284[0m
+ [32m✓[39m tests/assignment.test.mjs [2m([22m[2m9 tests[22m[2m)[22m[33m 74991[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mAlumno no puede crear una asignacion [33m 14592[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mAsignacion con dueDate invalido devuelve 400 [33m 6638[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mAsignacion valida conserva ownership del profesor creador [33m 6806[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mProfesor ajeno no puede actualizar asignacion de otro profesor [33m 7423[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mSuperadmin puede actualizar asignacion ajena [33m 6380[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mProfesor ajeno no puede eliminar asignacion y la misma sigue disponible [33m 6373[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mSuperadmin puede eliminar asignacion de terceros [33m 6548[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mListado para profesor devuelve solo sus asignaciones [33m 6302[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mCampos extra se ignoran al crear una asignacion [33m 5719[2mms[22m[39m
+[90mstdout[2m | tests/slot.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+[90mstdout[2m | tests/slot.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+[90mstdout[2m | tests/slot.test.mjs[2m > [22m[2mSlots
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+
+[90mstdout[2m | tests/slot.test.mjs[2m > [22m[2mSlots
+[22m[39m✅ Conectado a MongoDB
+
+[90mstdout[2m | tests/slot.test.mjs[2m > [22m[2mSlots
+[22m[39m[DB] Limpiando colecciones...
+
+[90mstdout[2m | tests/user.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+
+[90mstdout[2m | tests/user.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+
+[90mstdout[2m | tests/slot.test.mjs[2m > [22m[2mSlots
+[22m[39m[DB] Colecciones limpiadas.
+
+[90mstdout[2m | tests/user.test.mjs[2m > [22m[2mUsers
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+[0mPOST /auth/login [32m200[0m 459.461 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 436.934 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe5520a28f9c56f21a87bd [32m200[0m 201.787 ms - 278[0m
+[90mstdout[2m | tests/user.test.mjs[2m > [22m[2mUsers
+[22m[39m✅ Conectado a MongoDB
+
+[90mstdout[2m | tests/user.test.mjs[2m > [22m[2mUsers
+[22m[39m[DB] Limpiando colecciones...
+
+[0mPOST /auth/login [32m200[0m 286.875 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 343.233 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe5521a28f9c56f21a87c3 [32m200[0m 138.699 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 257.750 ms - 493[0m
+[90mstdout[2m | tests/user.test.mjs[2m > [22m[2mUsers
+[22m[39m[DB] Colecciones limpiadas.
+
+[0mPOST /auth/register [32m201[0m 388.632 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe5522a28f9c56f21a87c9 [32m200[0m 165.424 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 322.414 ms - 486[0m
+[0mPOST /auth/register [32m201[0m 376.020 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe5523a28f9c56f21a87cf [32m200[0m 142.754 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 383.528 ms - 543[0m
+[0mPOST /auth/login [32m200[0m 285.648 ms - 486[0m
+[0mPOST /assignments [32m201[0m 145.620 ms - 298[0m
+[0mPOST /auth/register [32m201[0m 364.452 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe5524293b4a295ec867fc [32m200[0m 160.143 ms - 278[0m
+[0mPOST /slots [32m201[0m 319.350 ms - 547[0m
+[90mstderr[2m | tests/slot.test.mjs[2m > [22m[2mSlots[2m > [22m[2mAlumno de otra cohorte no puede reservar un turno
+[22m[39mError: Cohorte no coincide
+
+[0mPATCH /slots/68fe5524a28f9c56f21a87d8/solicitar [33m403[0m 226.171 ms - 61[0m
+[0mPOST /auth/login [32m200[0m 316.782 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 406.501 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe5525293b4a295ec86802 [32m200[0m 140.015 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 293.852 ms - 493[0m
+[0mPOST /auth/login [32m200[0m 270.353 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 388.398 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe5526293b4a295ec86808 [32m200[0m 143.559 ms - 274[0m
+[0mPOST /auth/register [32m201[0m 324.256 ms - 289[0m
+[0mPOST /auth/login [32m200[0m 246.503 ms - 486[0m
+[0mPATCH /auth/aprobar/68fe5526a28f9c56f21a87e6 [32m200[0m 140.347 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 298.362 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 396.690 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe5526293b4a295ec8680e [32m200[0m 140.805 ms - 274[0m
+[0mPOST /auth/register [32m201[0m 377.006 ms - 289[0m
+[0mPOST /auth/login [32m200[0m 262.762 ms - 486[0m
+[0mPATCH /auth/aprobar/68fe5527a28f9c56f21a87ec [32m200[0m 152.811 ms - 278[0m
+[0mGET /auth/usuarios [32m200[0m 171.051 ms - 2525[0m
+[0mPOST /auth/login [32m200[0m 579.349 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 377.740 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe5528a28f9c56f21a87f2 [32m200[0m 141.960 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 261.364 ms - 486[0m
+[0mPOST /auth/login [32m200[0m 284.097 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 343.577 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe5529a28f9c56f21a87f8 [32m200[0m 128.187 ms - 274[0m
+[0mPOST /auth/register [32m201[0m 344.106 ms - 289[0m
+[0mPATCH /auth/aprobar/68fe5529293b4a295ec8681c [32m200[0m 138.777 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 286.469 ms - 486[0m
+[0mPOST /auth/login [32m200[0m 287.546 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 339.054 ms - 303[0m
+[0mPOST /auth/register [32m201[0m 324.865 ms - 289[0m
+[0mPOST /auth/login [32m200[0m 251.867 ms - 506[0m
+[0mPATCH /auth/aprobar/68fe552a293b4a295ec86822 [32m200[0m 143.130 ms - 278[0m
+[0mPOST /assignments [32m201[0m 158.835 ms - 299[0m
+[0mPOST /auth/login [32m200[0m 301.158 ms - 493[0m
+[0mPOST /slots [32m201[0m 305.774 ms - 548[0m
+[0mPATCH /slots/68fe552aa28f9c56f21a8805/solicitar [33m403[0m 85.717 ms - 69[0m
+[0mPOST /auth/register [32m201[0m 414.889 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe552b293b4a295ec86828 [32m200[0m 146.901 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 295.798 ms - 486[0m
+[0mPOST /auth/register [32m201[0m 331.880 ms - 285[0m
+[0mPATCH /auth/aprobar/68fe552b293b4a295ec8682e [32m200[0m 152.607 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 251.227 ms - 543[0m
+[0mPOST /auth/login [32m200[0m 303.270 ms - 486[0m
+[0mPOST /auth/register [32m201[0m 377.581 ms - 290[0m
+[0mGET /auth/usuarios?role=alumno [32m200[0m 150.163 ms - 1463[0m
+[0mPATCH /auth/aprobar/68fe552ca28f9c56f21a8811 [32m200[0m 156.139 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 281.201 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 484.440 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe552da28f9c56f21a8817 [32m200[0m 163.622 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 282.443 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 290.215 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 336.401 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe552ea28f9c56f21a881d [32m200[0m 136.211 ms - 275[0m
+[0mPOST /auth/register [32m201[0m 369.334 ms - 289[0m
+[0mPOST /auth/login [32m200[0m 241.608 ms - 487[0m
+[0mPATCH /auth/aprobar/68fe552e293b4a295ec8683c [32m200[0m 149.623 ms - 278[0m
+[0mPOST /auth/login [32m200[0m 266.239 ms - 493[0m
+[0mPOST /auth/register [32m201[0m 352.541 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe552ea28f9c56f21a8823 [32m200[0m 140.744 ms - 275[0m
+[0mPOST /auth/register [32m201[0m 334.599 ms - 289[0m
+[0mPOST /auth/login [32m200[0m 293.304 ms - 487[0m
+[0mPATCH /auth/aprobar/68fe552f293b4a295ec86842 [32m200[0m 154.395 ms - 278[0m
+[0mPOST /assignments [32m201[0m 153.370 ms - 299[0m
+[0mPOST /auth/login [32m200[0m 266.281 ms - 493[0m
+[0mPOST /slots [32m201[0m 286.246 ms - 548[0m
+[0mPOST /auth/register [32m201[0m 372.532 ms - 286[0m
+[0mPATCH /slots/68fe552fa28f9c56f21a882c/estado [32m200[0m 325.992 ms - 549[0m
+[0mPATCH /auth/aprobar/68fe5530293b4a295ec86848 [32m200[0m 150.924 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 234.755 ms - 487[0m
+[0mPATCH /slots/68fe552fa28f9c56f21a882c/estado [32m200[0m 283.776 ms - 548[0m
+[0mPOST /auth/register [32m201[0m 334.434 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe5530293b4a295ec8684e [32m200[0m 131.700 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 313.755 ms - 487[0m
+[0mGET /auth/usuarios [33m403[0m 66.191 ms - 25[0m
+[0mPOST /auth/login [32m200[0m 293.999 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 578.985 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5532a28f9c56f21a883f [32m200[0m 169.979 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 254.580 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 293.334 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 341.552 ms - 290[0m
+[0mPOST /auth/register [32m201[0m 315.838 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5533a28f9c56f21a8845 [32m200[0m 124.126 ms - 279[0m
+[0mPATCH /auth/aprobar/68fe5533293b4a295ec8685b [32m200[0m 146.470 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 316.709 ms - 494[0m
+[0mPOST /auth/login [32m200[0m 274.007 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 371.386 ms - 286[0m
+[0mPOST /auth/register [32m201[0m 365.547 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5534a28f9c56f21a884b [32m200[0m 157.852 ms - 275[0m
+[0mPATCH /auth/aprobar/68fe5534293b4a295ec86861 [32m200[0m 139.168 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 312.560 ms - 487[0m
+[0mPOST /auth/login [32m200[0m 264.078 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 378.407 ms - 286[0m
+[0mPOST /auth/register [32m201[0m 389.886 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe5534a28f9c56f21a8851 [32m200[0m 146.568 ms - 275[0m
+[0mPATCH /auth/aprobar/68fe5534293b4a295ec86867 [32m200[0m 143.218 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 306.960 ms - 487[0m
+[0mPOST /auth/login [32m200[0m 285.244 ms - 487[0m
+[0mPOST /assignments [32m201[0m 145.373 ms - 299[0m
+[0mPOST /auth/register [32m201[0m 344.903 ms - 286[0m
+[0mPOST /slots [32m201[0m 276.955 ms - 548[0m
+[0mPATCH /auth/aprobar/68fe5535293b4a295ec8686d [32m200[0m 127.984 ms - 275[0m
+[0mPATCH /slots/68fe5535a28f9c56f21a885a/estado [33m403[0m 73.310 ms - 25[0m
+[0mPOST /auth/login [32m200[0m 317.857 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 517.334 ms - 304[0m
+[0mPOST /auth/login [32m200[0m 282.626 ms - 510[0m
+[0mPATCH /auth/aprobar/68fe5536293b4a295ec86873 [32m200[0m 169.843 ms - 293[0m
+ [32m✓[39m tests/user.test.mjs [2m([22m[2m4 tests[22m[2m)[22m[33m 25324[2mms[22m[39m
+   [33m[2m✓[22m[39m Users[2m > [22mSuperadmin puede listar usuarios y los datos sensibles no se exponen [33m 5233[2mms[22m[39m
+   [33m[2m✓[22m[39m Users[2m > [22mProfesor puede filtrar usuarios por rol [33m 4972[2mms[22m[39m
+   [33m[2m✓[22m[39m Users[2m > [22mAlumno recibe 403 al listar usuarios [33m 4920[2mms[22m[39m
+   [33m[2m✓[22m[39m Users[2m > [22mSuperadmin aprueba un usuario pendiente [33m 5801[2mms[22m[39m
+[0mPOST /auth/login [32m200[0m 365.269 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 385.053 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5537a28f9c56f21a8866 [32m200[0m 156.901 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 239.939 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 333.258 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe5538a28f9c56f21a886c [32m200[0m 159.685 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 280.965 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 317.424 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe5539a28f9c56f21a8872 [32m200[0m 131.064 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 262.902 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 375.853 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe553aa28f9c56f21a8878 [32m200[0m 169.329 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 275.914 ms - 487[0m
+[0mPOST /assignments [32m201[0m 142.457 ms - 299[0m
+[0mPOST /slots [32m201[0m 276.167 ms - 548[0m
+[0mPATCH /slots/68fe553ba28f9c56f21a8881/estado [33m400[0m 77.624 ms - 107[0m
+[90mstdout[2m | tests/auth.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+[90mstdout[2m | tests/auth.test.mjs
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+[0mPOST /auth/login [32m200[0m 404.892 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 422.930 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe553da28f9c56f21a888d [32m200[0m 152.826 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 240.866 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 524.655 ms - 290[0m
+[0mPATCH /auth/aprobar/68fe553ea28f9c56f21a8893 [32m200[0m 164.958 ms - 279[0m
+[0mPOST /auth/login [32m200[0m 263.993 ms - 494[0m
+[0mPOST /auth/register [32m201[0m 317.343 ms - 286[0m
+[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+
+[0mPATCH /auth/aprobar/68fe553ea28f9c56f21a8899 [32m200[0m 144.456 ms - 275[0m
+[0mPOST /auth/login [32m200[0m 295.178 ms - 487[0m
+[0mPOST /auth/register [32m201[0m 369.505 ms - 286[0m
+[0mPATCH /auth/aprobar/68fe553fa28f9c56f21a889f [32m200[0m 139.505 ms - 275[0m
+[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth
+[22m[39m✅ Conectado a MongoDB
+
+[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth
+[22m[39m[DB] Limpiando colecciones...
+
+[0mPOST /auth/login [32m200[0m 267.963 ms - 487[0m
+[0mPOST /assignments [32m201[0m 137.137 ms - 299[0m
+[0mPOST /slots [32m201[0m 279.658 ms - 548[0m
+[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth
+[22m[39m[DB] Colecciones limpiadas.
+
+[0mPATCH /slots/68fe5540a28f9c56f21a88a8/solicitar [32m200[0m 282.763 ms - 570[0m
+[90mstderr[2m | tests/slot.test.mjs[2m > [22m[2mSlots[2m > [22m[2mAlumno no puede reservar dos veces el mismo turno
+[22m[39mError: Turno ya reservado
+[0mPATCH /slots/68fe5540a28f9c56f21a88a8/solicitar [33m403[0m 208.696 ms - 59[0m
+
+ [32m✓[39m tests/slot.test.mjs [2m([22m[2m6 tests[22m[2m)[22m[33m 40015[2mms[22m[39m
+   [33m[2m✓[22m[39m Slots[2m > [22mAlumno de otra cohorte no puede reservar un turno [33m 5898[2mms[22m[39m
+   [33m[2m✓[22m[39m Slots[2m > [22mAlumno sin aprobacion no puede solicitar turno [33m 6126[2mms[22m[39m
+   [33m[2m✓[22m[39m Slots[2m > [22mProfesor actualiza estado del turno entre aprobado y pendiente [33m 5752[2mms[22m[39m
+   [33m[2m✓[22m[39m Slots[2m > [22mAlumno no autorizado no puede cambiar estado de turno [33m 5336[2mms[22m[39m
+   [33m[2m✓[22m[39m Slots[2m > [22mEstado invalido al actualizar turno responde 400 [33m 5466[2mms[22m[39m
+   [33m[2m✓[22m[39m Slots[2m > [22mAlumno no puede reservar dos veces el mismo turno [33m 5794[2mms[22m[39m
+[0mPOST /auth/login [32m200[0m 544.229 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 415.142 ms - 274[0m
+[0mPOST /auth/login [32m200[0m 337.963 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 322.836 ms - 274[0m
+[90mstderr[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mRegistro duplicado responde error de email ya registrado
+[22m[39mError: Email ya registrado
+[0mPOST /auth/register [33m409[0m 76.186 ms - 61[0m
+
+[0mPOST /auth/login [32m200[0m 245.563 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 325.228 ms - 273[0m
+[0mPOST /auth/login [32m200[0m 246.624 ms - 476[0m
+[0mPOST /auth/login [32m200[0m 272.569 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 320.971 ms - 272[0m
+[90mstderr[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mLogin con contrasena incorrecta devuelve error
+[22m[39mError: Credenciales invalidas
+
+[0mPOST /auth/login [33m401[0m 247.888 ms - 69[0m
+[0mPOST /auth/login [32m200[0m 244.142 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 532.181 ms - 293[0m
+[0mPOST /auth/login [32m200[0m 243.089 ms - 499[0m
+[0mPATCH /auth/aprobar/68fe55495fb47dd12ef3c9cf [32m200[0m 177.563 ms - 282[0m
+[0mGET /auth/usuarios [32m200[0m 134.926 ms - 2761[0m
+[0mPOST /auth/login [32m200[0m 220.185 ms - 543[0m
+[0mPOST /auth/register [32m201[0m 349.858 ms - 287[0m
+[0mPATCH /auth/aprobar/68fe554b5fb47dd12ef3c9dd [32m200[0m 135.866 ms - 276[0m
+[0mPOST /auth/login [32m200[0m 361.970 ms - 488[0m
+[0mGET /auth/usuarios [33m403[0m 76.962 ms - 25[0m
+ [32m✓[39m tests/auth.test.mjs [2m([22m[2m6 tests[22m[2m)[22m[33m 15785[2mms[22m[39m
+   [33m[2m✓[22m[39m Auth[2m > [22mRegistro de alumno valido deja pendiente la aprobacion [33m 2270[2mms[22m[39m
+   [33m[2m✓[22m[39m Auth[2m > [22mRegistro duplicado responde error de email ya registrado [33m 1552[2mms[22m[39m
+   [33m[2m✓[22m[39m Auth[2m > [22mLogin exitoso no expone passwordHash [33m 1709[2mms[22m[39m
+   [33m[2m✓[22m[39m Auth[2m > [22mLogin con contrasena incorrecta devuelve error [33m 1628[2mms[22m[39m
+   [33m[2m✓[22m[39m Auth[2m > [22mSuperadmin aprueba profesor y queda visible en el listado [33m 2361[2mms[22m[39m
+   [33m[2m✓[22m[39m Auth[2m > [22mAlumno no autorizado recibe 403 al listar usuarios [33m 1986[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m32 passed[39m[22m[90m (32)[39m
+[2m   Start at [22m 14:05:09
+[2m   Duration [22m 134.71s[2m (transform 1.39s, setup 0ms, collect 21.80s, tests 226.01s, environment 4ms, prepare 4.71s)[22m
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m

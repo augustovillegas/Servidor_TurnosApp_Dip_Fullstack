@@ -6,6 +6,14 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  nombre: {
+    type: String,
+    trim: true,
+  },
+  apellido: {
+    type: String,
+    trim: true,
+  },
   email: {
     type: String,
     unique: true,
@@ -17,6 +25,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  modulo: {
+    type: String,
+    trim: true,
+  },
+  moduloSlug: {
+    type: String,
+    trim: true,
+  },
   role: {
     type: String,
     enum: ["alumno", "profesor", "superadmin"],
@@ -26,12 +42,20 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  cohortLabel: {
+    type: String,
+    trim: true,
+  },
+  isRecursante: {
+    type: Boolean,
+    default: false,
+  },
   isApproved: { type: Boolean, default: false },
   status: {
     type: String,
     enum: ["Pendiente", "Aprobado", "Rechazado"],
     default: "Pendiente",
-  }
+  },
 }, { timestamps: true });
 
 export const User = mongoose.model("User", userSchema);

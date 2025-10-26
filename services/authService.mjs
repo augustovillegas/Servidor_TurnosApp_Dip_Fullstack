@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+﻿import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userRepository from "../repository/userRepository.mjs";
 import { sanitizeUser } from "../utils/sanitizeUser.mjs";
@@ -26,6 +26,8 @@ export const register = async ({
 
   const user = await userRepository.crear({
     name: fullName,
+    nombre: nombre || undefined,
+    apellido: apellido || undefined,
     email,
     passwordHash,
     cohort: cohort || 1,
@@ -42,7 +44,7 @@ export const login = async ({ email, password }) => {
   if (!valid) {
     throw {
       status: 401,
-      message: "Credenciales inválidas",
+      message: "Credenciales invalidas",
       msg: "Credenciales incorrectas",
     };
   }

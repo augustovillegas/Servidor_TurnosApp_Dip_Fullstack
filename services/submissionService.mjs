@@ -2,6 +2,49 @@ import repositorioEntrega from "../repository/submissionRepository.mjs";
 import { ReviewSlot } from "../models/ReviewSlot.mjs";
 import { Assignment } from "../models/Assignment.mjs";
 
+const REVIEW_STATUS_CANONICAL = {
+  "a revisar": "A revisar",
+  revisar: "A revisar",
+  pendiente: "A revisar",
+  aprobado: "Aprobado",
+  aprobada: "Aprobado",
+  desaprobado: "Desaprobado",
+  desaprobada: "Desaprobado",
+  rechazado: "Desaprobado",
+  rechazada: "Desaprobado",
+};
+
+const CANONICAL_VALUES = new Set(["A revisar", "Aprobado", "Desaprobado"]);
+const FINAL_STATES = new Set(["Aprobado", "Desaprobado"]);
+
+function normalizarReviewStatus(value, { defaultValue = "A revisar", strict = false } = {}) {
+  if (value === undefined || value === null) {
+    if (strict) {
+      throw { status: 400, message: "Estado de revision no valido" };
+    }
+    return defaultValue;
+  }
+
+  const raw = value.toString().trim();
+  if (!raw) {
+    if (strict) {
+      throw { status: 400, message: "Estado de revision no valido" };
+    }
+    return defaultValue;
+  }
+
+  if (CANONICAL_VALUES.has(raw)) {
+    return raw;
+  }
+
+  const lower = raw.toLowerCase();
+  if (REVIEW_STATUS_CANONICAL[lower]) {
+    return REVIEW_STATUS_CANONICAL[lower];
+  }
+
+  throw { status: 400, message: "Estado de revision no valido" };
+}
+
 export const crearEntrega = async (slotId, user, body) => {
   const slot = await ReviewSlot.findById(slotId);
   if (!slot) throw { status: 404, message: "Turno no encontrado" };
@@ -26,12 +69,16 @@ export const crearEntrega = async (slotId, user, body) => {
   const renderLinkRaw =
     typeof body.renderLink === "string" ? body.renderLink.trim() : "";
 
+  const estadoInicial = normalizarReviewStatus(body.reviewStatus);
+
   return await repositorioEntrega.crear({
     assignment: slot.assignment,
     student: user.id,
     githubLink,
     comentarios,
     renderLink: renderLinkRaw || null,
+    reviewStatus: estadoInicial,
+    estado: estadoInicial,
   });
 };
 
@@ -71,6 +118,7 @@ export const actualizarEntrega = async (id, data, user) => {
   const entrega = await repositorioEntrega.obtenerPorId(id);
   if (!entrega) throw { status: 404, message: "Entrega no encontrada" };
 
+  const estadoActualCanonico = normalizarReviewStatus(entrega.reviewStatus);
   const esPropia =
     entrega.student && entrega.student.toString() === user.id;
   const esProfesor = ["profesor", "superadmin"].includes(user.role);
@@ -82,7 +130,7 @@ export const actualizarEntrega = async (id, data, user) => {
     };
   }
 
-  if (["aprobado", "desaprobado"].includes(entrega.reviewStatus) && user.role === "alumno") {
+  if (FINAL_STATES.has(estadoActualCanonico) && user.role === "alumno") {
     throw {
       status: 409,
       message: "No se puede modificar una entrega ya evaluada",
@@ -124,14 +172,17 @@ export const actualizarEntrega = async (id, data, user) => {
   }
 
   if (data.reviewStatus && user.role !== "alumno") {
-    const validos = ["revisar", "aprobado", "desaprobado"];
-    const estadoNormalizado = data.reviewStatus
-      ? data.reviewStatus.toString().trim().toLowerCase()
-      : "";
-    if (!validos.includes(estadoNormalizado)) {
-      throw { status: 400, message: "Estado de revision no valido" };
-    }
-    actualizacion.reviewStatus = estadoNormalizado;
+    const estadoNuevo = normalizarReviewStatus(data.reviewStatus, {
+      strict: true,
+    });
+    actualizacion.reviewStatus = estadoNuevo;
+    actualizacion.estado = estadoNuevo;
+  } else if (
+    entrega.reviewStatus &&
+    estadoActualCanonico !== entrega.reviewStatus
+  ) {
+    actualizacion.reviewStatus = estadoActualCanonico;
+    actualizacion.estado = estadoActualCanonico;
   }
 
   return await repositorioEntrega.actualizar(id, actualizacion);

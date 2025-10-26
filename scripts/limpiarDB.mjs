@@ -1,32 +1,35 @@
+/**
+ * Limpia colecciones principales.
+ */
 import mongoose from "mongoose";
-import dotenv from "dotenv";
+import { connectMongo, disconnectMongo, dropIfExists } from "./lib/seedUtils.mjs";
 import { User } from "../models/User.mjs";
 import { Assignment } from "../models/Assignment.mjs";
 import { ReviewSlot } from "../models/ReviewSlot.mjs";
 import { Submission } from "../models/Submission.mjs";
 
-dotenv.config();
-
-export const limpiarDB = async () => {
-  await User.deleteMany({});
-  await Assignment.deleteMany({});
-  await ReviewSlot.deleteMany({});
-  await Submission.deleteMany({});
-  console.log("🧹 Base de datos limpia.");
-};
-
-// 👉 Solo ejecuta la limpieza con process.exit si el archivo se llama directamente
-if (import.meta.url === `file://${process.argv[1]}`) {
-  mongoose
-    .connect(process.env.MONGO_URL)
-    .then(async () => {
-      await limpiarDB();
-      await mongoose.connection.close();
-      process.exit(0);
-    })
-    .catch((err) => {
-      console.error("❌ Error limpiando DB:", err);
-      process.exit(1);
-    });
+export async function limpiarDB() {
+  const hadConnection = mongoose.connection.readyState !== 0;
+  await connectMongo();
+  console.log("[DB] Limpiando colecciones...");
+  await Promise.all([
+    User.deleteMany({}),
+    Assignment.deleteMany({}),
+    ReviewSlot.deleteMany({}),
+    Submission.deleteMany({}),
+  ]);
+  await dropIfExists("usuarios");
+  await dropIfExists("turnos");
+  await dropIfExists("entregas");
+  console.log("[DB] Colecciones limpiadas.");
+  if (!hadConnection) {
+    await disconnectMongo();
+  }
 }
 
+if (import.meta.url === `file://${process.argv[1]}`) {
+  limpiarDB().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
 
+const REVIEW_STATUS_VALUES = [
+  "revisar",
+  "pendiente",
+  "aprobado",
+  "desaprobado",
+  "A revisar",
+  "Aprobado",
+  "Desaprobado",
+];
+
 const submissionSchema = new mongoose.Schema(
   {
     assignment: {
@@ -43,12 +53,13 @@ const submissionSchema = new mongoose.Schema(
     },
     reviewStatus: {
       type: String,
-      enum: ["revisar", "aprobado", "desaprobado"],
-      default: "revisar",
+      enum: REVIEW_STATUS_VALUES,
+      default: "A revisar",
+      required: true,
     },
     estado: {
       type: String,
-      enum: ["A revisar", "Aprobado", "Rechazado"],
+      enum: ["A revisar", "Pendiente", "Aprobado", "Rechazado", "Desaprobado"],
       default: "A revisar",
     },
   },
@@ -56,6 +67,3 @@ const submissionSchema = new mongoose.Schema(
 );
 
 export const Submission = mongoose.model("Submission", submissionSchema);
-
-
-
