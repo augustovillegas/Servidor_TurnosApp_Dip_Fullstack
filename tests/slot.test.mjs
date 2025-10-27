@@ -66,7 +66,7 @@ describe.sequential("Slots", () => {
       .send({ estado: "aprobado" });
 
     expect(aprobado.status).toBe(200);
-    expect(aprobado.body.reviewStatus).toBe("aprobado");
+    expect(aprobado.body.reviewStatus).toBe("Aprobado");
 
     const pendiente = await request(app)
       .patch(`/slots/${slotId}/estado`)
@@ -74,7 +74,7 @@ describe.sequential("Slots", () => {
       .send({ estado: "pendiente" });
 
     expect(pendiente.status).toBe(200);
-    expect(pendiente.body.reviewStatus).toBe("revisar");
+    expect(pendiente.body.reviewStatus).toBe("A revisar");
   });
 
   test("Alumno no autorizado no puede cambiar estado de turno", async () => {

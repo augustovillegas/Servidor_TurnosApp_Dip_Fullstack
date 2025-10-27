@@ -1,6 +1,20 @@
 import slotRepository from "../repository/slotRepository.mjs";
 import mongoose from "mongoose";
 
+const REVIEW_STATUS_CANONICAL = {
+  aprobado: "Aprobado",
+  aprobada: "Aprobado",
+  pendiente: "A revisar",
+  revisar: "A revisar",
+  "a revisar": "A revisar",
+  cancelado: "Desaprobado",
+  cancelada: "Desaprobado",
+  desaprobado: "Desaprobado",
+  desaprobada: "Desaprobado",
+  rechazado: "Desaprobado",
+  rechazada: "Desaprobado",
+};
+
 // Crear turno (profesor/superadmin)
 export async function crear(data, usuario) {
   if (!["profesor", "superadmin"].includes(usuario.role)) {
@@ -13,7 +27,7 @@ export async function crear(data, usuario) {
   const payload = {
     ...data,
     cohort: Number.isNaN(cohortValue) ? 1 : cohortValue,
-    reviewStatus: "revisar",
+    reviewStatus: "A revisar",
   };
 
   if (data?.reviewNumber !== undefined) {
@@ -63,7 +77,7 @@ export async function cancelarTurno(idTurno, usuario) {
   }
 
   turno.student = null;
-  turno.reviewStatus = "revisar";
+  turno.reviewStatus = "A revisar";
   await turno.save();
   return turno;
 }
@@ -77,21 +91,17 @@ export async function actualizarEstadoRevision(idTurno, estado, usuario) {
   const turno = await slotRepository.obtenerPorId(idTurno);
   if (!turno) throw { status: 404, message: "Turno no encontrado" };
 
-  const estadosValidos = {
-    aprobado: "aprobado",
-    pendiente: "revisar",
-    cancelado: "desaprobado",
-  };
-
   const estadoNormalizado = estado
     ? estado.toString().trim().toLowerCase()
     : "";
 
-  if (!estadoNormalizado || !(estadoNormalizado in estadosValidos)) {
+  const reviewStatus = REVIEW_STATUS_CANONICAL[estadoNormalizado];
+
+  if (!reviewStatus) {
     throw { status: 400, message: "Estado invalido" };
   }
 
-  turno.reviewStatus = estadosValidos[estadoNormalizado];
+  turno.reviewStatus = reviewStatus;
   await turno.save();
   return turno;
 }

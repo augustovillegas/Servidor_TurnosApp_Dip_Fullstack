@@ -7,15 +7,18 @@ import {
 } from "../utils/moduleMap.mjs";
 
 const ESTADO_TO_REVIEW_STATUS = {
-  Disponible: "revisar",
-  Solicitado: "revisar",
-  Aprobado: "aprobado",
-  Rechazado: "desaprobado",
+  Disponible: "A revisar",
+  Solicitado: "A revisar",
+  Aprobado: "Aprobado",
+  Rechazado: "Desaprobado",
 };
 
 const REVIEW_STATUS_TO_ESTADO = {
+  "A revisar": "Disponible",
   revisar: "Disponible",
+  Aprobado: "Aprobado",
   aprobado: "Aprobado",
+  Desaprobado: "Rechazado",
   desaprobado: "Rechazado",
 };
 
@@ -418,7 +421,7 @@ function applyPayloadToDocument(slot, payload, incomingEstado) {
 
   const resolved = resolveEstado(slot);
   slot.estado = resolved;
-  slot.reviewStatus = ESTADO_TO_REVIEW_STATUS[resolved] || "revisar";
+  slot.reviewStatus = ESTADO_TO_REVIEW_STATUS[resolved] || "A revisar";
   if (resolved === "Disponible" && slot.student) {
     slot.student = null;
   }
@@ -449,7 +452,7 @@ function sanitiseForCreate(input = {}) {
   base.reviewStatus =
     payload.reviewStatus ??
     ESTADO_TO_REVIEW_STATUS[base.estado] ??
-    "revisar";
+    "A revisar";
   if (base.estado === "Disponible" && base.student === undefined) {
     base.student = null;
   }

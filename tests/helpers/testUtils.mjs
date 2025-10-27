@@ -7,24 +7,7 @@ import { crearSuperadmin } from "../../scripts/crearSuperadmin.mjs";
 
 dotenv.config();
 
-const workerIdRaw = process.env.VITEST_WORKER_ID || "main";
-const sanitizedWorkerId = workerIdRaw.replace(/[^a-zA-Z0-9_-]/g, "_");
-
-function buildWorkerMongoUri(uri, workerId) {
-  if (!uri) return uri;
-  const [base, query] = uri.split("?");
-  const slashIndex = base.lastIndexOf("/");
-  if (slashIndex === -1) return uri;
-  const prefix = base.slice(0, slashIndex);
-  const dbName = base.slice(slashIndex + 1) || "test";
-  const workerDb = `${dbName}_worker_${workerId}`;
-  return `${prefix}/${workerDb}${query ? `?${query}` : ""}`;
-}
-
-const TEST_DB_URI = buildWorkerMongoUri(process.env.MONGO_URL, sanitizedWorkerId);
-if (TEST_DB_URI) {
-  process.env.MONGO_URL = TEST_DB_URI;
-}
+const TEST_DB_URI = process.env.MONGO_URL;
 
 const appPromise = import("../../server.mjs").then((mod) => mod.default);
 
@@ -87,7 +70,7 @@ export async function ensureSuperadmin() {
 
   if (loginRes.status !== 200) {
     throw new Error(
-      `No se pudo iniciar sesión del superadmin: ${loginRes.status} ${JSON.stringify(loginRes.body)}`
+      `No se pudo iniciar sesiÃ³n del superadmin: ${loginRes.status} ${JSON.stringify(loginRes.body)}`
     );
   }
 
@@ -278,6 +261,7 @@ export async function createBaseUsers() {
     alumnoC2,
   };
 }
+
 
 
 

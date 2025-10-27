@@ -59,8 +59,15 @@ const slotSchema = new mongoose.Schema(
     },
     reviewStatus: {
       type: String,
-      enum: ["revisar", "aprobado", "desaprobado"],
-      default: "revisar",
+      enum: [
+        "revisar",
+        "aprobado",
+        "desaprobado",
+        "A revisar",
+        "Aprobado",
+        "Desaprobado",
+      ],
+      default: "A revisar",
     },
     estado: {
       type: String,
