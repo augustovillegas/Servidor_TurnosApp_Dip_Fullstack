@@ -25,7 +25,7 @@ export function resolveMongoUri() {
   }
   return uri;
 }
-export const EMAIL_DOMAIN = "adminapp.com"; // ✅ dominio final garantizado .com
+export const EMAIL_DOMAIN = "gmail.com"; // ✅ dominio final garantizado .com
 
 export const MODULES = [
   { name: "Frontend", slug: "frontend", code: 1 },
@@ -45,6 +45,16 @@ export function toPasswordToken(name) {
 }
 export function pad2(n) {
   return String(n).padStart(2, "0");
+}
+
+export function slugifyLocal(value) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, ".")
+    .replace(/^\.+|\.+$/g, "")
+    .replace(/\.+/g, ".")
+    .toLowerCase();
 }
 
 export async function connectMongo() {
@@ -68,9 +78,9 @@ export async function dropIfExists(name) {
 
 /**
  * Normaliza cualquier email al dominio .com definido:
- * - "alumno.backend.17@local"  -> "alumno.backend.17@adminapp.com"
- * - "profesor.uxui"            -> "profesor.uxui@adminapp.com"
- * - "user@otrodominio.net"     -> "user@adminapp.com"
+ * - "alumno.backend.17@local"  -> "alumno.backend.17@gmail.com"
+ * - "profesor.uxui"            -> "profesor.uxui@gmail.com"
+ * - "user@otrodominio.net"     -> "user@gmail.com"
  */
 export function ensureEmailDomain(input, domain = EMAIL_DOMAIN) {
   const raw = String(input || "").trim();
@@ -124,6 +134,7 @@ export function queueUser(seedUsers, cfg) {
       cohort: doc.cohortLabel,
       estado: doc.status,
     },
+    source: cfg?.source ?? "module",
   });
 }
 export async function hashPasswords(seedUsers) {
@@ -133,20 +144,70 @@ export async function hashPasswords(seedUsers) {
 }
 
 export function buildMarkdown(seedUsers) {
-  const header = [
+  const lines = [
     "# Credenciales de Seed - Proyecto Diplomatura",
     `Fecha: ${new Date().toISOString()}`,
     "",
     "> Usa la columna **usuario** (email) y **contrasena** para iniciar sesion.",
     "",
-    "| rol | nombre | usuario | contrasena | modulo | cohort | estado |",
-    "|-----|--------|---------|------------|--------|--------|--------|",
   ];
-  const rows = seedUsers.map((e) => {
-    const r = e.tableRow;
-    return `| ${r.rol} | ${r.nombre} | ${r.usuario} | ${r.contrasenia} | ${r.modulo} | ${r.cohort} | ${r.estado} |`;
-  });
-  return `${header.concat(rows).join("\n")}\n`;
+
+  const generalEntries = seedUsers
+    .filter((entry) => entry.source === "base")
+    .sort((a, b) => a.tableRow.usuario.localeCompare(b.tableRow.usuario));
+
+  if (generalEntries.length) {
+    lines.push(
+      "## Credenciales generales",
+      "",
+      "| rol | nombre | usuario | contrasena | modulo | cohort | estado |",
+      "|-----|--------|---------|------------|--------|--------|--------|"
+    );
+
+    generalEntries.forEach((entry) => {
+      const r = entry.tableRow;
+      lines.push(
+        `| ${r.rol} | ${r.nombre} | ${r.usuario} | ${r.contrasenia} | ${r.modulo} | ${r.cohort} | ${r.estado} |`
+      );
+    });
+
+    lines.push("");
+  }
+
+  for (const mod of MODULES) {
+    const moduleEntries = seedUsers
+      .filter((entry) => entry.source === "module" && entry.document.moduloSlug === mod.slug)
+      .sort((a, b) => {
+        const aRole = a.document.role === "profesor" ? 0 : 1;
+        const bRole = b.document.role === "profesor" ? 0 : 1;
+        if (aRole !== bRole) {
+          return aRole - bRole;
+        }
+        return a.tableRow.nombre.localeCompare(b.tableRow.nombre);
+      });
+
+    if (!moduleEntries.length) {
+      continue;
+    }
+
+    lines.push(
+      `## Modulo ${mod.name}`,
+      "",
+      "| modulo | rol | nombre | usuario | contrasena | cohort | estado |",
+      "|--------|-----|--------|---------|------------|--------|--------|"
+    );
+
+    moduleEntries.forEach((entry) => {
+      const r = entry.tableRow;
+      lines.push(
+        `| ${r.modulo} | ${r.rol} | ${r.nombre} | ${r.usuario} | ${r.contrasenia} | ${r.cohort} | ${r.estado} |`
+      );
+    });
+
+    lines.push("");
+  }
+
+  return `${lines.join("\n")}\n`;
 }
 
 export async function writeSeedFile(seedUsers, filename = "SEED_USERS.md") {

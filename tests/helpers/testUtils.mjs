@@ -19,10 +19,7 @@ let initPromise = null;
 
 export async function ensureDatabaseInitialized() {
   if (!initPromise) {
-    initPromise = (async () => {
-      await connectTestDB();
-      await limpiarDB();
-    })();
+    initPromise = connectTestDB();
   }
   await initPromise;
 }
