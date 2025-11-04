@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { randomUUID } from "crypto";
 import { limpiarDB } from "../../scripts/limpiarDB.mjs";
 import { crearSuperadmin } from "../../scripts/crearSuperadmin.mjs";
+import { crearUsuariosRoles } from "../../scripts/crearUsuariosRoles.mjs";
 
 dotenv.config();
 
@@ -50,24 +51,44 @@ export async function resetDatabase() {
   await limpiarDB();
 }
 
+const seedEntryToCredential = (entry) => ({
+  email: entry.document.email,
+  password: entry.plainPassword,
+  role: entry.document.role,
+  modulo: entry.document.modulo,
+  moduloSlug: entry.document.moduloSlug,
+  cohortLabel: entry.document.cohortLabel,
+  isRecursante: entry.document.isRecursante,
+  source: entry.source,
+});
+
 export async function ensureSuperadmin() {
+  let baseSeedUsers;
   try {
-    await crearSuperadmin();
+    baseSeedUsers = await crearSuperadmin();
   } catch (err) {
     const message = err?.message ?? "";
     if (!message.includes("duplicate key")) {
       throw err;
     }
+    baseSeedUsers = await crearSuperadmin({ persist: false });
   }
+
+  const superadminSeed = baseSeedUsers.find((entry) => entry.document.role === "superadmin");
+  if (!superadminSeed) {
+    throw new Error("Seed base no contiene un superadmin para login");
+  }
+
+  const credentials = seedEntryToCredential(superadminSeed);
 
   const app = await getApp();
   const loginRes = await request(app)
     .post("/auth/login")
-    .send({ email: "admin@app.com", password: "admin123" });
+    .send({ email: credentials.email, password: credentials.password });
 
   if (loginRes.status !== 200) {
     throw new Error(
-      `No se pudo iniciar sesión del superadmin: ${loginRes.status} ${JSON.stringify(loginRes.body)}`
+      `No se pudo iniciar sesion del superadmin (${credentials.email}): ${loginRes.status} ${JSON.stringify(loginRes.body)}`
     );
   }
 
@@ -75,6 +96,7 @@ export async function ensureSuperadmin() {
     token: loginRes.body.token,
     id: loginRes.body.user._id,
     user: loginRes.body.user,
+    credentials,
   };
 }
 
@@ -259,7 +281,18 @@ export async function createBaseUsers() {
   };
 }
 
+export async function seedAllScriptUsers({ reset = true } = {}) {
+  if (reset) {
+    await resetDatabase();
+  }
 
+  const baseSeed = await crearSuperadmin();
+  const moduleSeed = await crearUsuariosRoles();
+  const combined = [...baseSeed, ...moduleSeed];
 
-
-
+  return {
+    baseSeed,
+    moduleSeed,
+    credentials: combined.map(seedEntryToCredential),
+  };
+}

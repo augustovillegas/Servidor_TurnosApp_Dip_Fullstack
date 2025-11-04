@@ -1,5 +1,5 @@
 # Credenciales de Seed - Proyecto Diplomatura
-Fecha: 2025-10-27T21:51:35.893Z
+Fecha: 2025-11-04T21:19:57.099Z
 
 > Usa la columna **usuario** (email) y **contrasena** para iniciar sesion.
 
@@ -116,3 +116,17 @@ Fecha: 2025-10-27T21:51:35.893Z
 | DevOps | alumno | Sebastian Monzon | sebastian.monzon.devops.05@gmail.com | Alumno-DEVOPS-05 | 2025-Q4 | Aprobado |
 | DevOps | alumno | Ulises Luna | ulises.luna.devops.19@gmail.com | Alumno-DEVOPS-19 | 2024-Q4 | Aprobado |
 
+
+---
+## Resumen de Seed
+
+- Usuarios creados: 88
+- Modulos procesados: 4
+- Asignaciones creadas: 16
+- Entregas generadas: 324
+- Turnos creados: 40
+- Archivo de credenciales: SEED_USERS.md
+- Fecha de ejecucion: 4/11/2025, 06:20:03
+
+---
+Seed completado correctamente.

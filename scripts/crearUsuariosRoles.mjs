@@ -2,6 +2,7 @@
  * Genera un profesor y veinte alumnos por cada modulo definido.
  * Los emails se normalizan al dominio gmail.com y mantienen la logica existente.
  */
+import mongoose from "mongoose";
 import {
   MODULES,
   COHORTS,
@@ -210,10 +211,13 @@ export async function crearUsuariosRoles(options = {}) {
   }
 
   if (persist) {
+    const hadConnection = mongoose.connection.readyState !== 0;
     await connectMongo();
     await hashPasswords(seedUsers);
     await User.collection.insertMany(seedUsers.map((s) => s.document), { ordered: true });
-    await disconnectMongo();
+    if (!hadConnection) {
+      await disconnectMongo();
+    }
   }
 
   return seedUsers;
@@ -226,4 +230,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.error(e);
       process.exit(1);
     });
+}
+
+export async function getModuleUserCredentials() {
+  const seedUsers = await crearUsuariosRoles({ persist: false });
+  return seedUsers.map(({ document, plainPassword, source }) => ({
+    email: document.email,
+    password: plainPassword,
+    role: document.role,
+    moduloName: document.modulo,
+    moduloSlug: document.moduloSlug,
+    cohortLabel: document.cohortLabel,
+    isRecursante: document.isRecursante,
+    source,
+  }));
 }

@@ -8,6 +8,7 @@ import {
   uniqueValue,
   password,
   getApp,
+  seedAllScriptUsers,
 } from "./helpers/testUtils.mjs";
 
 describe.sequential("Auth", () => {
@@ -26,6 +27,64 @@ describe.sequential("Auth", () => {
   afterAll(async () => {
     await disconnectTestDB();
   });
+
+  test("Credenciales del seed permiten login y conservan datos de modulo", async () => {
+    const { credentials } = await seedAllScriptUsers({ reset: true });
+    const batchSize = 12;
+    const logins = [];
+
+    for (let start = 0; start < credentials.length; start += batchSize) {
+      const batch = credentials.slice(start, start + batchSize);
+      const batchResults = await Promise.all(
+        batch.map(async (cred) => {
+          const res = await request(app).post("/auth/login").send({
+            email: cred.email,
+            password: cred.password,
+          });
+
+          expect(res.status).toBe(200);
+          expect(res.body.token).toBeTruthy();
+          const user = res.body.user;
+          expect(user).toBeTruthy();
+          expect(user.email).toBe(cred.email.toLowerCase());
+          expect(user.role).toBe(cred.role);
+          if (cred.modulo !== undefined) {
+            expect(user.modulo).toBe(cred.modulo);
+          }
+          if (cred.moduloSlug) {
+            expect(user.moduloSlug).toBe(cred.moduloSlug);
+          }
+          if (cred.cohortLabel !== undefined) {
+            expect(user.cohortLabel).toBe(cred.cohortLabel);
+          }
+          expect(Boolean(user.isRecursante)).toBe(Boolean(cred.isRecursante));
+
+          return {
+            cred,
+            token: res.body.token,
+            user,
+          };
+        })
+      );
+
+      logins.push(...batchResults);
+    }
+
+    const superadminLogin = logins.find((entry) => entry.cred.role === "superadmin");
+    expect(superadminLogin).toBeDefined();
+
+    const listado = await request(app)
+      .get("/auth/usuarios")
+      .set("Authorization", `Bearer ${superadminLogin.token}`);
+
+    expect(listado.status).toBe(200);
+    expect(listado.body.length).toBe(credentials.length);
+    const slugs = new Set(listado.body.map((u) => u.moduloSlug).filter(Boolean));
+    expect(slugs.has("frontend")).toBe(true);
+    expect(slugs.has("backend")).toBe(true);
+    expect(slugs.has("uxui")).toBe(true);
+    expect(slugs.has("devops")).toBe(true);
+  }, 120_000);
 
   test("Registro de alumno valido deja pendiente la aprobacion", async () => {
     const email = `${uniqueValue("alumno")}@test.com`;
