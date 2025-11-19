@@ -39,9 +39,9 @@ const slotSchema = new mongoose.Schema(
       default: null,
     },
     room: {
-      type: String,
-      trim: true,
-      default: "",
+      type: number,
+      default: 1,
+      min: 1,
     },
     zoomLink: {
       type: String,

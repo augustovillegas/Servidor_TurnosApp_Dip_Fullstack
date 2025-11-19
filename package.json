@@ -11,7 +11,8 @@
     "test": "cross-env NODE_ENV=test node scripts/runTestsWithLog.mjs",
     "test:watch": "vitest watch",
     "limpiar": "node scripts/limpiarDB.mjs",
-    "seed": "node scripts/reset_and_seed.mjs"
+    "seed": "node scripts/reset_and_seed.mjs",
+    "turnos": "node scripts/crearTurnosReviews.mjs"
   },
   "author": "Augusto Villegas",
   "license": "ISC",
