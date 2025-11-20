@@ -2,6 +2,7 @@
 import jwt from "jsonwebtoken";
 import userRepository from "../repository/userRepository.mjs";
 import { sanitizeUser } from "../utils/sanitizeUser.mjs";
+import { resolveModuleMetadata } from "../utils/moduleMap.mjs";
 
 export const register = async ({
   name,
@@ -10,6 +11,9 @@ export const register = async ({
   email,
   password,
   cohort,
+  modulo,
+  module,
+  moduloSlug,
   role = "alumno",
 }) => {
   const exists = await userRepository.obtenerPorEmail(email);
@@ -23,6 +27,7 @@ export const register = async ({
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
+  const moduleInfo = resolveModuleMetadata({ module, modulo, moduloSlug, cohort });
 
   const user = await userRepository.crear({
     name: fullName,
@@ -30,7 +35,9 @@ export const register = async ({
     apellido: apellido || undefined,
     email,
     passwordHash,
-    cohort: cohort || 1,
+    cohort: moduleInfo.code,
+    modulo: moduleInfo.label,
+    moduloSlug: moduleInfo.slug,
     role,
     isApproved: false,
   });

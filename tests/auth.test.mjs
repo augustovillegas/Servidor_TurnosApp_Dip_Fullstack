@@ -80,10 +80,10 @@ describe.sequential("Auth", () => {
     expect(listado.status).toBe(200);
     expect(listado.body.length).toBe(credentials.length);
     const slugs = new Set(listado.body.map((u) => u.moduloSlug).filter(Boolean));
-    expect(slugs.has("frontend")).toBe(true);
-    expect(slugs.has("backend")).toBe(true);
-    expect(slugs.has("uxui")).toBe(true);
-    expect(slugs.has("devops")).toBe(true);
+    expect(slugs.has("htmlcss")).toBe(true);
+    expect(slugs.has("javascript")).toBe(true);
+    expect(slugs.has("node")).toBe(true);
+    expect(slugs.has("react")).toBe(true);
   }, 120_000);
 
   test("Registro de alumno valido deja pendiente la aprobacion", async () => {

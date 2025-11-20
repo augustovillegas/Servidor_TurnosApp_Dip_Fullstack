@@ -35,8 +35,8 @@ const userSchema = new mongoose.Schema(
     },
     moduloSlug: {
       type: String,
-      enum: MODULE_NAME_VALUES,
       trim: true,
+      default: "",
     },
     role: {
       type: String,
@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema(
     cohorte: {
       type: Number,
       required: true,
+      alias: "cohort",
     },
     isRecursante: {
       type: Boolean,
@@ -58,7 +59,11 @@ const userSchema = new mongoose.Schema(
       default: "Pendiente",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 export const User = mongoose.model("User", userSchema);

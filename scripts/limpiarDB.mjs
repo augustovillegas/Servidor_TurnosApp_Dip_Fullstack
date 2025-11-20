@@ -18,9 +18,10 @@ export async function limpiarDB() {
     ReviewSlot.deleteMany({}),
     Submission.deleteMany({}),
   ]);
-  await dropIfExists("usuarios");
-  await dropIfExists("turnos");
-  await dropIfExists("entregas");
+  await dropIfExists("users");
+  await dropIfExists("assignments");
+  await dropIfExists("reviewslots");
+  await dropIfExists("submissions");
   console.log("[DB] Colecciones limpiadas.");
   if (!hadConnection) {
     await disconnectMongo();

@@ -64,14 +64,14 @@ export async function crearTurnosReviews() {
         ).padStart(2, "0")}`;
 
         turnos.push({
-          cohort: mod.code,
+          cohorte: mod.code,
           reviewNumber,
           date: slotDate,
           startTime,
           endTime,
           start: slotDate,
           end: endDate,
-          room: `${mod.name} Sala ${reviewNumber}-${turnoIndex}`,
+          room: turnoIndex,
           zoomLink: buildZoomLink(mod.slug, reviewNumber),
           estado: "Disponible",
           reviewStatus: "A revisar",
@@ -92,7 +92,7 @@ export async function crearTurnosReviews() {
   console.log("\n=== TURNOS CREADOS ===");
   inserted.forEach((slot) => {
     console.log(
-      `[Turno] ${slot.modulo} | Cohorte ${slot.cohort} | ${slot.date.toISOString()} | ${slot.room} | ${slot.estado}`
+      `[Turno] ${slot.modulo} | Cohorte ${slot.cohorte} | ${slot.date.toISOString()} | ${slot.room} | ${slot.estado}`
     );
   });
   console.log(`\n[Turnos] Total registrados: ${inserted.length}.`);

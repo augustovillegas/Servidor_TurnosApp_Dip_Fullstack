@@ -28,10 +28,10 @@ export function resolveMongoUri() {
 export const EMAIL_DOMAIN = "gmail.com"; // ✅ dominio final garantizado .com
 
 export const MODULES = [
-  { name: "Frontend", slug: "frontend", code: 1 },
-  { name: "Backend", slug: "backend", code: 2 },
-  { name: "UX-UI", slug: "uxui", code: 3 },
-  { name: "DevOps", slug: "devops", code: 4 },
+  { name: "HTML-CSS", slug: "htmlcss", code: 1 },
+  { name: "JAVASCRIPT", slug: "javascript", code: 2 },
+  { name: "BACKEND - NODE JS", slug: "node", code: 3 },
+  { name: "FRONTEND - REACT", slug: "react", code: 4 },
 ];
 
 export const COHORTS = [
@@ -113,7 +113,8 @@ export function queueUser(seedUsers, cfg) {
     role: cfg.role,
     modulo: cfg?.moduloName ?? "-",
     moduloSlug: cfg?.moduloSlug ?? "",
-    cohort: cfg?.moduleCode ?? 0,
+    cohorte: cfg?.cohorte ?? cfg?.moduleCode ?? 0,
+    cohort: cfg?.cohort ?? cfg?.moduleCode ?? 0,
     cohortLabel: cfg?.cohortLabel ?? "-",
     isRecursante: Boolean(cfg?.isRecursante),
     status: cfg?.estado ?? "Aprobado",

@@ -10,6 +10,7 @@ const slotSchema = new mongoose.Schema(
     cohorte: {
       type: Number,
       required: true,
+      alias: "cohort",
     },
     reviewNumber: {
       type: Number,
@@ -80,7 +81,11 @@ const slotSchema = new mongoose.Schema(
       default: "",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 export const ReviewSlot = mongoose.model("ReviewSlot", slotSchema);

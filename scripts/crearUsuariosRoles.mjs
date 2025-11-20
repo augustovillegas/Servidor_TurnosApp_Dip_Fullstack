@@ -18,14 +18,14 @@ import {
 import { User } from "../models/User.mjs";
 
 const MODULE_PROFESSORS = {
-  frontend: { nombre: "Laura", apellido: "Silva" },
-  backend: { nombre: "Gabriel", apellido: "Martinez" },
-  uxui: { nombre: "Paula", apellido: "Costa" },
-  devops: { nombre: "Sergio", apellido: "Ledesma" },
+  htmlcss: { nombre: "Laura", apellido: "Silva" },
+  javascript: { nombre: "Gabriel", apellido: "Martinez" },
+  node: { nombre: "Paula", apellido: "Costa" },
+  react: { nombre: "Sergio", apellido: "Ledesma" },
 };
 
 const MODULE_STUDENTS = {
-  frontend: [
+  htmlcss: [
     { nombre: "Mateo", apellido: "Alvarez" },
     { nombre: "Camila", apellido: "Herrera" },
     { nombre: "Santiago", apellido: "Diaz" },
@@ -47,7 +47,7 @@ const MODULE_STUDENTS = {
     { nombre: "Nicolas", apellido: "Benitez" },
     { nombre: "Malena", apellido: "Palacios" },
   ],
-  backend: [
+  javascript: [
     { nombre: "Diego", apellido: "Suarez" },
     { nombre: "Marina", apellido: "Bustos" },
     { nombre: "Ezequiel", apellido: "Gil" },
@@ -69,7 +69,7 @@ const MODULE_STUDENTS = {
     { nombre: "Marcos", apellido: "Quiroga" },
     { nombre: "Belen", apellido: "Ortiz" },
   ],
-  uxui: [
+  node: [
     { nombre: "Carla", apellido: "Mansilla" },
     { nombre: "Ivan", apellido: "Robles" },
     { nombre: "Emilia", apellido: "Paredes" },
@@ -91,7 +91,7 @@ const MODULE_STUDENTS = {
     { nombre: "Mauricio", apellido: "Godoy" },
     { nombre: "Ailin", apellido: "Ferreyra" },
   ],
-  devops: [
+  react: [
     { nombre: "Hernan", apellido: "Toledo" },
     { nombre: "Micaela", apellido: "Pinto" },
     { nombre: "Cristian", apellido: "Olivera" },

@@ -1,4 +1,5 @@
 import assignmentRepository from "../repository/assignmentRepository.mjs";
+import { resolveModuleMetadata } from "../utils/moduleMap.mjs";
 
 export const crearAsignacion = async (body, user) => {
     
@@ -7,13 +8,18 @@ export const crearAsignacion = async (body, user) => {
   }
 
   const { title, description, dueDate, module } = body; 
+  const moduleInfo = resolveModuleMetadata({
+    module,
+    cohort: body.cohort ?? user?.cohort,
+  });
 
   const nueva = await assignmentRepository.crear({
-    module: Number(module),
+    module: moduleInfo.code,
+    modulo: moduleInfo.label,
     title,
     description,
     dueDate: new Date(dueDate),
-    cohort: user?.cohort || body.cohort || 1,
+    cohort: moduleInfo.code,
     createdBy: user.id,
   });
 

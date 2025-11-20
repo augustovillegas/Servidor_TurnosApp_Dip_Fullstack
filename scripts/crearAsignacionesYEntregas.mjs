@@ -19,7 +19,7 @@ const SUBMISSION_STATUS_ROTATION = [
     comentario: "Listo para una nueva revision del profesor.",
   },
   {
-    reviewStatus: "pendiente",
+    reviewStatus: "Pendiente",
     estado: "Pendiente",
     comentario: "Entrega pendiente de feedback definitivo.",
   },
@@ -71,11 +71,12 @@ export async function crearAsignacionesYEntregas() {
       dueDate.setDate(dueDate.getDate() + sprint * 5 + mod.code);
 
       const asignacion = await Assignment.create({
+        modulo: mod.name,
         module: mod.code,
         title: `Sprint ${sprint} - ${mod.name}`,
         description: `Trabajo practico del sprint ${sprint} para el modulo ${mod.name}.`,
         dueDate,
-        cohort: mod.code,
+        cohorte: mod.code,
         createdBy: profesor._id,
       });
 
@@ -113,7 +114,7 @@ export async function crearAsignacionesYEntregas() {
           student: student._id,
           alumnoNombre: `${student.nombre} ${student.apellido}`.trim(),
           sprint,
-          module: mod.name,
+          modulo: mod.name,
           githubLink: buildGithubLink(mod.slug, sprint, emailLocal),
           renderLink: buildRenderLink(mod.slug, sprint, emailLocal),
           comentarios: `Sprint ${sprint} - ${rotation.comentario}`,

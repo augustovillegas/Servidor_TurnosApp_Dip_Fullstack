@@ -1,7 +1,12 @@
 import mongoose from "mongoose";
 
 
-const MODULE_NAME_VALUES = [ "HTML-CSS", "JAVASCRIPT", "BACKEND - NODE JS",  "FRONTEND - REACT", ];
+const MODULE_NAME_VALUES = [
+  "HTML-CSS",
+  "JAVASCRIPT",
+  "BACKEND - NODE JS",
+  "FRONTEND - REACT",
+];
 
 const assignmentSchema = new mongoose.Schema(
   {
@@ -10,6 +15,11 @@ const assignmentSchema = new mongoose.Schema(
       enum: MODULE_NAME_VALUES,
       default: "-",
       trim: true,
+    },
+    module: {
+      type: Number,
+      min: 1,
+      default: null,
     },
     title: {
       type: String,
@@ -31,10 +41,15 @@ const assignmentSchema = new mongoose.Schema(
     },
     cohorte: {
       type: Number,
-      required: true,      
+      required: true,
+      alias: "cohort",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 export const Assignment = mongoose.model("Assignment", assignmentSchema);

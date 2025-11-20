@@ -1,23 +1,40 @@
-const MODULE_LABELS = {
-  1: "HTML-CSS",
-  2: "JAVASCRIPT",
-  3: "NODE",
-  4: "REACT",
+const MODULE_DETAILS = {
+  1: { label: "HTML-CSS", slug: "htmlcss" },
+  2: { label: "JAVASCRIPT", slug: "javascript" },
+  3: { label: "BACKEND - NODE JS", slug: "node" },
+  4: { label: "FRONTEND - REACT", slug: "react" },
 };
 
-const NORMALISED_LABELS = Object.entries(MODULE_LABELS).reduce(
-  (acc, [key, value]) => {
-    acc[value] = Number(key);
-    return acc;
-  },
-  {}
-);
+const NORMALISED_LABELS = Object.entries(MODULE_DETAILS).reduce((acc, [key, value]) => {
+  acc[value.label.toUpperCase()] = Number(key);
+  return acc;
+}, {});
+
+const SLUG_TO_CODE = Object.entries(MODULE_DETAILS).reduce((acc, [key, value]) => {
+  acc[value.slug.toUpperCase()] = Number(key);
+  return acc;
+}, {});
+
+function coerceModuleCode(value) {
+  if (value === undefined || value === null) return undefined;
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return undefined;
+  return MODULE_DETAILS[numeric] ? numeric : undefined;
+}
+
+function normaliseSlug(value) {
+  if (!value) return "";
+  return String(value).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
 
 export function moduleToLabel(value) {
-  if (value === undefined || value === null) return null;
-  const numeric = Number(value);
-  if (Number.isNaN(numeric)) return null;
-  return MODULE_LABELS[numeric] || null;
+  const numeric = coerceModuleCode(value);
+  return numeric ? MODULE_DETAILS[numeric].label : null;
+}
+
+export function moduleToSlug(value) {
+  const numeric = coerceModuleCode(value);
+  return numeric ? MODULE_DETAILS[numeric].slug : null;
 }
 
 export function labelToModule(label) {
@@ -26,8 +43,34 @@ export function labelToModule(label) {
   return NORMALISED_LABELS[normalised];
 }
 
+export function slugToModule(slug) {
+  if (!slug) return undefined;
+  const normalised = slug.toString().trim().toUpperCase();
+  return SLUG_TO_CODE[normalised];
+}
+
 export function ensureModuleLabel(value) {
   const label = typeof value === "string" ? value : moduleToLabel(value);
   if (!label) return null;
   return label.toUpperCase();
+}
+
+export function resolveModuleMetadata(input = {}, { fallbackCode = 1 } = {}) {
+  let code =
+    coerceModuleCode(input.module) ??
+    labelToModule(input.modulo) ??
+    slugToModule(input.moduloSlug) ??
+    coerceModuleCode(input.cohort);
+
+  if (code === undefined) {
+    code = fallbackCode;
+  }
+
+  const detail = MODULE_DETAILS[code] ?? MODULE_DETAILS[fallbackCode];
+
+  return {
+    code,
+    label: detail?.label ?? input.modulo ?? "HTML-CSS",
+    slug: detail?.slug ?? normaliseSlug(input.moduloSlug),
+  };
 }
