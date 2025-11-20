@@ -8,6 +8,7 @@ import {
 } from "../services/submissionService.mjs";
 import * as frontendSubmissionService from "../services/frontendSubmissionService.mjs";
 
+// En POST /submissions/:id el parámetro representa el ID del turno (slot) asociado.
 export const crearEntregaController = async (req, res, next) => {
   try {
     const nuevaEntrega = await crearEntrega(req.params.id, req.user, req.body);
@@ -17,6 +18,7 @@ export const crearEntregaController = async (req, res, next) => {
   }
 };
 
+// En GET /submissions/:userId el parámetro hace referencia al ID del alumno.
 export const obtenerEntregasPorUsuarioController = async (req, res, next) => {
   try {
     const entregas = await obtenerEntregasPorUsuario(req.params.userId, req.user);
@@ -26,6 +28,7 @@ export const obtenerEntregasPorUsuarioController = async (req, res, next) => {
   }
 };
 
+// En GET /submissions/detail/:id el parámetro corresponde al ID de la submission.
 export const obtenerEntregaPorIdController = async (req, res, next) => {
   try {
     const entrega = await obtenerEntregaPorId(req.params.id, req.user);
@@ -35,6 +38,7 @@ export const obtenerEntregaPorIdController = async (req, res, next) => {
   }
 };
 
+// En PUT /submissions/:id el parámetro corresponde al ID de la submission.
 export const actualizarEntregaController = async (req, res, next) => {
   try {
     const actualizada = await actualizarEntrega(req.params.id, req.body, req.user);
@@ -44,6 +48,7 @@ export const actualizarEntregaController = async (req, res, next) => {
   }
 };
 
+// En DELETE /submissions/:id el parámetro corresponde al ID de la submission.
 export const eliminarEntregaController = async (req, res, next) => {
   try {
     await eliminarEntrega(req.params.id, req.user);

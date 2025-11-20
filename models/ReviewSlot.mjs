@@ -7,7 +7,7 @@ const slotSchema = new mongoose.Schema(
       ref: "Assignment",
       required: false,
     },
-    cohort: {
+    cohorte: {
       type: Number,
       required: true,
     },
@@ -39,7 +39,7 @@ const slotSchema = new mongoose.Schema(
       default: null,
     },
     room: {
-      type: number,
+      type: Number,
       default: 1,
       min: 1,
     },
