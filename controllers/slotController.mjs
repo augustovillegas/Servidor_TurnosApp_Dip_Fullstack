@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import * as slotService from "../services/slotService.mjs";
-import * as frontendSlotService from "../services/frontendSlotService.mjs";
 
 export const createSlotController = async (req, res, next) => {
   try {
@@ -45,7 +44,8 @@ export const actualizarEstadoRevisionController = async (req, res, next) => {
 
 export const obtenerTurnosController = async (req, res, next) => {
   try {
-    const turnos = await slotService.obtenerTurnosPorFiltro(req.query);
+    // Se pasa req.user para aplicar segmentación por módulo y rol
+    const turnos = await slotService.obtenerTurnosPorFiltro(req.query, req.user);
     res.status(200).json(turnos);
   } catch (error) {
     next(error);
@@ -70,21 +70,21 @@ export const misSolicitudesController = async (req, res, next) => {
   }
 };
 
-export const listarTurnosFrontendController = async (req, res, next) => {
+export const listarTurnosController = async (req, res, next) => {
   try {
-    const turnos = await frontendSlotService.listarTurnos(req.query);
+    const turnos = await slotService.listarTurnos(req.query);
     res.json(turnos);
   } catch (error) {
     next(error);
   }
 };
 
-export const obtenerTurnoFrontendController = async (req, res, next) => {
+export const obtenerTurnoController = async (req, res, next) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: "Turno no encontrado" });
     }
-    const turno = await frontendSlotService.obtenerTurno(req.params.id);
+    const turno = await slotService.obtenerTurno(req.params.id);
     if (!turno) {
       return res.status(404).json({ message: "Turno no encontrado" });
     }
@@ -94,24 +94,21 @@ export const obtenerTurnoFrontendController = async (req, res, next) => {
   }
 };
 
-export const crearTurnoFrontendController = async (req, res, next) => {
+export const crearTurnoController = async (req, res, next) => {
   try {
-    const creado = await frontendSlotService.crearTurno(req.body);
+    const creado = await slotService.crearTurno(req.body);
     res.status(201).json(creado);
   } catch (error) {
     next(error);
   }
 };
 
-export const actualizarTurnoFrontendController = async (req, res, next) => {
+export const actualizarTurnoController = async (req, res, next) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: "Turno no encontrado" });
     }
-    const actualizado = await frontendSlotService.actualizarTurno(
-      req.params.id,
-      req.body
-    );
+    const actualizado = await slotService.actualizarTurno(req.params.id, req.body);
     if (!actualizado) {
       return res.status(404).json({ message: "Turno no encontrado" });
     }
@@ -121,12 +118,12 @@ export const actualizarTurnoFrontendController = async (req, res, next) => {
   }
 };
 
-export const eliminarTurnoFrontendController = async (req, res, next) => {
+export const eliminarTurnoController = async (req, res, next) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: "Turno no encontrado" });
     }
-    const eliminado = await frontendSlotService.eliminarTurno(req.params.id);
+    const eliminado = await slotService.eliminarTurno(req.params.id);
     if (!eliminado) {
       return res.status(404).json({ message: "Turno no encontrado" });
     }

@@ -12,15 +12,10 @@ const assignmentSchema = new mongoose.Schema(
   {
     modulo: {
       type: String,
-      enum: MODULE_NAME_VALUES,
-      default: "-",
+      enum: MODULE_NAME_VALUES,      
       trim: true,
-    },
-    module: {
-      type: Number,
-      min: 1,
-      default: null,
-    },
+      required: true,
+    },  
     title: {
       type: String,
       required: true,
@@ -41,8 +36,7 @@ const assignmentSchema = new mongoose.Schema(
     },
     cohorte: {
       type: Number,
-      required: true,
-      alias: "cohort",
+      required: true,      
     },
   },
   {

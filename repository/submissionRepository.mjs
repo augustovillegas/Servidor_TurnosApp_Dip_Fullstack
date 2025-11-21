@@ -2,8 +2,8 @@ import { Submission } from "../models/Submission.mjs";
 import { IRepository } from "./IRepository.mjs";
 
 class RepositorioEntrega extends IRepository {
-  async obtenerTodos() {
-    return await Submission.find();
+  async obtenerTodos(filtro = {}) {
+    return await Submission.find(filtro);
   }
 
   async obtenerPorId(id) {

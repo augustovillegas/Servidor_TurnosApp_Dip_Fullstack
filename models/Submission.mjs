@@ -56,12 +56,7 @@ const submissionSchema = new mongoose.Schema(
       enum: REVIEW_STATUS_VALUES,
       default: "A revisar",
       required: true,
-    },
-    estado: {
-      type: String,
-      enum: REVIEW_STATUS_VALUES,
-      default: "A revisar",
-    },
+    }, 
   },
   { timestamps: true }
 );

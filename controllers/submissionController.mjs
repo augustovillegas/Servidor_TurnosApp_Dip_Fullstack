@@ -1,14 +1,26 @@
 import mongoose from "mongoose";
 import {
+  listarEntregas,  
   crearEntrega,
-  obtenerEntregasPorUsuario,
-  obtenerEntregaPorId,
   actualizarEntrega,
   eliminarEntrega,
+  obtenerEntregasPorUsuario,
+  obtenerEntregaPorId,
 } from "../services/submissionService.mjs";
-import * as frontendSubmissionService from "../services/frontendSubmissionService.mjs";
 
-// En POST /submissions/:id el parámetro representa el ID del turno (slot) asociado.
+
+// 📌 NUEVO: Listado general para Superadmin/Profesor
+export const listarEntregasController = async (req, res, next) => {
+  try {
+    // Pasar req.user para permisos y req.query para filtros opcionales (estado, sprint, etc.)
+    const entregas = await listarEntregas(req.user, req.query); 
+    res.json(entregas);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// En POST /submissions/:slotId el parámetro representa el ID del turno (slot) asociado.
 export const crearEntregaController = async (req, res, next) => {
   try {
     const nuevaEntrega = await crearEntrega(req.params.id, req.user, req.body);
@@ -21,7 +33,7 @@ export const crearEntregaController = async (req, res, next) => {
 // En GET /submissions/:userId el parámetro hace referencia al ID del alumno.
 export const obtenerEntregasPorUsuarioController = async (req, res, next) => {
   try {
-    const entregas = await obtenerEntregasPorUsuario(req.params.userId, req.user);
+    const entregas = await obtenerEntregasPorUsuario( req.params.userId, req.user );
     res.json(entregas);
   } catch (err) {
     next(err);
@@ -29,100 +41,50 @@ export const obtenerEntregasPorUsuarioController = async (req, res, next) => {
 };
 
 // En GET /submissions/detail/:id el parámetro corresponde al ID de la submission.
+// Usamos este como el controlador canónico para obtener por ID.
 export const obtenerEntregaPorIdController = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    // Usamos obtenerEntregaPorId del servicio (asumo que incluye chequeo de permisos)
     const entrega = await obtenerEntregaPorId(req.params.id, req.user);
+    if (!entrega) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
     res.json(entrega);
   } catch (err) {
     next(err);
   }
 };
 
-// En PUT /submissions/:id el parámetro corresponde al ID de la submission.
 export const actualizarEntregaController = async (req, res, next) => {
   try {
-    const actualizada = await actualizarEntrega(req.params.id, req.body, req.user);
-    res.json(actualizada);
-  } catch (err) {
-    next(err);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    // Asumiendo que actualizarEntrega toma id, body, y user para checkeo de permisos
+    const entrega = await actualizarEntrega(req.params.id, req.body, req.user);
+    if (!entrega) {
+      return res.status(404).json({ message: "Entrega no encontrada" });
+    }
+    res.json(entrega);
+  } catch (error) {
+    next(error);
   }
 };
 
-// En DELETE /submissions/:id el parámetro corresponde al ID de la submission.
 export const eliminarEntregaController = async (req, res, next) => {
   try {
-    await eliminarEntrega(req.params.id, req.user);
-    res.status(204).end();
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const listarEntregasFrontendController = async (req, res, next) => {
-  try {
-    const entregas = await frontendSubmissionService.listarEntregas(req.query);
-    res.json(entregas);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const obtenerEntregaFrontendController = async (req, res, next) => {
-  try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: "Entrega no encontrada" });
     }
-    const entrega = await frontendSubmissionService.obtenerEntrega(
-      req.params.id
-    );
-    if (!entrega) {
+    // Asumiendo que eliminarEntrega toma id y user para checkeo de permisos
+    const resultado = await eliminarEntrega(req.params.id, req.user);
+    if (!resultado) {
       return res.status(404).json({ message: "Entrega no encontrada" });
     }
-    res.json(entrega);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const crearEntregaFrontendController = async (req, res, next) => {
-  try {
-    const entrega = await frontendSubmissionService.crearEntrega(req.body);
-    res.status(201).json(entrega);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const actualizarEntregaFrontendController = async (req, res, next) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
-    const entrega = await frontendSubmissionService.actualizarEntrega(
-      req.params.id,
-      req.body
-    );
-    if (!entrega) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
-    res.json(entrega);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const eliminarEntregaFrontendController = async (req, res, next) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
-    const eliminada = await frontendSubmissionService.eliminarEntrega(
-      req.params.id
-    );
-    if (!eliminada) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
-    res.status(204).end();
+    res.json({ message: "Entrega eliminada con éxito" });
   } catch (error) {
     next(error);
   }

@@ -113,6 +113,7 @@ export function queueUser(seedUsers, cfg) {
     role: cfg.role,
     modulo: cfg?.moduloName ?? "-",
     moduloSlug: cfg?.moduloSlug ?? "",
+    moduleCode: cfg?.moduleCode ?? 0,
     cohorte: cfg?.cohorte ?? cfg?.moduleCode ?? 0,
     cohort: cfg?.cohort ?? cfg?.moduleCode ?? 0,
     cohortLabel: cfg?.cohortLabel ?? "-",

@@ -1,10 +1,10 @@
 import express from "express";
 import {
-  listarUsuariosFrontendController,
-  obtenerUsuarioFrontendController,
-  crearUsuarioFrontendController,
-  actualizarUsuarioFrontendController,
-  eliminarUsuarioFrontendController,
+  listarUsuariosController,
+  obtenerUsuarioController,
+  crearUsuarioController,
+  actualizarUsuarioController,
+  eliminarUsuarioController,
 } from "../controllers/userController.mjs";
 import { auth } from "../middlewares/auth.mjs";
 import { allowRoles } from "../middlewares/roles.mjs";
@@ -12,12 +12,13 @@ import { allowRoles } from "../middlewares/roles.mjs";
 const router = express.Router();
 
 router.use(auth);
-router.use(allowRoles("superadmin"));
+// Permitir también profesores para listado segmentado y alumnos para ver su propio usuario
+router.use(allowRoles("superadmin", "profesor", "alumno"));
 
-router.get("/", listarUsuariosFrontendController);
-router.get("/:id", obtenerUsuarioFrontendController);
-router.post("/", crearUsuarioFrontendController);
-router.put("/:id", actualizarUsuarioFrontendController);
-router.delete("/:id", eliminarUsuarioFrontendController);
+router.get("/", listarUsuariosController);
+router.get("/:id", obtenerUsuarioController);
+router.post("/", crearUsuarioController);
+router.put("/:id", actualizarUsuarioController);
+router.delete("/:id", eliminarUsuarioController);
 
 export default router;

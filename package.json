@@ -1,14 +1,16 @@
 {
   "name": "gestion-de-turnos-app",
   "version": "1.0.0",
-  "description": "Gestión profesional de turnos, entregas y revisiones",
+    "description": "Gestión profesional de turnos, entregas y revisiones actualizada",
   "type": "module",
   "main": "server.mjs",
   "scripts": {
     "start": "node server.mjs",
     "dev": "nodemon server.mjs",
     "pretest": "node scripts/crearSuperadmin.mjs",
-    "test": "cross-env NODE_ENV=test node scripts/runTestsWithLog.mjs",
+    "test": "cross-env NODE_ENV=test vitest run",
+    "test:cohort": "cross-env NODE_ENV=test vitest run tests/cohort-isolation.test.mjs",
+    "test:full": "npm run limpiar && node scripts/crearSuperadmin.mjs && vitest run",
     "test:watch": "vitest watch",
     "limpiar": "node scripts/limpiarDB.mjs",
     "seed": "node scripts/reset_and_seed.mjs",

@@ -1,20 +1,32 @@
 import mongoose from "mongoose";
 
-const MODULE_NAME_VALUES = [ "HTML-CSS", "JAVASCRIPT", "BACKEND - NODE JS",  "FRONTEND - REACT", ];
+const MODULE_NAME_VALUES = [
+  "HTML-CSS",
+  "JAVASCRIPT",
+  "BACKEND - NODE JS",
+  "FRONTEND - REACT",
+];
 
-const ROLE_TYPE_VALUES = [ "alumno", "profesor", "superadmin" ];
+const ROLE_TYPE_VALUES = ["alumno", "profesor", "superadmin"];
 
-const STATUS_USER = [ "Pendiente", "Aprobado", "Rechazado" ];
+const STATUS_USER = ["Pendiente", "Aprobado", "Rechazado"];
 
 const userSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     nombre: {
       type: String,
       trim: true,
+      default: null,
     },
     apellido: {
       type: String,
       trim: true,
+      default: null,
     },
     email: {
       type: String,
@@ -32,11 +44,18 @@ const userSchema = new mongoose.Schema(
       enum: MODULE_NAME_VALUES,
       trim: true,
       required: true,
+      alias: "module",
     },
     moduloSlug: {
       type: String,
       trim: true,
+      lowercase: true,
       default: "",
+    },
+    moduleCode: {
+      type: Number,
+      min: 1,
+      default: null,
     },
     role: {
       type: String,
@@ -48,11 +67,19 @@ const userSchema = new mongoose.Schema(
       required: true,
       alias: "cohort",
     },
+    cohortLabel: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     isRecursante: {
       type: Boolean,
       default: false,
     },
-    isApproved: { type: Boolean, default: false },
+    isApproved: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       enum: STATUS_USER,

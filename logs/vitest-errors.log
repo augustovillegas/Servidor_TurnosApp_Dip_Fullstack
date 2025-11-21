@@ -2,725 +2,558 @@
 [1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/Asus/Desktop/Gestion de turnos APP[39m
 
 [90mstdout[2m | tests/assignment.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[22m[39m[dotenv@17.2.2] injecting env (3) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
 
 [90mstdout[2m | tests/assignment.test.mjs
 [22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
 
 [90mstdout[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
 
 [90mstdout[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments
 [22m[39mConectado a MongoDB
 
-[0mPOST /auth/login [32m200[0m 403.433 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 424.546 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb0c687bce6db9116ee46 [32m200[0m 152.920 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 265.846 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 379.278 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb0c787bce6db9116ee4c [32m200[0m 141.939 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 267.279 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 410.834 ms - 348[0m
-[0mPATCH /auth/aprobar/691eb0c887bce6db9116ee52 [32m200[0m 147.798 ms - 337[0m
-[0mPOST /auth/login [32m200[0m 273.584 ms - 549[0m
-[0mPOST /auth/register [32m201[0m 332.961 ms - 353[0m
-[0mPATCH /auth/aprobar/691eb0c987bce6db9116ee58 [32m200[0m 144.306 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 295.563 ms - 554[0m
-[0mPOST /assignments [33m403[0m 74.032 ms - 25[0m
-[0mPOST /auth/login [32m200[0m 278.088 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 333.843 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb0cb87bce6db9116ee65 [32m200[0m 134.178 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 301.926 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 371.945 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb0cc87bce6db9116ee6b [32m200[0m 150.337 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 270.009 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 311.130 ms - 348[0m
-[0mPATCH /auth/aprobar/691eb0cd87bce6db9116ee71 [32m200[0m 138.710 ms - 337[0m
-[0mPOST /auth/login [32m200[0m 272.571 ms - 549[0m
-[0mPOST /auth/register [32m201[0m 331.884 ms - 353[0m
-[0mPATCH /auth/aprobar/691eb0cd87bce6db9116ee77 [32m200[0m 142.815 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 295.460 ms - 554[0m
-[0mPOST /assignments [33m400[0m 67.782 ms - 139[0m
-[0mPOST /auth/login [32m200[0m 256.864 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 345.438 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb0d087bce6db9116ee84 [32m200[0m 141.763 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 263.420 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 432.575 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb0d087bce6db9116ee8a [32m200[0m 145.389 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 277.506 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 319.021 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb0d187bce6db9116ee90 [32m200[0m 138.754 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 292.991 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 354.728 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb0d287bce6db9116ee96 [32m200[0m 134.761 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 273.009 ms - 555[0m
-[0mPOST /assignments [32m201[0m 157.028 ms - 363[0m
-[0mPOST /auth/login [32m200[0m 266.912 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 330.480 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb0d487bce6db9116eea5 [32m200[0m 136.216 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 248.120 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 331.377 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb0d587bce6db9116eeab [32m200[0m 134.745 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 269.699 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 324.079 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb0d687bce6db9116eeb1 [32m200[0m 143.248 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 274.177 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 322.979 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb0d787bce6db9116eeb7 [32m200[0m 140.563 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 259.175 ms - 555[0m
-[0mPOST /assignments [32m201[0m 152.205 ms - 363[0m
+[0mPOST /auth/login [32m200[0m 283.631 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 280.948 ms - 461[0m
+[0mPATCH /auth/aprobar/691fd135344b3bbffce34048 [32m200[0m 147.984 ms - 450[0m
+[0mPOST /auth/login [32m200[0m 191.186 ms - 665[0m
+[0mPOST /auth/register [32m201[0m 249.612 ms - 468[0m
+[0mPATCH /auth/aprobar/691fd135344b3bbffce3404e [32m200[0m 137.946 ms - 457[0m
+[0mPOST /auth/login [32m200[0m 224.798 ms - 672[0m
+[0mPOST /auth/register [32m201[0m 254.886 ms - 457[0m
+[0mPATCH /auth/aprobar/691fd136344b3bbffce34054 [32m200[0m 145.966 ms - 446[0m
+[0mPOST /auth/login [32m200[0m 204.276 ms - 658[0m
+[0mPOST /auth/register [32m201[0m 261.407 ms - 464[0m
+[0mPATCH /auth/aprobar/691fd137344b3bbffce3405a [32m200[0m 132.876 ms - 453[0m
+[0mPOST /auth/login [32m200[0m 186.404 ms - 665[0m
+[0mPOST /assignments [33m403[0m 68.954 ms - 25[0m
+[0mPOST /auth/login [32m200[0m 187.194 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 280.374 ms - 461[0m
+[0mPATCH /auth/aprobar/691fd138344b3bbffce34067 [32m200[0m 135.244 ms - 450[0m
+[0mPOST /auth/login [32m200[0m 289.956 ms - 665[0m
+[0mPOST /auth/register [32m201[0m 356.068 ms - 468[0m
+[0mPATCH /auth/aprobar/691fd139344b3bbffce3406d [32m200[0m 140.384 ms - 457[0m
+[0mPOST /auth/login [32m200[0m 188.509 ms - 672[0m
+[0mPOST /auth/register [32m201[0m 256.017 ms - 457[0m
+[0mPATCH /auth/aprobar/691fd13a344b3bbffce34073 [32m200[0m 137.750 ms - 446[0m
+[0mPOST /auth/login [32m200[0m 187.662 ms - 658[0m
+[0mPOST /auth/register [32m201[0m 248.444 ms - 464[0m
+[0mPATCH /auth/aprobar/691fd13a344b3bbffce34079 [32m200[0m 138.671 ms - 453[0m
+[0mPOST /auth/login [32m200[0m 191.418 ms - 665[0m
+[0mPOST /assignments [33m400[0m 69.043 ms - 139[0m
+[0mPOST /auth/login [32m200[0m 190.486 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 257.785 ms - 461[0m
+[0mPATCH /auth/aprobar/691fd13c344b3bbffce34086 [32m200[0m 143.370 ms - 450[0m
+[0mPOST /auth/login [32m200[0m 186.650 ms - 665[0m
+[0mPOST /auth/register [32m201[0m 256.691 ms - 468[0m
+[0mPATCH /auth/aprobar/691fd13c344b3bbffce3408c [32m200[0m 134.064 ms - 457[0m
+[0mPOST /auth/login [32m200[0m 228.390 ms - 672[0m
+[0mPOST /auth/register [32m201[0m 255.378 ms - 458[0m
+[0mPATCH /auth/aprobar/691fd13d344b3bbffce34092 [32m200[0m 139.336 ms - 447[0m
+[0mPOST /auth/login [32m200[0m 181.310 ms - 659[0m
+[0mPOST /auth/register [32m201[0m 246.293 ms - 465[0m
+[0mPATCH /auth/aprobar/691fd13d344b3bbffce34098 [32m200[0m 139.606 ms - 454[0m
+[0mPOST /auth/login [32m200[0m 197.256 ms - 666[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mAsignacion valida conserva ownership del profesor creador
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
+[0mPOST /assignments [31m500[0m 91.937 ms - 76[0m
+
+[0mPOST /auth/login [32m200[0m 199.738 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 288.133 ms - 462[0m
+[0mPATCH /auth/aprobar/691fd13f344b3bbffce340a6 [32m200[0m 134.005 ms - 451[0m
+[0mPOST /auth/login [32m200[0m 181.404 ms - 666[0m
+[0mPOST /auth/register [32m201[0m 243.922 ms - 469[0m
+[0mPATCH /auth/aprobar/691fd140344b3bbffce340ac [32m200[0m 175.411 ms - 458[0m
+[0mPOST /auth/login [32m200[0m 179.004 ms - 673[0m
+[0mPOST /auth/register [32m201[0m 261.366 ms - 458[0m
+[0mPATCH /auth/aprobar/691fd140344b3bbffce340b2 [32m200[0m 130.395 ms - 447[0m
+[0mPOST /auth/login [32m200[0m 177.514 ms - 659[0m
+[0mPOST /auth/register [32m201[0m 248.040 ms - 465[0m
+[0mPATCH /auth/aprobar/691fd141344b3bbffce340b8 [32m200[0m 131.952 ms - 454[0m
+[0mPOST /auth/login [32m200[0m 227.876 ms - 666[0m
 [90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mProfesor ajeno no puede actualizar asignacion de otro profesor
-[22m[39mError: No autorizado a modificar esta asignación
-Error: No autorizado a modificar esta asignación
-    at Module.actualizarAsignacion (C:\Users\Asus\Desktop\Gestion de turnos APP\services\assignmentService.mjs:43:11)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at actualizarAsignacionController (C:\Users\Asus\Desktop\Gestion de turnos APP\controllers\assignmentController.mjs:39:24)
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
 
-[0mPUT /assignments/691eb0d787bce6db9116eebd [31m500[0m 160.936 ms - 107[0m
-[0mPOST /auth/login [32m200[0m 360.925 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 330.962 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb0d987bce6db9116eec8 [32m200[0m 161.770 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 259.676 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 333.061 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb0da87bce6db9116eece [32m200[0m 133.208 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 293.578 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 352.712 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb0db87bce6db9116eed4 [32m200[0m 134.077 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 285.755 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 344.361 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb0db87bce6db9116eeda [32m200[0m 138.430 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 270.524 ms - 555[0m
-[0mPOST /assignments [32m201[0m 142.194 ms - 363[0m
-[0mPUT /assignments/691eb0dc87bce6db9116eee0 [32m200[0m 214.828 ms - 353[0m
-[0mPOST /auth/login [32m200[0m 316.269 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 338.635 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb0de87bce6db9116eeec [32m200[0m 142.645 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 275.096 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 337.199 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb0df87bce6db9116eef2 [32m200[0m 150.530 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 279.716 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 344.259 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb0e087bce6db9116eef8 [32m200[0m 144.011 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 275.220 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 319.828 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb0e087bce6db9116eefe [32m200[0m 144.476 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 340.419 ms - 555[0m
-[0mPOST /assignments [32m201[0m 147.062 ms - 363[0m
-[0mDELETE /assignments/691eb0e187bce6db9116ef04 [31m500[0m 135.691 ms - 105[0m
+[0mPOST /assignments [31m500[0m 71.341 ms - 76[0m
+[0mPUT /assignments/undefined [33m400[0m 76.215 ms - 93[0m
+[0mPOST /auth/login [32m200[0m 200.269 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 278.275 ms - 462[0m
+[0mPATCH /auth/aprobar/691fd142344b3bbffce340c7 [32m200[0m 134.181 ms - 451[0m
+[0mPOST /auth/login [32m200[0m 194.346 ms - 666[0m
+[0mPOST /auth/register [32m201[0m 254.223 ms - 469[0m
+[0mPATCH /auth/aprobar/691fd143344b3bbffce340cd [32m200[0m 131.964 ms - 458[0m
+[0mPOST /auth/login [32m200[0m 215.295 ms - 673[0m
+[0mPOST /auth/register [32m201[0m 392.168 ms - 458[0m
+[0mPATCH /auth/aprobar/691fd144344b3bbffce340d3 [32m200[0m 146.795 ms - 447[0m
+[0mPOST /auth/login [32m200[0m 190.873 ms - 659[0m
+[0mPOST /auth/register [32m201[0m 245.117 ms - 465[0m
+[0mPATCH /auth/aprobar/691fd144344b3bbffce340d9 [32m200[0m 134.810 ms - 454[0m
+[0mPOST /auth/login [32m200[0m 189.791 ms - 666[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mSuperadmin puede actualizar asignacion ajena
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
+
+[0mPOST /assignments [31m500[0m 68.862 ms - 76[0m
+[0mPUT /assignments/undefined [33m400[0m 69.995 ms - 93[0m
+[0mPOST /auth/login [32m200[0m 193.081 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 297.818 ms - 462[0m
+[0mPATCH /auth/aprobar/691fd146344b3bbffce340e8 [32m200[0m 141.395 ms - 451[0m
+[0mPOST /auth/login [32m200[0m 186.361 ms - 666[0m
+[0mPOST /auth/register [32m201[0m 256.938 ms - 469[0m
+[0mPATCH /auth/aprobar/691fd147344b3bbffce340ee [32m200[0m 132.563 ms - 458[0m
+[0mPOST /auth/login [32m200[0m 186.623 ms - 673[0m
+[0mPOST /auth/register [32m201[0m 249.538 ms - 458[0m
+[0mPATCH /auth/aprobar/691fd147344b3bbffce340f4 [32m200[0m 131.849 ms - 447[0m
+[0mPOST /auth/login [32m200[0m 180.628 ms - 659[0m
+[0mPOST /auth/register [32m201[0m 258.387 ms - 465[0m
+[0mPATCH /auth/aprobar/691fd148344b3bbffce340fa [32m200[0m 144.025 ms - 454[0m
+[0mPOST /auth/login [32m200[0m 235.736 ms - 666[0m
 [90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mProfesor ajeno no puede eliminar asignacion y la misma sigue disponible
-[22m[39mError: No autorizado a eliminar esta asignación
-Error: No autorizado a eliminar esta asignación
-    at Module.eliminarAsignacion (C:\Users\Asus\Desktop\Gestion de turnos APP\services\assignmentService.mjs:60:11)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at eliminarAsignacionController (C:\Users\Asus\Desktop\Gestion de turnos APP\controllers\assignmentController.mjs:48:5)
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
 
-[0mGET /assignments/691eb0e187bce6db9116ef04 [32m200[0m 142.107 ms - 363[0m
-[0mPOST /auth/login [32m200[0m 294.073 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 385.518 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb0e387bce6db9116ef11 [32m200[0m 142.713 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 241.857 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 327.251 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb0e487bce6db9116ef17 [32m200[0m 147.548 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 308.765 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 342.290 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb0e587bce6db9116ef1d [32m200[0m 150.751 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 296.290 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 326.948 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb0e587bce6db9116ef23 [32m200[0m 144.877 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 274.173 ms - 555[0m
-[0mPOST /assignments [32m201[0m 146.704 ms - 363[0m
-[0mDELETE /assignments/691eb0e687bce6db9116ef29 [32m204[0m 210.972 ms - -[0m
-[0mGET /assignments/691eb0e687bce6db9116ef29 [33m404[0m 133.368 ms - 35[0m
-[0mPOST /auth/login [32m200[0m 261.743 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 339.068 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb0e887bce6db9116ef37 [32m200[0m 139.087 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 275.643 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 340.152 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb0e987bce6db9116ef3d [32m200[0m 131.595 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 250.688 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 410.312 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb0ea87bce6db9116ef43 [32m200[0m 143.301 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 259.902 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 331.664 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb0ea87bce6db9116ef49 [32m200[0m 144.195 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 247.192 ms - 555[0m
-[0mPOST /assignments [32m201[0m 149.567 ms - 343[0m
-[0mPOST /assignments [32m201[0m 133.224 ms - 343[0m
-[0mPOST /assignments [32m201[0m 147.190 ms - 347[0m
-[0mGET /assignments [32m200[0m 141.595 ms - 689[0m
-[0mPOST /auth/login [32m200[0m 286.106 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 366.363 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb0ed87bce6db9116ef60 [32m200[0m 141.262 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 287.366 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 331.336 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb0ee87bce6db9116ef66 [32m200[0m 143.255 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 270.121 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 363.979 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb0ef87bce6db9116ef6c [32m200[0m 146.494 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 348.454 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 354.235 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb0f087bce6db9116ef72 [32m200[0m 145.691 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 294.166 ms - 555[0m
-[0mPOST /assignments [32m201[0m 145.817 ms - 348[0m
- [32m✓[39m tests/assignment.test.mjs [2m([22m[2m9 tests[22m[2m)[22m[33m 47613[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mAlumno no puede crear una asignacion [33m 5207[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mAsignacion con dueDate invalido devuelve 400 [33m 4529[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mAsignacion valida conserva ownership del profesor creador [33m 4770[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mProfesor ajeno no puede actualizar asignacion de otro profesor [33m 4620[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mSuperadmin puede actualizar asignacion ajena [33m 4935[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mProfesor ajeno no puede eliminar asignacion y la misma sigue disponible [33m 4994[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mSuperadmin puede eliminar asignacion de terceros [33m 5165[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mListado para profesor devuelve solo sus asignaciones [33m 4976[2mms[22m[39m
-   [33m[2m✓[22m[39m Assignments[2m > [22mCampos extra se ignoran al crear una asignacion [33m 4746[2mms[22m[39m
+[0mPOST /assignments [31m500[0m 69.144 ms - 76[0m
+[0mDELETE /assignments/undefined [33m400[0m 69.324 ms - 93[0m
+[0mPOST /auth/login [32m200[0m 185.122 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 264.075 ms - 462[0m
+[0mPATCH /auth/aprobar/691fd149344b3bbffce34109 [32m200[0m 130.023 ms - 451[0m
+[0mPOST /auth/login [32m200[0m 184.525 ms - 666[0m
+[0mPOST /auth/register [32m201[0m 252.005 ms - 469[0m
+[0mPATCH /auth/aprobar/691fd14a344b3bbffce3410f [32m200[0m 138.851 ms - 458[0m
+[0mPOST /auth/login [32m200[0m 181.994 ms - 673[0m
+[0mPOST /auth/register [32m201[0m 282.329 ms - 458[0m
+[0mPATCH /auth/aprobar/691fd14b344b3bbffce34115 [32m200[0m 142.536 ms - 447[0m
+[0mPOST /auth/login [32m200[0m 193.136 ms - 659[0m
+[0mPOST /auth/register [32m201[0m 256.089 ms - 465[0m
+[0mPATCH /auth/aprobar/691fd14b344b3bbffce3411b [32m200[0m 134.886 ms - 454[0m
+[0mPOST /auth/login [32m200[0m 182.849 ms - 666[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mSuperadmin puede eliminar asignacion de terceros
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
 
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m9 passed[39m[22m[90m (9)[39m
-[2m   Start at [22m 03:10:03
-[2m   Duration [22m 53.24s[2m (transform 734ms, setup 0ms, collect 4.00s, tests 47.61s, environment 1ms, prepare 727ms)[22m
+[0mPOST /assignments [31m500[0m 67.164 ms - 76[0m
+[0mDELETE /assignments/undefined [33m400[0m 65.939 ms - 93[0m
+[0mPOST /auth/login [32m200[0m 185.288 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 285.568 ms - 462[0m
+[0mPATCH /auth/aprobar/691fd14d344b3bbffce3412a [32m200[0m 130.004 ms - 451[0m
+[0mPOST /auth/login [32m200[0m 183.187 ms - 666[0m
+[0mPOST /auth/register [32m201[0m 417.661 ms - 469[0m
+[0mPATCH /auth/aprobar/691fd14d344b3bbffce34130 [32m200[0m 155.190 ms - 458[0m
+[0mPOST /auth/login [32m200[0m 180.287 ms - 673[0m
+[0mPOST /auth/register [32m201[0m 245.783 ms - 458[0m
+[0mPATCH /auth/aprobar/691fd14e344b3bbffce34136 [32m200[0m 140.016 ms - 447[0m
+[0mPOST /auth/login [32m200[0m 187.257 ms - 659[0m
+[0mPOST /auth/register [32m201[0m 249.082 ms - 465[0m
+[0mPATCH /auth/aprobar/691fd14f344b3bbffce3413c [32m200[0m 140.206 ms - 454[0m
+[0mPOST /auth/login [32m200[0m 239.929 ms - 666[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mListado para profesor devuelve solo sus asignaciones
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
 
+[0mPOST /assignments [31m500[0m 78.109 ms - 76[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mListado para profesor devuelve solo sus asignaciones
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
 
-[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/Asus/Desktop/Gestion de turnos APP[39m
+[0mPOST /assignments [31m500[0m 73.469 ms - 76[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mListado para profesor devuelve solo sus asignaciones
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
 
-[90mstdout[2m | tests/auth.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[0mPOST /assignments [31m500[0m 69.237 ms - 76[0m
+[0mGET /assignments [32m200[0m 139.702 ms - 2[0m
+[0mPOST /auth/login [32m200[0m 214.399 ms - 625[0m
+[0mPOST /auth/register [32m201[0m 265.846 ms - 462[0m
+[0mPATCH /auth/aprobar/691fd150344b3bbffce34150 [32m200[0m 137.666 ms - 451[0m
+[0mPOST /auth/login [32m200[0m 212.845 ms - 666[0m
+[0mPOST /auth/register [32m201[0m 403.710 ms - 469[0m
+[0mPATCH /auth/aprobar/691fd151344b3bbffce34156 [32m200[0m 138.434 ms - 458[0m
+[0mPOST /auth/login [32m200[0m 382.171 ms - 673[0m
+[0mPOST /auth/register [32m201[0m 285.754 ms - 458[0m
+[0mPATCH /auth/aprobar/691fd152344b3bbffce3415c [32m200[0m 135.280 ms - 447[0m
+[0mPOST /auth/login [32m200[0m 183.868 ms - 659[0m
+[0mPOST /auth/register [32m201[0m 262.002 ms - 465[0m
+[0mPATCH /auth/aprobar/691fd153344b3bbffce34162 [32m200[0m 133.612 ms - 454[0m
+[0mPOST /auth/login [32m200[0m 201.759 ms - 666[0m
+[90mstderr[2m | tests/assignment.test.mjs[2m > [22m[2mAssignments[2m > [22m[2mCampos extra se ignoran al crear una asignacion
+[22m[39m❌ Error en crearAsignacionController: Error: Assignment validation failed: cohorte: Path `cohorte` is required.
+    at ValidationError.inspect [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\error\validation.js:52:26[90m)[39m
+[90m    at formatValue (node:internal/util/inspect:850:19)[39m
+[90m    at inspect (node:internal/util/inspect:387:10)[39m
+[90m    at formatWithOptionsInternal (node:internal/util/inspect:2366:40)[39m
+[90m    at formatWithOptions (node:internal/util/inspect:2228:10)[39m
+[90m    at Console.value (node:internal/console/constructor:345:14)[39m
+[90m    at Console.error (node:internal/console/constructor:412:61)[39m
+    at crearAsignacionController [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mcontrollers\assignmentController.mjs:13:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  errors: {
+    cohorte: ValidatorError: Path `cohorte` is required.
+        at validate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1413:13[90m)[39m
+        at SchemaNumber.SchemaType.doValidate [90m(C:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\schemaType.js:1397:7[90m)[39m
+        at [90mC:\Users\Asus\Desktop\Gestion de turnos APP\[39mnode_modules\[4mmongoose[24m\lib\document.js:3111:18
+    [90m    at processTicksAndRejections (node:internal/process/task_queues:85:11)[39m {
+      properties: [36m[Object][39m,
+      kind: [32m'required'[39m,
+      path: [32m'cohorte'[39m,
+      value: [90mundefined[39m,
+      reason: [90mundefined[39m,
+      [[32mSymbol(mongoose#validatorError)[39m]: [33mtrue[39m
+    }
+  },
+  _message: [32m'Assignment validation failed'[39m
+}
 
-[90mstdout[2m | tests/auth.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[0mPOST /assignments [31m500[0m 73.334 ms - 76[0m
+ [31m❯[39m tests/assignment.test.mjs [2m([22m[2m9 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 33994[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mAlumno no puede crear una asignacion [33m 3671[2mms[22m[39m
+   [33m[2m✓[22m[39m Assignments[2m > [22mAsignacion con dueDate invalido devuelve 400 [33m 3485[2mms[22m[39m
+[31m   [31m×[31m Assignments[2m > [22mAsignacion valida conserva ownership del profesor creador[39m[33m 3353[2mms[22m[39m
+[31m     → expected 500 to be 201 // Object.is equality[39m
+[31m   [31m×[31m Assignments[2m > [22mProfesor ajeno no puede actualizar asignacion de otro profesor[39m[33m 3426[2mms[22m[39m
+[31m     → expected 400 to be 500 // Object.is equality[39m
+[31m   [31m×[31m Assignments[2m > [22mSuperadmin puede actualizar asignacion ajena[39m[33m 3527[2mms[22m[39m
+[31m     → expected 400 to be 200 // Object.is equality[39m
+[31m   [31m×[31m Assignments[2m > [22mProfesor ajeno no puede eliminar asignacion y la misma sigue disponible[39m[33m 3405[2mms[22m[39m
+[31m     → expected 400 to be 500 // Object.is equality[39m
+[31m   [31m×[31m Assignments[2m > [22mSuperadmin puede eliminar asignacion de terceros[39m[33m 3334[2mms[22m[39m
+[31m     → expected 400 to be 204 // Object.is equality[39m
+[31m   [31m×[31m Assignments[2m > [22mListado para profesor devuelve solo sus asignaciones[39m[33m 3794[2mms[22m[39m
+[31m     → expected +0 to be 1 // Object.is equality[39m
+[31m   [31m×[31m Assignments[2m > [22mCampos extra se ignoran al crear una asignacion[39m[33m 3709[2mms[22m[39m
+[31m     → expected 500 to be 201 // Object.is equality[39m
 
-[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
 
-[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth
-[22m[39mConectado a MongoDB
+[41m[1m FAIL [22m[49m tests/assignment.test.mjs[2m > [22mAssignments[2m > [22mAsignacion valida conserva ownership del profesor creador
+[31m[1mAssertionError[22m: expected 500 to be 201 // Object.is equality[39m
 
-[0mPOST /auth/login [32m200[0m 455.363 ms - 594[0m
-[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mCredenciales del seed permiten login y conservan datos de modulo
-[22m[39m[DB] Limpiando colecciones...
+[32m- Expected[39m
+[31m+ Received[39m
 
-[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mCredenciales del seed permiten login y conservan datos de modulo
-[22m[39mColección 'users' eliminada.
+[32m- 201[39m
+[31m+ 500[39m
 
-[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mCredenciales del seed permiten login y conservan datos de modulo
-[22m[39mColección 'assignments' eliminada.
+[36m [2m❯[22m tests/assignment.test.mjs:[2m67:24[22m[39m
+    [90m 65| [39m    [35mconst[39m { res } [33m=[39m [35mawait[39m [34mcrearAsignacion[39m(context[33m.[39mprofesorOwner[33m.[39mtoken)[33m;[39m
+    [90m 66| [39m
+    [90m 67| [39m    [34mexpect[39m(res[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m201[39m)[33m;[39m
+    [90m   | [39m                       [31m^[39m
+    [90m 68| [39m    [34mexpect[39m(res[33m.[39mbody)[33m.[39m[34mtoMatchObject[39m({
+    [90m 69| [39m      title[33m:[39m expect[33m.[39m[34many[39m([33mString[39m)[33m,[39m
 
-[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mCredenciales del seed permiten login y conservan datos de modulo
-[22m[39mColección 'reviewslots' eliminada.
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
 
-[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mCredenciales del seed permiten login y conservan datos de modulo
-[22m[39mColección 'submissions' eliminada.
+[41m[1m FAIL [22m[49m tests/assignment.test.mjs[2m > [22mAssignments[2m > [22mProfesor ajeno no puede actualizar asignacion de otro profesor
+[31m[1mAssertionError[22m: expected 400 to be 500 // Object.is equality[39m
 
-[90mstdout[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mCredenciales del seed permiten login y conservan datos de modulo
-[22m[39m[DB] Colecciones limpiadas.
+[32m- Expected[39m
+[31m+ Received[39m
 
-[0mPOST /auth/login [32m200[0m 1784.230 ms - 638[0m
-[0mPOST /auth/login [32m200[0m 1777.850 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2394.863 ms - 594[0m
-[0mPOST /auth/login [32m200[0m 2324.428 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2326.191 ms - 633[0m
-[0mPOST /auth/login [32m200[0m 2325.490 ms - 636[0m
-[0mPOST /auth/login [32m200[0m 2324.932 ms - 626[0m
-[0mPOST /auth/login [32m200[0m 2324.315 ms - 624[0m
-[0mPOST /auth/login [32m200[0m 2448.868 ms - 623[0m
-[0mPOST /auth/login [32m200[0m 2396.409 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 2940.251 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 3086.610 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 1989.935 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 1977.216 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 2407.332 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2409.770 ms - 636[0m
-[0mPOST /auth/login [32m200[0m 2373.683 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2374.895 ms - 624[0m
-[0mPOST /auth/login [32m200[0m 2376.937 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2376.915 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2487.772 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 2483.120 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2971.061 ms - 633[0m
-[0mPOST /auth/login [32m200[0m 3119.836 ms - 632[0m
-[0mPOST /auth/login [32m200[0m 2320.794 ms - 635[0m
-[0mPOST /auth/login [32m200[0m 2326.678 ms - 632[0m
-[0mPOST /auth/login [32m200[0m 2264.141 ms - 644[0m
-[0mPOST /auth/login [32m200[0m 2452.044 ms - 632[0m
-[0mPOST /auth/login [32m200[0m 2455.610 ms - 646[0m
-[0mPOST /auth/login [32m200[0m 2451.869 ms - 632[0m
-[0mPOST /auth/login [32m200[0m 2434.661 ms - 635[0m
-[0mPOST /auth/login [32m200[0m 2431.421 ms - 641[0m
-[0mPOST /auth/login [32m200[0m 2436.273 ms - 638[0m
-[0mPOST /auth/login [32m200[0m 2339.643 ms - 629[0m
-[0mPOST /auth/login [32m200[0m 3076.781 ms - 629[0m
-[0mPOST /auth/login [32m200[0m 3129.359 ms - 626[0m
-[0mPOST /auth/login [32m200[0m 1464.333 ms - 632[0m
-[0mPOST /auth/login [32m200[0m 2212.303 ms - 641[0m
-[0mPOST /auth/login [32m200[0m 2200.151 ms - 635[0m
-[0mPOST /auth/login [32m200[0m 2204.391 ms - 626[0m
-[0mPOST /auth/login [32m200[0m 2292.896 ms - 635[0m
-[0mPOST /auth/login [32m200[0m 2295.102 ms - 635[0m
-[0mPOST /auth/login [32m200[0m 2290.717 ms - 626[0m
-[0mPOST /auth/login [32m200[0m 2288.415 ms - 637[0m
-[0mPOST /auth/login [32m200[0m 2287.441 ms - 628[0m
-[0mPOST /auth/login [32m200[0m 2277.161 ms - 626[0m
-[0mPOST /auth/login [32m200[0m 3008.673 ms - 633[0m
-[0mPOST /auth/login [32m200[0m 3044.479 ms - 641[0m
-[0mPOST /auth/login [32m200[0m 1556.880 ms - 624[0m
-[0mPOST /auth/login [32m200[0m 2568.834 ms - 633[0m
-[0mPOST /auth/login [32m200[0m 2706.571 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 2721.781 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 2836.525 ms - 633[0m
-[0mPOST /auth/login [32m200[0m 2827.476 ms - 636[0m
-[0mPOST /auth/login [32m200[0m 2827.459 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 2827.243 ms - 633[0m
-[0mPOST /auth/login [32m200[0m 2827.916 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2823.068 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2805.193 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2801.018 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2662.429 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2677.968 ms - 627[0m
-[0mPOST /auth/login [32m200[0m 2670.536 ms - 621[0m
-[0mPOST /auth/login [32m200[0m 2683.582 ms - 630[0m
-[0mPOST /auth/login [32m200[0m 2855.594 ms - 631[0m
-[0mPOST /auth/login [32m200[0m 2935.811 ms - 633[0m
-[0mPOST /auth/login [32m200[0m 2942.359 ms - 632[0m
-[0mPOST /auth/login [32m200[0m 2939.789 ms - 636[0m
-[0mPOST /auth/login [32m200[0m 2932.296 ms - 631[0m
-[0mPOST /auth/login [32m200[0m 2947.126 ms - 631[0m
-[0mPOST /auth/login [32m200[0m 2935.142 ms - 632[0m
-[0mPOST /auth/login [32m200[0m 2934.594 ms - 640[0m
-[0mPOST /auth/login [32m200[0m 1646.903 ms - 634[0m
-[0mPOST /auth/login [32m200[0m 1644.357 ms - 637[0m
-[0mPOST /auth/login [32m200[0m 2586.863 ms - 640[0m
-[0mPOST /auth/login [32m200[0m 2761.090 ms - 634[0m
-[0mPOST /auth/login [32m200[0m 2761.165 ms - 631[0m
-[0mPOST /auth/login [32m200[0m 2760.515 ms - 625[0m
-[0mPOST /auth/login [32m200[0m 2756.366 ms - 631[0m
-[0mPOST /auth/login [32m200[0m 2754.491 ms - 649[0m
-[0mPOST /auth/login [32m200[0m 2759.038 ms - 628[0m
-[0mPOST /auth/login [32m200[0m 2761.294 ms - 637[0m
-[0mPOST /auth/login [32m200[0m 2757.815 ms - 640[0m
-[0mPOST /auth/login [32m200[0m 2759.652 ms - 637[0m
-[0mPOST /auth/login [32m200[0m 583.080 ms - 634[0m
-[0mPOST /auth/login [32m200[0m 929.806 ms - 639[0m
-[0mPOST /auth/login [32m200[0m 929.050 ms - 637[0m
-[0mPOST /auth/login [32m200[0m 926.034 ms - 624[0m
-[0mGET /auth/usuarios [32m200[0m 265.209 ms - 36972[0m
-[0mPOST /auth/login [32m200[0m 319.839 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 429.087 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 269.007 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 344.836 ms - 348[0m
-[90mstderr[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mRegistro duplicado responde error de email ya registrado
-[22m[39mError: Email ya registrado
-[0mPOST /auth/register [33m409[0m 69.614 ms - 61[0m
+[32m- 500[39m
+[31m+ 400[39m
 
-[0mPOST /auth/login [32m200[0m 280.355 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 330.019 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 274.540 ms - 545[0m
-[0mPOST /auth/login [32m200[0m 262.626 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 340.794 ms - 339[0m
-[90mstderr[2m | tests/auth.test.mjs[2m > [22m[2mAuth[2m > [22m[2mLogin con contrasena incorrecta devuelve error
-[22m[39mError: Credenciales invalidas
+[36m [2m❯[22m tests/assignment.test.mjs:[2m91:27[22m[39m
+    [90m 89| [39m      })[33m;[39m
+    [90m 90| [39m
+    [90m 91| [39m    [34mexpect[39m(update[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m500[39m)[33m;[39m
+    [90m   | [39m                          [31m^[39m
+    [90m 92| [39m    [34mexpect[39m(update[33m.[39mbody[33m.[39mmsg)[33m.[39m[34mtoContain[39m([32m"No autorizado"[39m)[33m;[39m
+    [90m 93| [39m  })[33m;[39m
 
-[0mPOST /auth/login [33m401[0m 282.445 ms - 69[0m
-[0mPOST /auth/login [32m200[0m 243.632 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 322.155 ms - 353[0m
-[0mPOST /auth/login [32m200[0m 295.298 ms - 559[0m
-[0mPATCH /auth/aprobar/691eb138ce6e4db4dfb6729b [32m200[0m 156.616 ms - 342[0m
-[0mGET /auth/usuarios [32m200[0m 331.420 ms - 46798[0m
-[0mPOST /auth/login [32m200[0m 267.887 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 320.487 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb13bce6e4db4dfb672a9 [32m200[0m 144.596 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 303.786 ms - 550[0m
-[0mGET /auth/usuarios [33m403[0m 66.836 ms - 25[0m
- [32m✓[39m tests/auth.test.mjs [2m([22m[2m7 tests[22m[2m)[22m[33m 61379[2mms[22m[39m
-   [33m[2m✓[22m[39m Auth[2m > [22mCredenciales del seed permiten login y conservan datos de modulo [33m 45906[2mms[22m[39m
-   [33m[2m✓[22m[39m Auth[2m > [22mRegistro de alumno valido deja pendiente la aprobacion [33m 1673[2mms[22m[39m
-   [33m[2m✓[22m[39m Auth[2m > [22mRegistro duplicado responde error de email ya registrado [33m 1658[2mms[22m[39m
-   [33m[2m✓[22m[39m Auth[2m > [22mLogin exitoso no expone passwordHash [33m 1839[2mms[22m[39m
-   [33m[2m✓[22m[39m Auth[2m > [22mLogin con contrasena incorrecta devuelve error [33m 1914[2mms[22m[39m
-   [33m[2m✓[22m[39m Auth[2m > [22mSuperadmin aprueba profesor y queda visible en el listado [33m 2358[2mms[22m[39m
-   [33m[2m✓[22m[39m Auth[2m > [22mAlumno no autorizado recibe 403 al listar usuarios [33m 2241[2mms[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
 
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m7 passed[39m[22m[90m (7)[39m
-[2m   Start at [22m 03:11:05
-[2m   Duration [22m 67.01s[2m (transform 709ms, setup 0ms, collect 4.05s, tests 61.38s, environment 1ms, prepare 679ms)[22m
+[41m[1m FAIL [22m[49m tests/assignment.test.mjs[2m > [22mAssignments[2m > [22mSuperadmin puede actualizar asignacion ajena
+[31m[1mAssertionError[22m: expected 400 to be 200 // Object.is equality[39m
 
+[32m- Expected[39m
+[31m+ Received[39m
 
-[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/Asus/Desktop/Gestion de turnos APP[39m
+[32m- 200[39m
+[31m+ 400[39m
 
-[90mstdout[2m | tests/slot.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[36m [2m❯[22m tests/assignment.test.mjs:[2m109:27[22m[39m
+    [90m107| [39m      })[33m;[39m
+    [90m108| [39m
+    [90m109| [39m    [34mexpect[39m(update[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m200[39m)[33m;[39m
+    [90m   | [39m                          [31m^[39m
+    [90m110| [39m    [34mexpect[39m(update[33m.[39mbody[33m.[39mtitle)[33m.[39m[34mtoBe[39m([32m"Actualizada por superadmin"[39m)[33m;[39m
+    [90m111| [39m    [34mexpect[39m(update[33m.[39mbody[33m.[39mdescription)[33m.[39m[34mtoBe[39m([32m"Descripcion nueva"[39m)[33m;[39m
 
-[90mstdout[2m | tests/slot.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
 
-[90mstdout[2m | tests/slot.test.mjs[2m > [22m[2mSlots
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[41m[1m FAIL [22m[49m tests/assignment.test.mjs[2m > [22mAssignments[2m > [22mProfesor ajeno no puede eliminar asignacion y la misma sigue disponible
+[31m[1mAssertionError[22m: expected 400 to be 500 // Object.is equality[39m
 
-[90mstdout[2m | tests/slot.test.mjs[2m > [22m[2mSlots
-[22m[39mConectado a MongoDB
+[32m- Expected[39m
+[31m+ Received[39m
 
-[0mPOST /auth/login [32m200[0m 439.591 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 474.710 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb14f54d22317a254bace [32m200[0m 163.471 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 266.007 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 323.303 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb15054d22317a254bad4 [32m200[0m 145.569 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 283.365 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 331.536 ms - 348[0m
-[0mPATCH /auth/aprobar/691eb15154d22317a254bada [32m200[0m 148.578 ms - 337[0m
-[0mPOST /auth/login [32m200[0m 284.245 ms - 549[0m
-[0mPOST /auth/register [32m201[0m 358.902 ms - 353[0m
-[0mPATCH /auth/aprobar/691eb15254d22317a254bae0 [32m200[0m 139.899 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 258.180 ms - 554[0m
-[0mPOST /assignments [32m201[0m 145.927 ms - 362[0m
-[0mPOST /slots [32m201[0m 331.027 ms - 624[0m
-[90mstderr[2m | tests/slot.test.mjs[2m > [22m[2mSlots[2m > [22m[2mAlumno de otra cohorte no puede reservar un turno
-[22m[39mError: Cohorte no coincide
-[0mPATCH /slots/691eb15254d22317a254bae9/solicitar [33m403[0m 204.979 ms - 61[0m
+[32m- 500[39m
+[31m+ 400[39m
 
-[0mPOST /auth/login [32m200[0m 248.494 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 322.955 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb15454d22317a254baf7 [32m200[0m 134.275 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 350.471 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 319.262 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb15554d22317a254bafd [32m200[0m 149.567 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 257.566 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 361.334 ms - 348[0m
-[0mPATCH /auth/aprobar/691eb15654d22317a254bb03 [32m200[0m 146.810 ms - 337[0m
-[0mPOST /auth/login [32m200[0m 253.878 ms - 549[0m
-[0mPOST /auth/register [32m201[0m 343.699 ms - 353[0m
-[0mPATCH /auth/aprobar/691eb15754d22317a254bb09 [32m200[0m 143.758 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 421.766 ms - 554[0m
-[0mPOST /auth/register [32m201[0m 393.806 ms - 357[0m
-[0mPOST /auth/login [32m200[0m 283.949 ms - 560[0m
-[0mPOST /assignments [32m201[0m 153.753 ms - 363[0m
-[0mPOST /slots [32m201[0m 293.668 ms - 625[0m
-[0mPATCH /slots/691eb15854d22317a254bb16/solicitar [33m403[0m 70.474 ms - 69[0m
-[0mPOST /auth/login [32m200[0m 251.334 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 326.046 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb15a54d22317a254bb22 [32m200[0m 139.162 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 272.217 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 359.722 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb15b54d22317a254bb28 [32m200[0m 140.099 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 253.758 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 316.281 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb15c54d22317a254bb2e [32m200[0m 138.616 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 271.003 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 343.221 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb15c54d22317a254bb34 [32m200[0m 134.854 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 244.824 ms - 555[0m
-[0mPOST /assignments [32m201[0m 151.984 ms - 363[0m
-[0mPOST /slots [32m201[0m 287.139 ms - 625[0m
-[0mPATCH /slots/691eb15d54d22317a254bb3d/estado [32m200[0m 281.455 ms - 624[0m
-[0mPATCH /slots/691eb15d54d22317a254bb3d/estado [32m200[0m 267.158 ms - 625[0m
-[0mPOST /auth/login [32m200[0m 260.220 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 342.562 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb15f54d22317a254bb50 [32m200[0m 137.521 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 279.663 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 336.712 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb16054d22317a254bb56 [32m200[0m 135.279 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 246.992 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 330.221 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb16154d22317a254bb5c [32m200[0m 137.149 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 263.144 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 314.187 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb16254d22317a254bb62 [32m200[0m 137.220 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 302.813 ms - 555[0m
-[0mPOST /assignments [32m201[0m 151.982 ms - 363[0m
-[0mPOST /slots [32m201[0m 272.938 ms - 625[0m
-[0mPATCH /slots/691eb16354d22317a254bb6b/estado [33m403[0m 68.511 ms - 25[0m
-[0mPOST /auth/login [32m200[0m 248.699 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 337.390 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb16454d22317a254bb77 [32m200[0m 136.981 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 274.751 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 350.812 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb16554d22317a254bb7d [32m200[0m 134.617 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 261.808 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 425.625 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb16654d22317a254bb83 [32m200[0m 136.023 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 307.637 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 375.066 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb16754d22317a254bb89 [32m200[0m 148.248 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 342.814 ms - 555[0m
-[0mPOST /assignments [32m201[0m 144.119 ms - 363[0m
-[0mPOST /slots [32m201[0m 280.856 ms - 625[0m
-[0mPATCH /slots/691eb16854d22317a254bb92/estado [33m400[0m 73.451 ms - 107[0m
-[0mPOST /auth/login [32m200[0m 266.698 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 323.183 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb16954d22317a254bb9e [32m200[0m 141.625 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 273.764 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 339.599 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb16a54d22317a254bba4 [32m200[0m 130.318 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 285.682 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 323.622 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb16b54d22317a254bbaa [32m200[0m 140.889 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 275.501 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 378.187 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb16c54d22317a254bbb0 [32m200[0m 135.568 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 280.106 ms - 555[0m
-[0mPOST /assignments [32m201[0m 141.131 ms - 363[0m
-[0mPOST /slots [32m201[0m 291.069 ms - 625[0m
-[0mPATCH /slots/691eb16c54d22317a254bbb9/solicitar [32m200[0m 269.497 ms - 647[0m
-[90mstderr[2m | tests/slot.test.mjs[2m > [22m[2mSlots[2m > [22m[2mAlumno no puede reservar dos veces el mismo turno
-[22m[39mError: Turno ya reservado
-
-[0mPATCH /slots/691eb16c54d22317a254bbb9/solicitar [33m403[0m 203.190 ms - 59[0m
- [32m✓[39m tests/slot.test.mjs [2m([22m[2m6 tests[22m[2m)[22m[33m 35684[2mms[22m[39m
-   [33m[2m✓[22m[39m Slots[2m > [22mAlumno de otra cohorte no puede reservar un turno [33m 5730[2mms[22m[39m
-   [33m[2m✓[22m[39m Slots[2m > [22mAlumno sin aprobacion no puede solicitar turno [33m 5823[2mms[22m[39m
-   [33m[2m✓[22m[39m Slots[2m > [22mProfesor actualiza estado del turno entre aprobado y pendiente [33m 5265[2mms[22m[39m
-   [33m[2m✓[22m[39m Slots[2m > [22mAlumno no autorizado no puede cambiar estado de turno [33m 4822[2mms[22m[39m
-   [33m[2m✓[22m[39m Slots[2m > [22mEstado invalido al actualizar turno responde 400 [33m 5086[2mms[22m[39m
-   [33m[2m✓[22m[39m Slots[2m > [22mAlumno no puede reservar dos veces el mismo turno [33m 5272[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
-[2m   Start at [22m 03:12:20
-[2m   Duration [22m 41.15s[2m (transform 723ms, setup 0ms, collect 3.88s, tests 35.68s, environment 1ms, prepare 736ms)[22m
+[36m [2m❯[22m tests/assignment.test.mjs:[2m122:32[22m[39m
+    [90m120| [39m      [33m.[39m[35mset[39m([32m"Authorization"[39m[33m,[39m [32m`Bearer [39m[36m${[39mcontext[33m.[39mprofesorAjeno[33m.[39mtoken[36m}[39m[32m`[39m)[33m;[39m
+    [90m121| [39m
+    [90m122| [39m    [34mexpect[39m(eliminacion[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m500[39m)[33m;[39m
+    [90m   | [39m                               [31m^[39m
+    [90m123| [39m    [34mexpect[39m(eliminacion[33m.[39mbody[33m.[39mmsg)[33m.[39m[34mtoContain[39m([32m"No autorizado"[39m)[33m;[39m
+    [90m124| [39m
 
 
-[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/Asus/Desktop/Gestion de turnos APP[39m
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (9)[39m
+[2m   Start at [22m 23:40:46
+[2m   Duration [22m 37.39s[2m (transform 539ms, setup 0ms, collect 2.00s, tests 33.99s, environment 0ms, prepare 496ms)[22m
 
-[90mstdout[2m | tests/submission.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
 
-[90mstdout[2m | tests/submission.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[41m[1m FAIL [22m[49m tests/assignment.test.mjs[2m > [22mAssignments[2m > [22mSuperadmin puede eliminar asignacion de terceros
+[31m[1mAssertionError[22m: expected 400 to be 204 // Object.is equality[39m
 
-[90mstdout[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[32m- Expected[39m
+[31m+ Received[39m
 
-[90mstdout[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions
-[22m[39mConectado a MongoDB
+[32m- 204[39m
+[31m+ 400[39m
 
-[0mPOST /auth/login [32m200[0m 439.553 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 391.854 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb181ddaa62754dd00ee6 [32m200[0m 178.757 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 262.486 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 374.354 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb182ddaa62754dd00eec [32m200[0m 145.789 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 287.697 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 444.774 ms - 348[0m
-[0mPATCH /auth/aprobar/691eb183ddaa62754dd00ef2 [32m200[0m 147.284 ms - 337[0m
-[0mPOST /auth/login [32m200[0m 274.289 ms - 549[0m
-[0mPOST /auth/register [32m201[0m 394.316 ms - 353[0m
-[0mPATCH /auth/aprobar/691eb184ddaa62754dd00ef8 [32m200[0m 143.955 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 287.161 ms - 554[0m
-[0mPOST /assignments [32m201[0m 158.652 ms - 362[0m
-[0mPOST /slots [32m201[0m 312.822 ms - 624[0m
-[90mstderr[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions[2m > [22m[2mAlumno no puede entregar sin reservar turno previamente
-[22m[39mError: Debes reservar el turno antes de entregar
-[0mPOST /submissions/691eb185ddaa62754dd00f01 [33m403[0m 149.186 ms - 105[0m
+[36m [2m❯[22m tests/assignment.test.mjs:[2m141:32[22m[39m
+    [90m139| [39m      [33m.[39m[35mset[39m([32m"Authorization"[39m[33m,[39m [32m`Bearer [39m[36m${[39mcontext[33m.[39msuperadmin[33m.[39mtoken[36m}[39m[32m`[39m)[33m;[39m
+    [90m140| [39m
+    [90m141| [39m    [34mexpect[39m(eliminacion[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m204[39m)[33m;[39m
+    [90m   | [39m                               [31m^[39m
+    [90m142| [39m
+    [90m143| [39m    [35mconst[39m consulta [33m=[39m [35mawait[39m [34mrequest[39m(app)
 
-[0mPOST /auth/login [32m200[0m 266.132 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 349.840 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb186ddaa62754dd00f0e [32m200[0m 140.965 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 262.363 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 324.649 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb187ddaa62754dd00f14 [32m200[0m 150.020 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 271.110 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 368.548 ms - 348[0m
-[0mPATCH /auth/aprobar/691eb188ddaa62754dd00f1a [32m200[0m 143.206 ms - 337[0m
-[0mPOST /auth/login [32m200[0m 248.693 ms - 549[0m
-[0mPOST /auth/register [32m201[0m 337.050 ms - 353[0m
-[0mPATCH /auth/aprobar/691eb189ddaa62754dd00f20 [32m200[0m 143.316 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 286.610 ms - 554[0m
-[0mPOST /assignments [32m201[0m 146.704 ms - 363[0m
-[0mPOST /slots [32m201[0m 283.968 ms - 625[0m
-[0mPATCH /slots/691eb18addaa62754dd00f29/solicitar [32m200[0m 293.461 ms - 647[0m
-[0mPOST /submissions/691eb18addaa62754dd00f29 [33m400[0m 72.697 ms - 133[0m
-[0mPOST /auth/login [32m200[0m 366.045 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 355.340 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb18cddaa62754dd00f39 [32m200[0m 138.217 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 259.644 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 382.889 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb18dddaa62754dd00f3f [32m200[0m 133.204 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 268.618 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 318.696 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb18dddaa62754dd00f45 [32m200[0m 145.940 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 255.029 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 329.241 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb18eddaa62754dd00f4b [32m200[0m 137.994 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 268.134 ms - 555[0m
-[0mPOST /assignments [32m201[0m 149.024 ms - 363[0m
-[0mPOST /slots [32m201[0m 274.078 ms - 625[0m
-[0mPATCH /slots/691eb18fddaa62754dd00f54/solicitar [32m200[0m 284.578 ms - 647[0m
-[0mPOST /submissions/691eb18fddaa62754dd00f54 [32m201[0m 208.263 ms - 394[0m
-[0mPOST /auth/login [32m200[0m 251.663 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 330.479 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb191ddaa62754dd00f67 [32m200[0m 135.315 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 282.547 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 360.700 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb192ddaa62754dd00f6d [32m200[0m 136.260 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 325.973 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 355.081 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb193ddaa62754dd00f73 [32m200[0m 135.138 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 288.366 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 451.633 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb194ddaa62754dd00f79 [32m200[0m 198.107 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 293.663 ms - 555[0m
-[0mPOST /assignments [32m201[0m 165.394 ms - 363[0m
-[0mPOST /slots [32m201[0m 283.182 ms - 625[0m
-[0mPATCH /slots/691eb195ddaa62754dd00f82/solicitar [32m200[0m 284.659 ms - 647[0m
-[0mPOST /submissions/691eb195ddaa62754dd00f82 [32m201[0m 208.865 ms - 379[0m
-[90mstderr[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions[2m > [22m[2mAlumno no puede ver entregas de otro alumno
-[22m[39mError: No autorizado a consultar entregas de otro alumno
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯[22m[39m
 
-[0mGET /submissions/691eb193ddaa62754dd00f73 [33m403[0m 73.885 ms - 121[0m
-[0mPOST /auth/login [32m200[0m 253.779 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 322.741 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb197ddaa62754dd00f96 [32m200[0m 138.425 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 241.780 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 315.984 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb198ddaa62754dd00f9c [32m200[0m 140.874 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 264.652 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 345.688 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb198ddaa62754dd00fa2 [32m200[0m 142.675 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 265.236 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 328.360 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb199ddaa62754dd00fa8 [32m200[0m 138.488 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 256.009 ms - 555[0m
-[0mPOST /assignments [32m201[0m 142.574 ms - 363[0m
-[0mPOST /slots [32m201[0m 270.157 ms - 625[0m
-[0mPATCH /slots/691eb19addaa62754dd00fb1/solicitar [32m200[0m 271.631 ms - 647[0m
-[0mPOST /submissions/691eb19addaa62754dd00fb1 [32m201[0m 208.624 ms - 379[0m
-[90mstderr[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions[2m > [22m[2mAlumno no puede editar entrega de otro estudiante
-[22m[39mError: No autorizado a modificar esta entrega
+[41m[1m FAIL [22m[49m tests/assignment.test.mjs[2m > [22mAssignments[2m > [22mListado para profesor devuelve solo sus asignaciones
+[31m[1mAssertionError[22m: expected +0 to be 1 // Object.is equality[39m
 
-[0mPUT /submissions/691eb19bddaa62754dd00fbb [33m403[0m 137.034 ms - 99[0m
-[0mPOST /auth/login [32m200[0m 286.569 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 349.858 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb19cddaa62754dd00fc6 [32m200[0m 134.509 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 275.958 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 350.929 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb19dddaa62754dd00fcc [32m200[0m 138.940 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 322.350 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 324.818 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb19eddaa62754dd00fd2 [32m200[0m 134.285 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 256.646 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 329.450 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb19fddaa62754dd00fd8 [32m200[0m 135.075 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 270.477 ms - 555[0m
-[0mPOST /assignments [32m201[0m 147.974 ms - 363[0m
-[0mPOST /slots [32m201[0m 289.451 ms - 625[0m
-[0mPATCH /slots/691eb1a0ddaa62754dd00fe1/solicitar [32m200[0m 270.857 ms - 647[0m
-[0mPOST /submissions/691eb1a0ddaa62754dd00fe1 [32m201[0m 216.130 ms - 379[0m
-[0mGET /submissions/691eb19eddaa62754dd00fd2 [32m200[0m 139.989 ms - 381[0m
-[0mPOST /auth/login [32m200[0m 281.735 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 326.802 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb1a2ddaa62754dd00ff6 [32m200[0m 144.439 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 300.576 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 362.833 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb1a3ddaa62754dd00ffc [32m200[0m 143.870 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 346.947 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 330.831 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb1a4ddaa62754dd01002 [32m200[0m 143.091 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 245.493 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 324.071 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb1a4ddaa62754dd01008 [32m200[0m 145.107 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 274.689 ms - 555[0m
-[0mPOST /assignments [32m201[0m 154.375 ms - 363[0m
-[0mPOST /slots [32m201[0m 266.359 ms - 625[0m
-[0mPATCH /slots/691eb1a5ddaa62754dd01011/solicitar [32m200[0m 265.528 ms - 647[0m
-[0mPOST /submissions/691eb1a5ddaa62754dd01011 [32m201[0m 208.570 ms - 379[0m
-[0mPUT /submissions/691eb1a6ddaa62754dd0101b [32m200[0m 213.019 ms - 377[0m
-[90mstderr[2m | tests/submission.test.mjs[2m > [22m[2mSubmissions[2m > [22m[2mProfesor creador puede aprobar una entrega y el alumno ya no puede modificarla
-[22m[39mError: No se puede modificar una entrega ya evaluada
+[32m- Expected[39m
+[31m+ Received[39m
 
-[0mPUT /submissions/691eb1a6ddaa62754dd0101b [33m409[0m 135.846 ms - 113[0m
- [32m✓[39m tests/submission.test.mjs [2m([22m[2m7 tests[22m[2m)[22m[33m 42978[2mms[22m[39m
-   [33m[2m✓[22m[39m Submissions[2m > [22mAlumno no puede entregar sin reservar turno previamente [33m 5850[2mms[22m[39m
-   [33m[2m✓[22m[39m Submissions[2m > [22mEntrega rechaza links que no son de GitHub [33m 5298[2mms[22m[39m
-   [33m[2m✓[22m[39m Submissions[2m > [22mEntrega valida queda en estado 'A revisar' tras reservar correctamente [33m 5386[2mms[22m[39m
-   [33m[2m✓[22m[39m Submissions[2m > [22mAlumno no puede ver entregas de otro alumno [33m 5684[2mms[22m[39m
-   [33m[2m✓[22m[39m Submissions[2m > [22mAlumno no puede editar entrega de otro estudiante [33m 5491[2mms[22m[39m
-   [33m[2m✓[22m[39m Submissions[2m > [22mSuperadmin puede consultar entregas de cualquier alumno [33m 5587[2mms[22m[39m
-   [33m[2m✓[22m[39m Submissions[2m > [22mProfesor creador puede aprobar una entrega y el alumno ya no puede modificarla [33m 5718[2mms[22m[39m
+[32m- 1[39m
+[31m+ 0[39m
 
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m7 passed[39m[22m[90m (7)[39m
-[2m   Start at [22m 03:13:10
-[2m   Duration [22m 48.74s[2m (transform 945ms, setup 0ms, collect 4.02s, tests 42.98s, environment 4ms, prepare 810ms)[22m
+[36m [2m❯[22m tests/assignment.test.mjs:[2m162:28[22m[39m
+    [90m160| [39m    [34mexpect[39m([33mArray[39m[33m.[39m[34misArray[39m(listadoOwner[33m.[39mbody))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m161| [39m    const creadores = new Set(listadoOwner.body.map((item) => String(i…
+    [90m162| [39m    [34mexpect[39m(creadores[33m.[39msize)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m163| [39m    [34mexpect[39m(creadores[33m.[39m[34mhas[39m([33mString[39m(context[33m.[39mprofesorOwner[33m.[39mid)))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m164| [39m  })[33m;[39m
 
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯[22m[39m
 
-[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/Asus/Desktop/Gestion de turnos APP[39m
+[41m[1m FAIL [22m[49m tests/assignment.test.mjs[2m > [22mAssignments[2m > [22mCampos extra se ignoran al crear una asignacion
+[31m[1mAssertionError[22m: expected 500 to be 201 // Object.is equality[39m
 
-[90mstdout[2m | tests/user.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (2) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[32m- Expected[39m
+[31m+ Received[39m
 
-[90mstdout[2m | tests/user.test.mjs
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[32m- 201[39m
+[31m+ 500[39m
 
-[90mstdout[2m | tests/user.test.mjs[2m > [22m[2mUsers
-[22m[39m[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[36m [2m❯[22m tests/assignment.test.mjs:[2m180:24[22m[39m
+    [90m178| [39m      })[33m;[39m
+    [90m179| [39m
+    [90m180| [39m    [34mexpect[39m(res[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m201[39m)[33m;[39m
+    [90m   | [39m                       [31m^[39m
+    [90m181| [39m    [34mexpect[39m(res[33m.[39mbody[33m.[39mcampoExtra)[33m.[39m[34mtoBeUndefined[39m()[33m;[39m
+    [90m182| [39m  })[33m;[39m
 
-[90mstdout[2m | tests/user.test.mjs[2m > [22m[2mUsers
-[22m[39mConectado a MongoDB
-
-[0mPOST /auth/login [32m200[0m 441.244 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 407.138 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb1ba5a5d1196025d4056 [32m200[0m 163.066 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 290.405 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 356.394 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb1bb5a5d1196025d405c [32m200[0m 143.899 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 423.920 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 358.489 ms - 348[0m
-[0mPATCH /auth/aprobar/691eb1bc5a5d1196025d4062 [32m200[0m 144.480 ms - 337[0m
-[0mPOST /auth/login [32m200[0m 308.797 ms - 549[0m
-[0mPOST /auth/register [32m201[0m 345.441 ms - 353[0m
-[0mPATCH /auth/aprobar/691eb1bd5a5d1196025d4068 [32m200[0m 149.727 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 271.002 ms - 554[0m
-[0mGET /auth/usuarios [32m200[0m 453.463 ms - 91094[0m
-[0mPOST /auth/login [32m200[0m 263.679 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 348.279 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb1bf5a5d1196025d4076 [32m200[0m 140.667 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 249.701 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 342.443 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb1c05a5d1196025d407c [32m200[0m 141.095 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 296.519 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 345.987 ms - 348[0m
-[0mPATCH /auth/aprobar/691eb1c15a5d1196025d4082 [32m200[0m 152.192 ms - 337[0m
-[0mPOST /auth/login [32m200[0m 342.476 ms - 549[0m
-[0mPOST /auth/register [32m201[0m 324.482 ms - 353[0m
-[0mPATCH /auth/aprobar/691eb1c25a5d1196025d4088 [32m200[0m 145.323 ms - 342[0m
-[0mPOST /auth/login [32m200[0m 258.670 ms - 554[0m
-[0mGET /auth/usuarios?role=alumno [32m200[0m 352.193 ms - 55085[0m
-[0mPOST /auth/login [32m200[0m 265.385 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 356.082 ms - 351[0m
-[0mPATCH /auth/aprobar/691eb1c45a5d1196025d4096 [32m200[0m 140.254 ms - 340[0m
-[0mPOST /auth/login [32m200[0m 263.839 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 336.185 ms - 356[0m
-[0mPATCH /auth/aprobar/691eb1c55a5d1196025d409c [32m200[0m 148.132 ms - 345[0m
-[0mPOST /auth/login [32m200[0m 301.756 ms - 560[0m
-[0mPOST /auth/register [32m201[0m 367.598 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb1c65a5d1196025d40a2 [32m200[0m 146.908 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 274.397 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 351.207 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb1c75a5d1196025d40a8 [32m200[0m 136.484 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 265.337 ms - 555[0m
-[0mGET /auth/usuarios [33m403[0m 63.445 ms - 25[0m
-[0mPOST /auth/login [32m200[0m 352.589 ms - 594[0m
-[0mPOST /auth/register [32m201[0m 320.502 ms - 352[0m
-[0mPATCH /auth/aprobar/691eb1c95a5d1196025d40b5 [32m200[0m 144.321 ms - 341[0m
-[0mPOST /auth/login [32m200[0m 268.089 ms - 556[0m
-[0mPOST /auth/register [32m201[0m 426.897 ms - 357[0m
-[0mPATCH /auth/aprobar/691eb1ca5a5d1196025d40bb [32m200[0m 134.867 ms - 346[0m
-[0mPOST /auth/login [32m200[0m 295.173 ms - 561[0m
-[0mPOST /auth/register [32m201[0m 365.815 ms - 349[0m
-[0mPATCH /auth/aprobar/691eb1cb5a5d1196025d40c1 [32m200[0m 143.537 ms - 338[0m
-[0mPOST /auth/login [32m200[0m 263.222 ms - 550[0m
-[0mPOST /auth/register [32m201[0m 333.048 ms - 354[0m
-[0mPATCH /auth/aprobar/691eb1cb5a5d1196025d40c7 [32m200[0m 135.029 ms - 343[0m
-[0mPOST /auth/login [32m200[0m 264.938 ms - 555[0m
-[0mPOST /auth/register [32m201[0m 385.932 ms - 359[0m
-[0mPOST /auth/login [32m200[0m 381.896 ms - 565[0m
-[0mPATCH /auth/aprobar/691eb1cc5a5d1196025d40cd [32m200[0m 285.526 ms - 348[0m
- [32m✓[39m tests/user.test.mjs [2m([22m[2m4 tests[22m[2m)[22m[33m 24875[2mms[22m[39m
-   [33m[2m✓[22m[39m Users[2m > [22mSuperadmin puede listar usuarios y los datos sensibles no se exponen [33m 5977[2mms[22m[39m
-   [33m[2m✓[22m[39m Users[2m > [22mProfesor puede filtrar usuarios por rol [33m 4871[2mms[22m[39m
-   [33m[2m✓[22m[39m Users[2m > [22mAlumno recibe 403 al listar usuarios [33m 4583[2mms[22m[39m
-   [33m[2m✓[22m[39m Users[2m > [22mSuperadmin aprueba un usuario pendiente [33m 5723[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
-[2m   Start at [22m 03:14:07
-[2m   Duration [22m 30.50s[2m (transform 710ms, setup 0ms, collect 3.91s, tests 24.87s, environment 1ms, prepare 720ms)[22m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯[22m[39m
 

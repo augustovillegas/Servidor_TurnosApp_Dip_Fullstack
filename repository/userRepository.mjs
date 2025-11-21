@@ -2,8 +2,8 @@ import { User } from "../models/User.mjs";
 import { IRepository } from "./IRepository.mjs";
 
 class UserRepository extends IRepository {
-  async obtenerTodos() {
-    return await User.find();
+  async obtenerTodos( filtro = {}) {
+    return await User.find(filtro);
   }
   async obtenerPorId(id) {
     return await User.findById(id);

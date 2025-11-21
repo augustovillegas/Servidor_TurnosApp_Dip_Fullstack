@@ -53,7 +53,7 @@ export const aprobarUsuarioController = async (req, res, next) => {
 // Listar usuarios
 export const listarUsuariosController = async (req, res, next) => {
   try {
-    const users = await authService.listarUsuarios(req.query.role);
+    const users = await authService.listarUsuarios(req.query.role, req.user);
     res.json(users);
   } catch (err) {
     next(err);

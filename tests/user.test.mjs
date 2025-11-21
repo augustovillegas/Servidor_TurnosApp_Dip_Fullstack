@@ -50,6 +50,18 @@ describe.sequential("Users", () => {
     expect(roles.has("alumno")).toBe(true);
   });
 
+  test("Superadmin puede filtrar usuarios por modulo", async () => {
+    const res = await request(app)
+      .get("/usuarios?modulo=FRONTEND - REACT")
+      .set("Authorization", `Bearer ${context.superadmin.token}`);
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+    const todosDelModulo = res.body.every((user) => user.modulo === "FRONTEND - REACT");
+    expect(todosDelModulo).toBe(true);
+  });
+
   test("Alumno recibe 403 al listar usuarios", async () => {
     const res = await request(app)
       .get("/auth/usuarios")

@@ -70,9 +70,23 @@ export const aprobarUsuario = async (id) => {
   return sanitizeUser(updated);
 };
 
-export const listarUsuarios = async (role) => {
+export const listarUsuarios = async (role, requester) => {
   const all = await userRepository.obtenerTodos();
-  const filtered = role ? all.filter((u) => u.role === role) : all;
+  let filtered = role ? all.filter((u) => u.role === role) : all;
+
+  if (requester) {
+    if (requester.role === "profesor") {
+      // Profesor: sólo alumnos de su módulo
+      filtered = filtered.filter(
+        (u) => u.role === "alumno" && String(u.cohort) === String(requester.cohort)
+      );
+    } else if (requester.role === "alumno") {
+      // Alumno: sólo su propio usuario
+      filtered = filtered.filter((u) => String(u._id) === String(requester.id));
+    }
+    // superadmin ve todo
+  }
+
   return filtered.map(sanitizeUser);
 };
 

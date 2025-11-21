@@ -1,5 +1,12 @@
 import express from "express";
-import { crearEntregaController, obtenerEntregasPorUsuarioController, obtenerEntregaPorIdController, actualizarEntregaController, eliminarEntregaController} from "../controllers/submissionController.mjs";
+import { 
+  listarEntregasController, 
+  crearEntregaController, 
+  obtenerEntregasPorUsuarioController, 
+  obtenerEntregaPorIdController, 
+  actualizarEntregaController, 
+  eliminarEntregaController 
+} from "../controllers/submissionController.mjs";
 import { auth } from "../middlewares/auth.mjs";
 import { submissionValidator } from "../validators/submissionValidator.mjs";
 import { validateRequest } from "../middlewares/validationResult.mjs";
@@ -10,11 +17,16 @@ import { param } from "express-validator";
 const router = express.Router();
 
 
+// 📌 NUEVO: Obtener todas las entregas (con filtros de query)
+// Esta ruta es usada por dashboards de Profesor, Alumno y Superadmin.
+router.get("/", auth, allowRoles("alumno", "profesor", "superadmin"), validateRequest, listarEntregasController);
+
+
 // 📌 Obtener detalle de una entrega por ID
 router.get("/detail/:id", auth, allowRoles("alumno","profesor","superadmin"), param("id", "ID de entrega invalido").isMongoId(), validateRequest, obtenerEntregaPorIdController);
 
 
-// 📌 Obtener entregas de un usuario
+// 📌 Obtener entregas de un usuario específico
 router.get("/:userId", auth, allowRoles("alumno","profesor", "superadmin"), param("userId", "ID de usuario invalido").isMongoId(), validateRequest, obtenerEntregasPorUsuarioController);
 
 
@@ -28,8 +40,5 @@ router.put("/:id", auth, allowRoles("alumno", "profesor","superadmin"), requireA
 
 // 📌 Eliminar entrega
 router.delete("/:id", auth, allowRoles("alumno", "profesor", "superadmin"), requireApproved, param("id", "ID de entrega invalido").isMongoId(), validateRequest, eliminarEntregaController);
-
-
-
 
 export default router;
