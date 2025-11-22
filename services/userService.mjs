@@ -15,7 +15,7 @@ import {
 import {
   normaliseRole,
   normaliseEstado,
-} from "../utils/normalizers/normalizers.mjs";
+} from "../utils/common/normalizers.mjs";
 import { buildUserListFilter } from "../utils/permissionUtils.mjs";
 
 function applyModuleInfo(target, moduleInfo) {
