@@ -87,19 +87,10 @@ export const obtenerTurnoController = async (req, res, next) => {
   }
 };
 
-export const crearTurnoController = async (req, res, next) => {
-  try {
-    const creado = await slotService.crearTurno(req.body);
-    res.status(201).json(creado);
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const actualizarTurnoController = async (req, res, next) => {
   try {
-    const actualizado = await slotService.actualizarTurno(req.params.id, req.body);
-    res.json(actualizado);
+    const turno = await slotService.actualizarTurno(req.params.id, req.body);
+    res.status(200).json(turno);
   } catch (error) {
     next(error);
   }
@@ -107,8 +98,8 @@ export const actualizarTurnoController = async (req, res, next) => {
 
 export const eliminarTurnoController = async (req, res, next) => {
   try {
-    await slotService.eliminarTurno(req.params.id);
-    res.status(204).end();
+    const turno = await slotService.eliminarTurno(req.params.id);
+    res.status(200).json({ message: "Turno eliminado exitosamente", turno });
   } catch (error) {
     next(error);
   }

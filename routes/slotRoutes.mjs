@@ -7,6 +7,8 @@ import {
   misSolicitudesController,
   obtenerTurnosController,
   obtenerTurnoController,
+  actualizarTurnoController,
+  eliminarTurnoController,
 } from "../controllers/slotController.mjs";
 import { auth } from "../middlewares/auth.mjs";
 import { allowRoles } from "../middlewares/roles.mjs";
@@ -16,9 +18,19 @@ import {
   createSlotValidator,
   slotIdParamValidator,
   updateEstadoValidator,
+  updateSlotValidator,
 } from "../validators/slotValidator.mjs";
 
 const router = express.Router();
+
+// Consultar mis solicitudes (alumno) - DEBE IR ANTES DE /:id
+router.get(
+  "/mis-solicitudes",
+  auth,
+  allowRoles("alumno"),
+  requireApproved,
+  misSolicitudesController
+);
 
 // Obtener los turnos
 router.get("/", auth, obtenerTurnosController);
@@ -76,13 +88,25 @@ router.patch(
   cancelarTurnoController
 );
 
-// Consultar mis solicitudes (alumno)
-router.get(
-  "/mis-solicitudes",
+// Actualizar turno completo (profesor o superadmin)
+router.put(
+  "/:id",
   auth,
-  allowRoles("alumno"),
-  requireApproved,
-  misSolicitudesController
+  allowRoles("profesor", "superadmin"),
+  ...slotIdParamValidator,
+  ...updateSlotValidator,
+  validateRequest,
+  actualizarTurnoController
+);
+
+// Eliminar turno (profesor o superadmin)
+router.delete(
+  "/:id",
+  auth,
+  allowRoles("profesor", "superadmin"),
+  ...slotIdParamValidator,
+  validateRequest,
+  eliminarTurnoController
 );
 
 export default router;

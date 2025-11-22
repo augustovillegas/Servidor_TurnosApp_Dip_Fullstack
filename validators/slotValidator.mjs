@@ -57,3 +57,54 @@ export const updateEstadoValidator = [
     .isIn(["aprobado", "pendiente", "cancelado"])
     .withMessage("Estado no permitido"),
 ];
+
+export const updateSlotValidator = [
+  body("assignment")
+    .optional({ nullable: true })
+    .isMongoId()
+    .withMessage("El assignment debe ser un identificador valido"),
+  body("moduleNumber")
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage("moduleNumber debe ser un entero positivo"),
+  body("reviewNumber")
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage("El número de review debe ser un entero positivo"),
+  body("date")
+    .optional({ nullable: true })
+    .isISO8601()
+    .withMessage("La fecha debe estar en formato ISO 8601"),
+  body("start")
+    .optional({ nullable: true })
+    .isISO8601()
+    .withMessage("El inicio debe estar en formato ISO 8601"),
+  body("end")
+    .optional({ nullable: true })
+    .isISO8601()
+    .withMessage("El fin debe estar en formato ISO 8601"),
+  body("startTime")
+    .optional({ nullable: true })
+    .matches(/^\d{2}:\d{2}$/)
+    .withMessage("startTime debe usar el formato HH:MM"),
+  body("endTime")
+    .optional({ nullable: true })
+    .matches(/^\d{2}:\d{2}$/)
+    .withMessage("endTime debe usar el formato HH:MM"),
+  body("estado")
+    .optional({ nullable: true })
+    .isIn(["Disponible", "Solicitado", "Aprobado", "Rechazado"])
+    .withMessage("Estado de turno invalido"),
+  body("room")
+    .optional({ nullable: true })
+    .isString()
+    .withMessage("La sala debe ser texto"),
+  body("zoomLink")
+    .optional({ nullable: true })
+    .isString()
+    .withMessage("El enlace de Zoom debe ser texto"),
+  body("comentarios")
+    .optional({ nullable: true })
+    .isString()
+    .withMessage("Los comentarios deben ser texto"),
+];

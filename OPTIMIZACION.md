@@ -1,29 +1,23 @@
-/**
- * 🧹 Instrucciones de Limpieza Final
- * Objetivo: Eliminar todas las referencias a rutas antiguas o duplicadas.
- * 71/71 tests ya pasan, por lo que esta limpieza es de configuración y archivos obsoletos.
- */
+## 💻 Instrucciones para el Equipo de Backend (Corrección de Fallos Críticos)
 
-// 1. Eliminar archivos redundantes (Limpieza física)
-// Estos archivos ya no son importados o su lógica fue migrada.
-// ACCIÓN: Borrar los siguientes archivos de tu sistema de archivos (ej: usando rm, delete o tu IDE):
-// - routes/turnosRoutes.mjs
-// - routes/entregasRoutes.mjs (Si '/submissions' es la ruta canónica)
+Las siguientes tareas deben abordar los errores 4xx reportados por la suite de pruebas E2E, centrándose en la funcionalidad faltante y la validación del contrato de errores unificado.
 
-// 2. Limpiar el archivo principal de configuración (server.mjs)
-// ACCIÓN: En el archivo 'server.mjs', eliminar las siguientes líneas de importación y montaje:
-// (Líneas a eliminar en 'server.mjs')
-// import turnosRoutes from "./routes/turnosRoutes.mjs";
-// import entregasRoutes from "./routes/entregasRoutes.mjs";
-// ...
-// app.use("/turnos", turnosRoutes);
-// app.use("/entregas", entregasRoutes);
+### 1. 🛑 Implementación Crítica de Rutas Faltantes (Error 404)
 
+El principal problema es la falta de soporte para las operaciones de modificación de `Slot` individuales.
 
-// 3. Limpiar la ruta duplicada en Autenticación (authRoutes.mjs)
-// ACCIÓN: En el archivo 'authRoutes.mjs', eliminar la siguiente línea, ya que la ruta /usuarios fue centralizada en usuariosRoutes.mjs:
-// (Línea a eliminar en 'authRoutes.mjs')
-// router.get("/usuarios", auth, allowRoles("superadmin", "profesor"), listarUsuariosController);
+* **Implementar `PUT /slots/:id`:**
+    * Crear la ruta y el método en `slotsController` para manejar la actualización completa de un slot.
+    * Debe invocar a la lógica de negocio en `slotService.actualizarTurno`.
+    * Proteger la ruta con `auth` y `allowRoles(profesor, superadmin)`.
+* **Implementar `DELETE /slots/:id`:**
+    * Crear la ruta y el método en `slotsController` para manejar la eliminación de un slot.
+    * Debe invocar a la lógica de negocio en `slotService.eliminarTurno`.
+    * Proteger la ruta con `auth` y `allowRoles(profesor, superadmin)`.
+* **Objetivo:** Resolver los errores **404** que fallan al intentar actualizar o eliminar turnos/slots.
 
-// 4. Verificación Final
-// Re-ejecuta tu suite de tests (npm test o vitest) para confirmar que, a pesar de la eliminación física, los 71/71 tests siguen pasando.
+### 2. ✅ Refuerzo en Contrato de Errores y Seguridad (400 / 403)
+
+* **Validación de Datos (400):** Verificar que, en el test de `CreateUsers` (que falla con 400), el *payload* de error retorne estrictamente el formato esperado por el frontend: **`{ message: string, errores: [{campo: string, mensaje: string}] }`**. Esto asegura que `validationResult.mjs` no haya retornado un formato *legacy*.
+* **Permisos en Entregas (403):** Corroborar la lógica en `submissionService` para garantizar que la consulta de entregas de un alumno **solo devuelva las suyas** (filtrado por `userId` del token). Esto valida la defensa de seguridad en profundidad reportada en los tests.
+
