@@ -28,7 +28,7 @@ describe.sequential("Slots", () => {
     await disconnectTestDB();
   });
 
-  test("Alumno de otra cohorte no puede reservar un turno", async () => {
+  test("Alumno de otro módulo no puede reservar un turno", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
     const slotId = turnoRes.res.body._id;
@@ -36,23 +36,23 @@ describe.sequential("Slots", () => {
     const reserva = await reservarTurno(context.alumnoC2.token, slotId);
 
     expect(reserva.status).toBe(403);
-    expect(reserva.body.msg).toContain("Cohorte no coincide");
+    expect(reserva.body.message).toContain("Modulo no coincide");
   });
 
   test("Alumno sin aprobacion no puede solicitar turno", async () => {
     const sinAprobar = await registerAndLogin({
       prefix: "alumno-no-aprobado",
-      cohort: 1,
+      moduleNumber: 1,
     });
 
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
-    const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id, { cohort: 1 });
+    const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id, { moduleNumber: 1 });
     const slotId = turnoRes.res.body._id;
 
     const reserva = await reservarTurno(sinAprobar.token, slotId);
 
     expect(reserva.status).toBe(403);
-    expect(reserva.body.msg).toContain("Tu cuenta debe ser aprobada");
+    expect(reserva.body.message).toContain("Tu cuenta debe ser aprobada");
   });
 
   test("Profesor actualiza estado del turno entre aprobado y pendiente", async () => {
@@ -88,7 +88,7 @@ describe.sequential("Slots", () => {
       .send({ estado: "aprobado" });
 
     expect(intento.status).toBe(403);
-    expect(intento.body.msg).toContain("Acceso denegado");
+    expect(intento.body.message).toContain("Acceso denegado");
   });
 
   test("Estado invalido al actualizar turno responde 400", async () => {
@@ -102,12 +102,12 @@ describe.sequential("Slots", () => {
       .send({ estado: "desconocido" });
 
     expect(cambio.status).toBe(400);
-    expect(cambio.body.msg).toContain("Estado");
+    expect(cambio.body.message).toContain("validacion");
   });
 
   test("Alumno no puede reservar dos veces el mismo turno", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
-    const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id, { cohort: 1 });
+    const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id, { moduleNumber: 1 });
     const slotId = turnoRes.res.body._id;
 
     const primera = await reservarTurno(context.alumnoC1.token, slotId);
@@ -115,7 +115,7 @@ describe.sequential("Slots", () => {
 
     const segunda = await reservarTurno(context.alumnoC1.token, slotId);
     expect(segunda.status).toBe(403);
-    expect(segunda.body.msg).toContain("Turno ya reservado");
+    expect(segunda.body.message).toContain("Turno ya reservado");
   });
 });
 

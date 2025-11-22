@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import {
   listarEntregas,  
   crearEntrega,
@@ -44,14 +43,7 @@ export const obtenerEntregasPorUsuarioController = async (req, res, next) => {
 // Usamos este como el controlador canónico para obtener por ID.
 export const obtenerEntregaPorIdController = async (req, res, next) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
-    // Usamos obtenerEntregaPorId del servicio (asumo que incluye chequeo de permisos)
     const entrega = await obtenerEntregaPorId(req.params.id, req.user);
-    if (!entrega) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
     res.json(entrega);
   } catch (err) {
     next(err);
@@ -60,14 +52,7 @@ export const obtenerEntregaPorIdController = async (req, res, next) => {
 
 export const actualizarEntregaController = async (req, res, next) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
-    // Asumiendo que actualizarEntrega toma id, body, y user para checkeo de permisos
     const entrega = await actualizarEntrega(req.params.id, req.body, req.user);
-    if (!entrega) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
     res.json(entrega);
   } catch (error) {
     next(error);
@@ -76,14 +61,7 @@ export const actualizarEntregaController = async (req, res, next) => {
 
 export const eliminarEntregaController = async (req, res, next) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
-    // Asumiendo que eliminarEntrega toma id y user para checkeo de permisos
-    const resultado = await eliminarEntrega(req.params.id, req.user);
-    if (!resultado) {
-      return res.status(404).json({ message: "Entrega no encontrada" });
-    }
+    await eliminarEntrega(req.params.id, req.user);
     res.json({ message: "Entrega eliminada con éxito" });
   } catch (error) {
     next(error);

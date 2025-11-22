@@ -1,19 +1,19 @@
 import { moduleToLabel } from "../moduleMap.mjs";
-import { capitalise } from "../common/normalizers.mjs";
+import { capitalise } from "../normalizers/normalizers.mjs";
 
 function mapEstado(user) {
   if (user?.status && ["Pendiente", "Aprobado", "Rechazado"].includes(user.status)) {
     return user.status;
   }
-  return user?.isApproved ? "Aprobado" : "Pendiente";
+  return "Pendiente";
 }
 
 function getUserModuleLabel(user) {
   if (!user) return null;
-  if (typeof user.modulo === "string" && user.modulo.trim()) {
-    return user.modulo;
+  if (typeof user.moduleLabel === "string" && user.moduleLabel.trim()) {
+    return user.moduleLabel.trim();
   }
-  return moduleToLabel(user.moduleCode ?? user.cohort) || null;
+  return moduleToLabel(user.moduleCode) || null;
 }
 
 export function mapToFrontend(user) {
@@ -26,8 +26,8 @@ export function mapToFrontend(user) {
     role: plain.role,
     rol: capitalise(plain.role),
     estado: mapEstado(plain),
-    cohort: plain.cohort,
-    modulo: getUserModuleLabel(plain) || "",
+    moduleNumber: plain.moduleNumber ?? plain.moduleCode ?? null,
+    moduleLabel: plain.moduleLabel || getUserModuleLabel(plain) || "",
     creadoEn: plain.createdAt ? new Date(plain.createdAt).toISOString() : null,
   };
 }

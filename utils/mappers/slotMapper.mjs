@@ -5,23 +5,10 @@ import {
   normaliseString,
   ESTADO_TO_REVIEW_STATUS,
   VALID_ESTADOS,
-} from "../common/normalizers.mjs";
+} from "../normalizers/normalizers.mjs";
+import { REVIEW_STATUS_TO_ESTADO, timeFormatter } from '../../constants/constantes.mjs';
 
-const REVIEW_STATUS_TO_ESTADO = {
-  "A revisar": "Disponible",
-  revisar: "Disponible",
-  Aprobado: "Aprobado",
-  aprobado: "Aprobado",
-  Desaprobado: "Rechazado",
-  desaprobado: "Rechazado",
-};
-
-export const timeFormatter = new Intl.DateTimeFormat("en-GB", {
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-  timeZone: "UTC",
-});
+export { timeFormatter };
 
 export function parseIsoDate(value) {
   if (!value) return undefined;

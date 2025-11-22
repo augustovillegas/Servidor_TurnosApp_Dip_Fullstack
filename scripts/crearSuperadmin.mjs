@@ -75,6 +75,8 @@ export async function crearSuperadmin(options = {}) {
   for (const config of BASE_USERS_CONFIG) {
     queueUser(seedUsers, {
       ...config,
+      // Asegurar isApproved verdadero si estado es Aprobado
+      isApproved: config.estado === "Aprobado",
       source: "base",
     });
   }

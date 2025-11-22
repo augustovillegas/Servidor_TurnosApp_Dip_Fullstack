@@ -18,16 +18,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    nombre: {
-      type: String,
-      trim: true,
-      default: null,
-    },
-    apellido: {
-      type: String,
-      trim: true,
-      default: null,
-    },
     email: {
       type: String,
       unique: true,
@@ -46,12 +36,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       alias: "module",
     },
-    moduloSlug: {
-      type: String,
-      trim: true,
-      lowercase: true,
-      default: "",
-    },
     moduleCode: {
       type: Number,
       min: 1,
@@ -67,19 +51,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       alias: "cohort",
     },
-    cohortLabel: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-    isRecursante: {
-      type: Boolean,
-      default: false,
-    },
-    isApproved: {
-      type: Boolean,
-      default: false,
-    },
     status: {
       type: String,
       enum: STATUS_USER,
@@ -92,5 +63,33 @@ const userSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// Virtual consistente: moduleNumber (preferido) refleja cohorte
+userSchema.virtual("moduleNumber").get(function () {
+  // Prioriza moduleCode si está, luego cohorte
+  return this.moduleCode || this.cohorte;
+});
+
+// Virtual derivado: moduleLabel desde moduleNumber
+userSchema.virtual("moduleLabel").get(function () {
+  const code = this.moduleCode || this.cohorte;
+  if (!code) return null;
+  const map = {
+    1: "HTML-CSS",
+    2: "JAVASCRIPT",
+    3: "BACKEND - NODE JS",
+    4: "FRONTEND - REACT",
+  };
+  return map[code] || this.modulo || null;
+});
+
+// Setter opcional: asignar moduleNumber actualiza cohorte y moduleCode sin romper tests.
+userSchema.virtual("moduleNumber").set(function (value) {
+  const numeric = Number(value);
+  if (!Number.isNaN(numeric) && numeric > 0) {
+    this.cohorte = numeric;
+    this.moduleCode = numeric;
+  }
+});
 
 export const User = mongoose.model("User", userSchema);

@@ -1,9 +1,15 @@
 # Reporte integral del backend "Gestion de turnos APP"
 
 ## 1. Configuración general del servidor
-- **Punto de entrada:** `server.mjs` levanta Express 5, aplica `cors`, `morgan` y `express.json()`, expone `/health` sin autenticación y monta los routers (`/turnos`, `/entregas`, `/usuarios`, `/auth`, `/assignments`, `/submissions`, `/slots`).
-- **Base de datos:** `config/dbConfig.mjs` usa Mongoose 8, forcea `autoIndex` salvo en producción y aborta el proceso ante errores.
-- **Errores globales:** `errorHandler.mjs` captura todo, mantiene `message` y `msg` (compatibilidad con clientes legacy) y adjunta `code` si existe.
+- **Punto de entrada:** `server.mjs` levanta Express 5, aplica `cors`, `morgan`, `express.json()` y monta los routers (`/turnos`, `/entregas`, `/usuarios`, `/auth`, `/assignments`, `/submissions`, `/slots`). Expone `/health` sin autenticación.
+- **Base de datos:** `config/dbConfig.mjs` usa Mongoose 8; activa `autoIndex` salvo en producción y aborta el proceso ante errores de conexión.
+- **Arquitectura de manejo de errores (Inversión de Control):**
+  * **Contrato unificado:** `errorHandler.mjs` retorna exclusivamente `{ message, errores? }`. Se eliminaron campos legacy (`msg`, `code`, `status` en response body).
+  * **Middlewares:** Todos los middlewares (`auth.mjs`, `roles.mjs`, `requireApproved.mjs`) **lanzan errores** (`throw { status, message }`) en lugar de responder directamente con `res.status().json()`.
+  * **Servicios:** Validan IDs y lógica de negocio lanzando errores con `throw { status, message, errores? }`. El `errorHandler` centraliza todas las respuestas HTTP.
+  * **Validaciones:** `validationResult.mjs` lanza errores 400 con array `errores: [{campo, mensaje}]` cuando hay errores de express-validator.
+  * **Status codes:** El handler aplica el `status` del error lanzado o 500 por defecto.
+  * **Testing:** Suite completa de 71 tests valida el contrato de error unificado (27 tests específicos en `tests/error-handling.test.mjs`).
 - **Proceso:** `process.on("unhandledRejection")` finaliza el server para evitar estados inconsistentes.
 
 ### Variables de entorno cargadas (`.env`)
@@ -34,32 +40,38 @@ Scripts relevantes: `start` (node `server.mjs`), `dev` (nodemon), `pretest` (`sc
 | `cohorte` | Number | Required |
 
 ### ReviewSlot (`models/ReviewSlot.mjs`)
-Campos para relacionar una review y su agenda: `assignment` (opcional), `cohorte` (Number), `reviewNumber` (>=1), `date` (Date obligatoria), `startTime`/`endTime` (HH:MM), `start`/`end` (Date), `room`, `zoomLink`, `student` (ObjectId -> `User`), `approvedByProfessor` (bool), `reviewStatus` (enum: revisar/aprobado/desaprobado con variantes), `estado` (enum `Disponible/Solicitado/Aprobado/Rechazado`), `comentarios`. Incluye `timestamps`.
+Campos para relacionar una review y su agenda: `assignment` (opcional), `cohorte` (Number), `reviewNumber` (>=1), `date` (Date obligatoria), `startTime`/`endTime` (HH:MM), `start`/`end` (Date), `room`, `zoomLink`, `student` (ObjectId -> `User`), `approvedByProfessor` (bool), `reviewStatus` (enum EXACTO del schema: `revisar`, `aprobado`, `desaprobado`, `A revisar`, `Aprobado`, `Desaprobado`; default `A revisar`), `estado` (enum `Disponible` | `Solicitado` | `Aprobado` | `Rechazado`; default `Disponible`), `comentarios`. Incluye `timestamps`.
 
 ### Submission (`models/Submission.mjs`)
 - Relaciona `assignment` y `student` (ambos opcionales).
-- Metadatos: `alumnoNombre`, `sprint`, `modulo`, `githubLink` (obligatorio), `renderLink`, `comentarios`.
-- Estados: `reviewStatus` y `estado` comparten enum extendido (`Pendiente`, `Aprobado`, `Desaprobado`, `A revisar`, `Rechazado`).
+- Metadatos: `alumnoNombre`, `sprint`, `githubLink` (obligatorio), `renderLink`, `comentarios`.
+- Se eliminó el campo `modulo` (derivable vía `assignment` o normalizadores). No existe campo `estado` en el schema.
+- Estado único: `reviewStatus` (enum: `Pendiente`, `Aprobado`, `Desaprobado`, `A revisar`, `Aprobado`, `Desaprobado`, `Rechazado`; default `A revisar`).
 
 ### User (`models/User.mjs`)
-- Identidad: `name` obligatorio (se construye desde `nombre` + `apellido`), además de los campos opcionales `nombre`, `apellido`, `email` (único y lowercase) y `passwordHash`.
-- Academico: `modulo` es el único campo que se debe usar para filtrar por módulo (siempre toma valores de `MODULE_NAME_VALUES`), y ahora se complementa con `moduloSlug`, `moduleCode` y `cohortLabel` (los mismos datos que llenan los seeds y servicios `moduleMap`), así como `cohorte` (alias `cohort`) e `isRecursante`.
-- Accesos: `role` (`alumno/profesor/superadmin`), `status` (`Pendiente/Aprobado/Rechazado`) y `isApproved` se mantienen sincronizados, por lo que no hay campos redundantes de estado.
+- Estructura actual (campos persistidos): `name`, `email`, `passwordHash`, `modulo` (enum), `moduleCode` (Number nullable), `role`, `cohorte` (alias `cohort`), `status` (`Pendiente/Aprobado/Rechazado`).
+- Se eliminaron definitivamente los campos redundantes: `nombre`, `apellido`, `isApproved`, `moduloSlug`, `cohortLabel`, `isRecursante`.
+- Virtuales disponibles: `moduleNumber` (refleja `moduleCode || cohorte` y permite set para sincronizar), `moduleLabel` (deriva etiqueta desde el número).
+- Aprobación de cuenta: se controla exclusivamente con `status === "Aprobado"` (el frontend puede derivar `isApproved` si lo necesita). No hay duplicación de estado.
+- Seguridad: `passwordHash` nunca se expone; sanitización remove `passwordHash`, `__v` y otros metadatos.
 
 ## 3. Repositorios (`repository/`)
 - `assignmentRepository.mjs`, `slotRepository.mjs`, `submissionRepository.mjs`, `userRepository.mjs` implementan la interfaz `IRepository` con métodos CRUD tipificados. `slotRepository` siempre `populate` assignments/students para que los servicios tengan todo listo.
 
 ## 4. Servicios y reglas de negocio (`services/`)
 ### assignmentService.mjs
-- `crearAsignacion(body, user)`: solo `profesor/superadmin`, castea `module` a número, usa `user.cohort` o `body.cohort`, fecha a `Date`.
-- `obtenerTodasAsignaciones(user)`: filtra por `createdBy` si el usuario es profesor.
-- `obtenerAsignacionPorId`, `actualizarAsignacion`, `eliminarAsignacion`: validan propiedad del recurso salvo `superadmin`.
+- `crearAsignacion(body, user)`: sólo `profesor/superadmin`. Ignora cualquier `cohorte` del body y deriva módulo/cohorte usando `resolveModuleMetadata` a partir de `user.cohort`; siempre setea `cohorte` y `modulo` según el profesor creador.
+- `obtenerTodasAsignaciones(user)`: 
+   * `superadmin`: sin filtro.
+   * `profesor`: únicamente asignaciones creadas por él (`createdBy:user.id`) dentro de su propio `cohorte`.
+   * `alumno`: todas las asignaciones de su `cohorte` (independiente del creador).
+- `obtenerAsignacionPorId`, `actualizarAsignacion`, `eliminarAsignacion`: exigen propiedad (match `createdBy`) salvo rol `superadmin`.
 
 ### authService.mjs
-- `register`: verifica email único, construye `name` desde `name/nombre/apellido`, hashea con bcrypt (10 salt rounds), crea `User` vía repositorio y sanitiza (remueve `passwordHash`).
-- `login`: compara password, bloquea usuarios `status === "Rechazado"`, firma JWT (7 días) con `JWT_SECRET` incluyendo `{id, role}`.
-- `aprobarUsuario`: marca `isApproved` y `status="Aprobado"`.
-- `listarUsuarios`, `getUserById`: retornan usuarios sanitizados.
+- `register`: verifica email único, usa directamente `name` recibido (los campos `nombre/apellido` ya no existen), hashea con bcrypt (10 salt rounds), persiste y sanitiza (remueve `passwordHash`).
+- `login`: compara password, bloquea usuarios con `status === "Rechazado"`, firma JWT (7 días) con `{ id, role }` usando `JWT_SECRET`.
+- `aprobarUsuario`: establece `status="Aprobado"` (sin campo `isApproved`).
+- `listarUsuarios`, `getUserById`: devuelven usuario sanitizado.
 
 ### slotService.mjs (operaciones protegidas + panel admin)
 - Normaliza estados (`REVIEW_STATUS_CANONICAL`) y expone las operaciones de negocio clásicas (`crear`, `solicitarTurno`, `cancelarTurno`, `actualizarEstadoRevision`, `obtenerPorUsuario`, `obtenerTurnosPorFiltro`, `obtenerSolicitudesPorAlumno`) con validaciones de rol/cohorte.
@@ -67,14 +79,15 @@ Campos para relacionar una review y su agenda: `assignment` (opcional), `cohorte
 - Las funciones `listarTurnos`, `obtenerTurno`, `crearTurno`, `actualizarTurno` y `eliminarTurno` también construyen/normalizan payloads (horarios, strings, estados) para persistir sin duplicar lógica.
 
 ### submissionService.mjs (entregas del core y del panel)
-- Usa `ReviewSlot`, `Assignment` y el repositorio para las rutas tradicionales (`crearEntrega`, `obtenerEntregasPorUsuario`, `obtenerEntregaPorId`, `actualizarEntrega`, `eliminarEntrega`); todas las decisiones de estado (`FINAL_STATES`, `normalizarReviewStatus`) se toman en este servicio.
-- Para el panel de `/entregas`, expone funciones adicionales que aplican `utils/mappers/submissionMapper.mjs`: `listarEntregasFrontend`, `obtenerEntregaFrontend`, `crearEntregaFrontend`, `actualizarEntregaFrontend` y `eliminarEntregaFrontend`. Cada una valida `githubLink`, normaliza `modulo` con `ensureModuleLabel`, mantiene `estado/reviewStatus` sincronizados y aplica los mismos filtros/ordenamientos que entonces.
-- El mapeo final antes de devolver datos siempre pasa por `toFrontend` para conservar la forma del DTO anterior.
+- Funciones core: `crearEntrega`, `obtenerEntregasPorUsuario`, `obtenerEntregaPorId`, `actualizarEntrega`, `eliminarEntrega` (control de autorización y estados finales).
+- Para el panel `/entregas`: `listarEntregasFrontend`, `obtenerEntregaFrontend`, `crearEntregaFrontend`, `actualizarEntregaFrontend`, `eliminarEntregaFrontend` aplican `submissionMapper` y normalizadores. Ya no se persiste `modulo`; se deriva/normaliza antes de construir el DTO.
+- Estados se manejan únicamente con `reviewStatus`.
 
 ### userService.mjs
-- Integra el CRUD básico (usado por `auth` y repositorio) con los handlers que respondían a `/usuarios` en el panel: `listarUsuarios`, `obtenerUsuario`, `crearUsuario`, `actualizarUsuario`, `eliminarUsuario`.
-- `listarUsuarios` utiliza `utils/mappers/userMapper.mjs` y los normalizadores (`normaliseRole`, `normaliseEstado`) más `ensureModuleLabel` para soportar filtros por rol/estado/módulo.
-- `crearUsuario` delega en `authService.register`, resuelve el módulo con `resolveModuleMetadata`, y mantiene `modulo`, `moduloSlug`, `moduleCode`, `cohorte` y `status/isApproved` sin duplicar lógica, mientras que las actualizaciones reutilizan las mismas utilidades.
+- CRUD panel: `listarUsuarios`, `obtenerUsuario`, `crearUsuario`, `actualizarUsuario`, `eliminarUsuario`.
+- `listarUsuarios` aplica mapper y normalizadores para rol/estado/módulo. 
+- `crearUsuario` delega en `authService.register`; ya no gestiona campos eliminados (no existen `moduloSlug`, `cohortLabel`, `isApproved`).
+- Actualizaciones preservan coherencia de `moduleCode` y `cohorte` vía virtuales.
 
 ## 5. Controladores y rutas
 ### Endpoint global
@@ -141,22 +154,51 @@ Middlewares globales: `auth`, `allowRoles(profesor,superadmin)`.
 | DELETE | `/entregas/:id` | `eliminarEntregaFrontendController` -> `submissionService.eliminarEntregaFrontend` |
 
 ### `/usuarios` (gestión desde frontend admin)
-Middlewares globales: `auth`, `allowRoles(superadmin)`.
+Middlewares globales: `auth`, `allowRoles(superadmin, profesor, alumno)` según `usuariosRoutes.mjs`. El acceso de `alumno` a creación podría restringirse en producción.
 
 | Método | Ruta | Controlador -> Servicio |
 | --- | --- | --- |
 | GET | `/usuarios/` | `listarUsuariosFrontendController` -> `userService.listarUsuarios` |
 | GET | `/usuarios/:id` | `obtenerUsuarioFrontendController` -> `userService.obtenerUsuario` |
-| POST | `/usuarios/` | `crearUsuarioFrontendController` -> `userService.crearUsuario` |
+| POST | `/usuarios/` | `crearUsuarioFrontendController` -> `userService.crearUsuario` (actualmente accesible también para `profesor` y `alumno`, revisar implicancias de seguridad) |
 | PUT | `/usuarios/:id` | `actualizarUsuarioFrontendController` -> `userService.actualizarUsuario` |
 | DELETE | `/usuarios/:id` | `eliminarUsuarioFrontendController` -> `userService.eliminarUsuario` |
 
 ## 6. Middlewares clave (`middlewares/`)
-- `auth.mjs`: exige header `Authorization: Bearer <token>`, valida JWT con `JWT_SECRET`, adjunta `req.user` y `req.userDocument` obtenido vía `userService`.
-- `roles.mjs`: `allowRoles(...rolesPermitidos)` verifica `req.user.role` y contiene `rolesConfig` (capacidades informativas).
-- `requireApproved.mjs`: bloquea acciones de alumnos con `isApproved === false`.
-- `validationResult.mjs`: formatea errores de `express-validator` con estructura `{campo,mensaje}` y resumen en `msg`.
-- `errorHandler.mjs`: descrito arriba.
+### Arquitectura de Inversión de Control
+Todos los middlewares **lanzan errores** en lugar de responder directamente. El `errorHandler.mjs` centraliza todas las respuestas HTTP.
+
+- **`auth.mjs`**: 
+  * Exige `Authorization: Bearer <token>`, valida JWT.
+  * **Lanza** `throw { status: 401, message: "Token requerido" }` si falta token.
+  * **Lanza** `throw { status: 401, message: "Token inválido o expirado" }` si JWT inválido.
+  * Adjunta usuario en `req.user` / documento en `req.userDocument` si válido.
+
+- **`roles.mjs`**: 
+  * `allowRoles(...roles)` valida que `req.user.role` esté en la lista permitida.
+  * **Lanza** `throw { status: 401, message: "No autorizado" }` si no hay usuario.
+  * **Lanza** `throw { status: 403, message: "Acceso denegado" }` si rol no permitido.
+
+- **`requireApproved.mjs`**: 
+  * Valida que la cuenta esté aprobada: `req.userDocument.status === "Aprobado"`.
+  * **Lanza** `throw { status: 403, message: "Tu cuenta debe ser aprobada por un profesor o administrador" }` si no aprobado.
+  * Nota: El campo `isApproved` fue eliminado del modelo.
+
+- **`validationResult.mjs`**: 
+  * Procesa errores de `express-validator`.
+  * **Lanza** `throw { status: 400, message: "Error de validacion", errores: [{campo, mensaje}] }` si hay errores.
+  * Genera array `errores` con formato: `[{ campo: "fieldName", mensaje: "error message" }]`.
+
+- **`errorHandler.mjs`**: 
+  * Middleware final que captura todos los errores lanzados.
+  * Extrae `status` del error (default 500) y devuelve:
+    ```json
+    {
+      "message": "mensaje descriptivo",
+      "errores": [/* opcional, solo en validaciones */]
+    }
+    ```
+  * **NO** incluye campos legacy (`msg`, `code`, `status` en body).
 
 ## 7. Validadores (`validators/`)
 - `assignmentValidator`: obliga `title`, `description`, `dueDate` (ISO) y `module` entero.
@@ -165,21 +207,228 @@ Middlewares globales: `auth`, `allowRoles(superadmin)`.
 - `submissionValidator`: chequea `assignment` como ObjectId opcional, `githubLink` o `link` apuntando a `github.com`, `renderLink` válido.
 
 ## 8. Utilidades y otros componentes
-- `utils/moduleMap.mjs`: mapea cohortes numéricos ? etiquetas (`1 -> HTML-CSS`, `2 -> JAVASCRIPT`, `3 -> NODE`, `4 -> REACT`). `ensureModuleLabel` normaliza strings en mayúsculas; usado extensamente por servicios "frontend".
-- `utils/sanitizeUser.mjs`: remueve `passwordHash` y `__v` de cualquier documento `User` antes de exponerlo.
-- `repository/slotRepository.mjs` siempre `populate` assignments (campos `module`, `title`, `description`, `createdBy`) y estudiantes (`name`, `role`, `cohort`) para que tanto los servicios internos como los de frontend puedan construir DTOs sin consultas adicionales.
-- Directorios extra: `scripts/` (pobladores y herramientas como `crearSuperadmin`, `limpiarDB`, `reset_and_seed`, `crearTurnosReviews`, `runTestsWithLog`), `logs/` (para dumps de pruebas), `tests/` (vitest/supertest) y `public/` (assets compartidos).
+- `utils/moduleMap.mjs`: mapea número -> etiqueta; ayuda a derivar `moduleCode` / `moduleLabel` cuando no está explícito.
+- `utils/sanitizeUser.mjs`: elimina `passwordHash` y metadata antes de exponer usuarios.
+- `utils/mappers/`: 
+  * `slotMapper.mjs`: transforma slots DB a DTO frontend con campos calculados (duración, fechas formateadas).
+  * `submissionMapper.mjs`: normaliza submissions usando campo `id` (no `_id`) y resuelve estado canonical.
+  * `userMapper.mjs`: formatea usuarios para respuestas frontend.
+- `utils/normalizers/normalizers.mjs`: funciones de normalización de strings, estados, fechas y números.
+- `repository/slotRepository.mjs`: hace `populate` de `assignment` y `student` para entregar contexto completo a los servicios sin consultas adicionales.
+- Directorios extra: `scripts/` (seed/reset/índices), `logs/`, `tests/`, `public/`.
 
-## 9. Reglas y consideraciones para integrar un frontend a medida
-1. **Autenticación:** todos los endpoints (excepto `/health`, `/auth/ping`, `/auth/login`, `/auth/register`) requieren JWT en cabecera `Authorization`. Guardar `token` y reenviarlo; el payload contiene `id` y `role`.
-2. **Roles/permisos:**
-   - `alumno`: puede listar turnos (`/slots`), reservar/cancelar, crear/editar sus submissions (limitado si ya fueron evaluadas) y leer `/submissions/:userId` solo si coincide con su `userId`.
-   - `profesor`: puede crear turnos y assignments, aprobar/rechazar submissions y usuarios, usar paneles `/turnos` y `/entregas`.
-   - `superadmin`: mismo que profesor + gestionar `/usuarios` completos.
-3. **Estados canónicos:** front debe usar los valores exactos: turnos `Disponible/Solicitado/Aprobado/Rechazado`; submissions `A revisar/Aprobado/Desaprobado` (alias se normalizan server-side pero conviene mandar los canónicos).
-4. **Módulos/cohortes:** preferir etiquetas normalizadas (`HTML-CSS`, `JAVASCRIPT`, `NODE`, `REACT`). El backend las convierte a números cuando hace falta (`labelToModule`).
-5. **Turnos Frontend DTO:** campos disponibles (via `slotService.listarTurnos` + `utils/mappers/slotMapper.mjs`): `id`, `modulo`, `profesorId`, `zoomLink`, `fecha` (`date`, `start`, `end`, `startTime`, `endTime`), `estado`, `reviewStatus`, `solicitanteId`, `solicitanteNombre`, `comentarios`, etc. Mantener sincronizadas las opciones con `VALID_ESTADOS`.
-6. **Submissions Frontend DTO:** incluye `alumno`, `alumnoId`, `modulo`, `estado`, `githubLink`, `renderLink`, `comentarios`, `fechaEntrega`. Los filtros aceptan `estado`, `modulo`, `sprint`, `userId`.
-7. **Campos sensibles:** el `JWT_SECRET` y la conexión Atlas quedan expuestos en `.env`; cualquier despliegue final debe sobreescribirlos.
+## 9. Testing y Quality Assurance
 
-Este reporte cubre cada ruta, controlador, servicio, modelo y las piezas auxiliares necesarias para que un frontend pueda consumir la API sin ambigüedades.
+### Suite de Tests (Vitest + Supertest)
+**71 tests en total** distribuidos en 7 archivos:
+
+#### Tests Core (44 tests originales)
+1. **`tests/auth.test.mjs`** (7 tests)
+   - Login con credenciales del seed
+   - Registro de alumnos (status pendiente)
+   - Email duplicado (409)
+   - Login exitoso sin exponer passwordHash
+   - Login con contraseña incorrecta (401)
+   - Aprobación de usuarios por superadmin
+   - Autorización 403 para alumnos en listado de usuarios
+
+2. **`tests/assignment.test.mjs`** (9 tests)
+   - Alumno no puede crear asignación (403)
+   - Validación de dueDate inválido (400)
+   - Ownership del profesor creador
+   - Profesor ajeno no puede actualizar/eliminar (403)
+   - Superadmin puede actualizar/eliminar cualquier asignación
+   - Listado filtrado por módulo del profesor
+   - Campos extra ignorados en creación
+
+3. **`tests/submission.test.mjs`** (7 tests)
+   - Alumno no puede entregar sin reservar turno (403)
+   - Validación de links de GitHub
+   - Estado "A revisar" tras creación
+   - Alumnos no pueden ver entregas ajenas (403)
+   - Alumnos no pueden editar entregas de otros (403)
+   - Superadmin puede consultar cualquier entrega
+   - Profesor aprueba entrega y alumno no puede modificarla (409)
+
+4. **`tests/slot.test.mjs`** (6 tests)
+   - Alumno de otro módulo no puede reservar (403)
+   - Alumno sin aprobación no puede solicitar (403)
+   - Profesor actualiza estado del turno
+   - Alumno no autorizado no puede cambiar estado (403)
+   - Validación de estado inválido (400)
+   - Prevención de doble reserva (403)
+
+5. **`tests/user.test.mjs`** (5 tests)
+   - Superadmin lista usuarios sin exponer datos sensibles
+   - Profesor filtra usuarios por rol
+   - Superadmin filtra por módulo
+   - Alumno recibe 403 al listar usuarios
+   - Superadmin aprueba usuarios pendientes
+
+6. **`tests/cohort-isolation.test.mjs`** (10 tests)
+   - Aislamiento de datos por cohorte/módulo
+   - Alumnos solo ven asignaciones/turnos de su módulo
+   - Profesores solo gestionan su módulo
+   - Prevención de acceso cross-cohorte
+
+#### Tests de Manejo de Errores (27 tests nuevos)
+7. **`tests/error-handling.test.mjs`** (27 tests)
+   Valida el contrato de error unificado `{message, errores?}` sin campos legacy:
+
+   **a) Middlewares de Autenticación - 401** (4 tests)
+   - GET /slots sin token
+   - POST /assignments sin token
+   - PATCH /auth/aprobar/:id sin token
+   - Token inválido/expirado
+
+   **b) Middlewares de Autorización - 403** (4 tests)
+   - Alumno intentando crear asignación
+   - Alumno intentando listar usuarios
+   - Alumno intentando crear slot
+   - Profesor intentando aprobar usuario (404 si ID inexistente)
+
+   **c) Middleware requireApproved - 403** (1 test)
+   - Alumno no aprobado intentando solicitar turno
+
+   **d) Middleware de Validación - 400** (4 tests)
+   - POST /assignments con dueDate inválido (con array `errores`)
+   - POST /assignments sin campos requeridos
+   - PATCH /slots/:id/estado con estado inválido
+   - POST /auth/register sin password
+
+   **e) Servicios - Errores 404** (8 tests)
+   - GET /assignments/:id con ID inválido (400 por validación de parámetro)
+   - GET /assignments/:id con ID válido inexistente (404)
+   - GET /turnos/:id con ID inválido (404)
+   - GET /turnos/:id con ID válido inexistente (404)
+   - PUT /assignments/:id con ID inválido (400 por validación)
+   - DELETE /assignments/:id con ID inválido (400 por validación)
+   - PATCH /auth/aprobar/:id con ID inválido (404)
+   - PATCH /auth/aprobar/:id con ID válido inexistente (404)
+
+   **f) Servicios - Errores de Negocio** (5 tests)
+   - POST /auth/login con credenciales incorrectas (401)
+   - POST /auth/register con email duplicado (409)
+   - PATCH /slots/:id/solicitar sin reservar (403)
+   - PATCH /slots/:id/solicitar turno ya reservado (403)
+   - PUT /submissions/:id de entrega aprobada (409 conflicto)
+
+   **g) Verificación de Formato Unificado** (1 test)
+   - Todos los errores 4xx/5xx devuelven solo `{message, errores?}`
+   - Sin campos legacy: `msg`, `code`, `status` en body
+
+### Configuración de Tests
+- **Framework:** Vitest 3.2.4 con Supertest
+- **Setup:** `tests/setup.mjs` - inicializa DB, crea superadmin, limpia después de cada suite
+- **Helpers:** `tests/helpers/testUtils.mjs` - funciones de creación de usuarios base, asignaciones, turnos
+- **Ejecución:**
+  ```bash
+  npm test                    # Suite completa con logs
+  npx vitest run             # Ejecución directa
+  npx vitest run --reporter=verbose  # Output detallado
+  ```
+- **Pre-test:** Script `crearSuperadmin.mjs` garantiza usuario admin existente
+- **Coverage:** 71/71 tests passing (100%)
+
+### Principios de Testing
+1. **Aislamiento:** Cada test suite limpia la BD antes de ejecutar
+2. **Datos realistas:** Usuarios base creados con roles/módulos variados
+3. **Validación completa:** Status code + estructura de respuesta + campos específicos
+4. **Seguridad:** Tests verifican que datos sensibles no se exponen
+5. **Contratos:** Validación estricta del formato de error unificado
+
+## 10. Reglas y consideraciones para integrar un frontend a medida
+
+### Autenticación y Seguridad
+1. **JWT:** Todos los endpoints (excepto `/health`, `/auth/ping`, `/auth/login`, `/auth/register`) requieren header `Authorization: Bearer <token>`.
+   - Payload JWT: `{ id, role }` firmado con `JWT_SECRET`, expiración 7 días.
+   - Almacenar token en cliente y reenviarlo en cada petición.
+   - Errores de auth: 401 con `{message: "Token requerido"}` o `{message: "Token inválido o expirado"}`.
+
+2. **Roles y permisos:**
+   - **`alumno`**: 
+     * Listar/reservar/cancelar turnos (`/slots`)
+     * Crear/editar sus propias submissions (bloqueadas si aprobadas)
+     * Ver solo sus entregas
+     * Requiere `status === "Aprobado"` para operaciones principales
+   - **`profesor`**: 
+     * Crear/editar/eliminar assignments propias
+     * Crear/gestionar turnos (`/turnos` panel)
+     * Aprobar/rechazar submissions y usuarios
+     * Ver entregas de alumnos de su módulo
+   - **`superadmin`**: 
+     * Todos los permisos de profesor
+     * Gestión completa de usuarios (`/usuarios`)
+     * Puede modificar/eliminar recursos de otros profesores
+
+### Manejo de Errores en el Cliente
+3. **Formato de respuesta de error:**
+   ```typescript
+   interface ErrorResponse {
+     message: string;           // Mensaje descriptivo
+     errores?: Array<{          // Solo en errores de validación
+       campo: string;
+       mensaje: string;
+     }>;
+   }
+   ```
+   - **NO** esperar campos legacy: `msg`, `code`, `status` en body.
+   - El status HTTP viene en `response.status` (401, 403, 404, 400, 409, 500).
+
+4. **Códigos de estado comunes:**
+   - `400`: Validación fallida (incluye array `errores`)
+   - `401`: No autenticado (token faltante/inválido)
+   - `403`: Acceso denegado (rol insuficiente, cuenta no aprobada, recurso ajeno)
+   - `404`: Recurso no encontrado (ID inválido o inexistente)
+   - `409`: Conflicto de negocio (email duplicado, entrega ya aprobada, turno reservado)
+   - `500`: Error interno del servidor
+
+### Datos y Formatos
+5. **Estados canónicos:**
+   - **Turnos (ReviewSlot):** 
+     * `estado`: `"Disponible"` | `"Solicitado"` | `"Aprobado"` | `"Rechazado"`
+     * `reviewStatus`: `"A revisar"` | `"Aprobado"` | `"Desaprobado"`
+   - **Submissions:** 
+     * `reviewStatus`: `"A revisar"` | `"Aprobado"` | `"Desaprobado"` | `"Pendiente"` | `"Rechazado"`
+   - **Usuarios:** 
+     * `status`: `"Pendiente"` | `"Aprobado"` | `"Rechazado"`
+     * Nota: Campo `isApproved` eliminado, derivar de `status === "Aprobado"`
+
+6. **Módulos/cohortes:**
+   - Etiquetas canónicas: `"HTML-CSS"`, `"JAVASCRIPT"`, `"BACKEND - NODE JS"`, `"FRONTEND - REACT"`
+   - Backend normaliza y convierte a números internamente.
+   - Usuarios tienen `moduleCode` (número) y `moduleLabel` (virtual, etiqueta).
+
+7. **DTOs Frontend:**
+   - **Turnos:** Campo `id` (no `_id`), incluye `modulo`, `profesorId`, `zoomLink`, fechas ISO, `estado`, `reviewStatus`, `solicitanteId`, `solicitanteNombre`, duración calculada.
+   - **Submissions:** Campo `id` (no `_id`), incluye `assignmentId`, `studentId`, `alumnoNombre`, `githubLink`, `renderLink`, `comentarios`, `reviewStatus`, timestamps. Módulo se deriva vía `assignment`.
+   - **Usuarios:** Campos sanitizados (sin `passwordHash`, `__v`).
+
+### Validaciones del Cliente
+8. **Antes de enviar:**
+   - Fechas en formato ISO 8601 (`YYYY-MM-DD` o `YYYY-MM-DDTHH:mm:ss.sssZ`)
+   - Horarios en formato `HH:MM` (24 horas)
+   - Links de GitHub: deben contener `github.com`
+   - Emails válidos (regex server-side flexible pero recomendable validar cliente)
+   - IDs: 24 caracteres hexadecimales (ObjectId de MongoDB)
+
+### Deployment y Configuración
+9. **Variables de entorno:**
+   - `MONGO_URL`: Conexión a MongoDB (actualmente Atlas)
+   - `JWT_SECRET`: Clave secreta para firmar JWT
+   - **CRÍTICO:** Valores en `.env` son de desarrollo; **SOBRESCRIBIR** en producción.
+
+10. **Health Check:**
+    - `GET /health` → `{status: "ok"}` (sin autenticación)
+    - Usar para verificar disponibilidad del servidor
+
+### Estado del Sistema
+Este reporte refleja el estado **ACTUAL** tras:
+- ✅ Refactorización de modelos (eliminación de campos redundantes `isApproved`, `nombre`, `apellido`, etc.)
+- ✅ Arquitectura de **Inversión de Control** (middlewares lanzan errores, errorHandler centraliza respuestas)
+- ✅ Estandarización de manejo de errores (formato único `{message, errores?}`)
+- ✅ Suite de tests completa (71/71 passing) validando contratos de error
+- ✅ Mappers y normalizadores para DTOs consistentes
+- ✅ Validación de IDs en servicios (404 para IDs inexistentes)
+
+**Última actualización:** Noviembre 2025 - Sistema listo para integración frontend sin deuda técnica legacy.

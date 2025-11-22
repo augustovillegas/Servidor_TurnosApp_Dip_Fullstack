@@ -65,19 +65,19 @@ describe.sequential("Cohort Isolation", () => {
     expect(otros.length).toBe(0);
   });
 
-  // P2: Profesor_M1 GET /assignments solo SUS asignaciones de cohorte 1 (aislamiento + ownership)
+  // P2: Profesor_M1 GET /assignments solo TODAS las de cohorte 1 (no solo las propias)
   test("P2 Profesor_M1 GET /assignments solo cohorte M1", async () => {
     const res = await request(app)
       .get("/assignments")
       .set("Authorization", `Bearer ${ctx.profesorOwner.token}`);
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-    // Debe tener al menos la asignación propia creada en setup
+    // Debe tener al menos la asignación creada en setup
     expect(res.body.length).toBeGreaterThan(0);
-    // Todas deben ser de cohorte 1 (aislamiento) y creadas por él (ownership)
+    // [CORRECCIÓN] Todas deben ser de cohorte 1 (aislamiento por módulo)
+    // Ya NO se filtra por createdBy - el profesor ve TODAS las asignaciones de su módulo
     res.body.forEach((a) => {
       expect(String(a.cohorte)).toBe("1");
-      expect(String(a.createdBy)).toBe(String(ctx.profesorOwner.id));
     });
   });
 
@@ -91,7 +91,7 @@ describe.sequential("Cohort Isolation", () => {
     expect(res.body.length).toBeGreaterThan(0);
     res.body.forEach((u) => {
       expect(u.role).toBe("alumno");
-      expect(String(u.cohort)).toBe("2");
+      expect(String(u.moduleNumber)).toBe("2");
     });
   });
 

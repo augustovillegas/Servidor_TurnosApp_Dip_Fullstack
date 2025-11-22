@@ -40,7 +40,7 @@ describe.sequential("Submissions", () => {
     });
 
     expect(entrega.status).toBe(403);
-    expect(entrega.body.msg).toContain("Debes reservar el turno");
+    expect(entrega.body.message).toContain("Debes reservar el turno");
   });
 
   test("Entrega rechaza links que no son de GitHub", async () => {
@@ -89,7 +89,7 @@ test("Entrega valida queda en estado 'A revisar' tras reservar correctamente", a
       .set("Authorization", `Bearer ${context.alumnoC2.token}`);
 
     expect(res.status).toBe(403);
-    expect(res.body.msg).toContain("No autorizado");
+    expect(res.body.message).toContain("No autorizado");
   });
 
   test("Alumno no puede editar entrega de otro estudiante", async () => {
@@ -104,7 +104,7 @@ test("Entrega valida queda en estado 'A revisar' tras reservar correctamente", a
       .send({ renderLink: "https://example.com/render" });
 
     expect(update.status).toBe(403);
-    expect(update.body.msg).toContain("No autorizado");
+    expect(update.body.message).toContain("No autorizado");
   });
 
   test("Superadmin puede consultar entregas de cualquier alumno", async () => {
@@ -142,7 +142,7 @@ test("Entrega valida queda en estado 'A revisar' tras reservar correctamente", a
       .send({ renderLink: "https://example.com/render" });
 
     expect(intentoAlumno.status).toBe(409);
-    expect(intentoAlumno.body.msg).toContain("No se puede modificar una entrega ya evaluada");
+    expect(intentoAlumno.body.message).toContain("No se puede modificar una entrega ya evaluada");
   });
 });
 

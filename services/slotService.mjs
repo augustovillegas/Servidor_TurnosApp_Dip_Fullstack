@@ -13,29 +13,16 @@ import {
   normaliseString,
   ESTADO_TO_REVIEW_STATUS,
   VALID_ESTADOS,
-} from "../utils/common/normalizers.mjs";
-
-const REVIEW_STATUS_CANONICAL = {
-  aprobado: "Aprobado",
-  aprobada: "Aprobado",
-  pendiente: "A revisar",
-  revisar: "A revisar",
-  "a revisar": "A revisar",
-  cancelado: "Desaprobado",
-  cancelada: "Desaprobado",
-  desaprobado: "Desaprobado",
-  desaprobada: "Desaprobado",
-  rechazado: "Desaprobado",
-  rechazada: "Desaprobado",
-};
+} from "../utils/normalizers/normalizers.mjs";
+import { REVIEW_STATUS_CANONICAL } from '../constants/constantes.mjs';
 
 export async function crear(data, usuario) {
   if (!["profesor", "superadmin"].includes(usuario.role)) {
     throw { status: 403, message: "No autorizado" };
   }
 
-  // AHORA: El 'cohort' del turno SIEMPRE debe ser el Módulo del profesor logueado.
-  const moduleValue = Number(usuario?.cohort);
+  // El 'cohort' del turno SIEMPRE debe ser el Módulo del profesor logueado.
+  const moduleValue = Number(usuario?.moduleNumber ?? usuario?.moduleCode);
 
   const payload = {
     ...data,
@@ -66,6 +53,15 @@ export async function crear(data, usuario) {
 }
 
 export async function solicitarTurno(idTurno, usuario) {
+  // Solo alumnos pueden solicitar turnos
+  if (usuario.role !== "alumno") {
+    throw { status: 403, message: "Solo alumnos pueden solicitar turnos" };
+  }
+  // Debe estar aprobado
+  if (usuario.status !== "Aprobado") {
+    throw { status: 403, message: "Tu cuenta debe ser aprobada" };
+  }
+
   const turno = await slotRepository.obtenerPorId(idTurno);
   if (!turno) throw { status: 404, message: "Turno no encontrado" };
 
@@ -73,13 +69,16 @@ export async function solicitarTurno(idTurno, usuario) {
     throw { status: 403, message: "Turno ya reservado" };
   }
 
-  if (String(turno.cohort) !== String(usuario.cohort)) {
-    throw { status: 403, message: "Cohorte no coincide" };
+  // Aislamiento de cohorte (usar Number para comparación robusta)
+  if (Number(turno.cohort) !== Number(usuario.moduleNumber ?? usuario.moduleCode)) {
+    throw { status: 403, message: "Modulo no coincide" };
   }
 
   turno.student = usuario.id;
+  // Actualizar estado del slot cuando se solicita
+  turno.estado = "Solicitado";
   await turno.save();
-  return turno;
+  return toFrontend(turno);
 }
 
 export async function cancelarTurno(idTurno, usuario) {
@@ -124,8 +123,8 @@ export async function obtenerPorUsuario(usuarioId) {
 
 export async function obtenerTurnosPorFiltro(query = {}, usuario) {
   const filtro = {};
-  const { role, cohort: userModulo, id: userId } = usuario; // Renombramos cohort a userModulo para claridad
-  const moduloActual = Number(userModulo);
+  const { role, moduleNumber, moduleCode, id: userId } = usuario;
+  const moduloActual = Number(moduleNumber ?? moduleCode);
 
   // --- FILTRO DE MÓDULO (Acceso Rígido) ---
   if (role === "superadmin") {
@@ -350,33 +349,33 @@ export async function listarTurnos(query = {}) {
   if (query.userId && mongoose.Types.ObjectId.isValid(query.userId)) {
     filtro.student = query.userId;
   }
+  
+  // [CORRECCIÓN 3] Aplicar filtro de estado directamente en la query de Mongoose
+  if (query.estado && VALID_ESTADOS.includes(query.estado)) {
+    filtro.estado = query.estado;
+  }
 
   const raw = await slotRepository.obtenerTodos(filtro);
   let mapped = raw.map(toFrontend);
 
+  // Solo mantener filtro de userId invalido (edge case)
   if (query.userId && !mongoose.Types.ObjectId.isValid(query.userId)) {
     const userFilter = query.userId.toString().trim();
     mapped = mapped.filter((slot) => slot.solicitanteId === userFilter);
   }
 
-  if (query.modulo) {
-    const moduloNormalised = ensureModuleLabel(query.modulo);
-    if (moduloNormalised) {
-      mapped = mapped.filter(
-        (slot) => slot.modulo && slot.modulo.toUpperCase() === moduloNormalised
-      );
-    }
-  }
-
-  if (query.estado && VALID_ESTADOS.includes(query.estado)) {
-    mapped = mapped.filter((slot) => slot.estado === query.estado);
-  }
+  // [CORRECCIÓN 3] ELIMINADO: Filtrado redundante post-fetch de modulo y estado
+  // El filtro de cohort ya se aplicó en la DB, y el modulo se deriva del cohort
 
   return mapped;
 }
 
 export async function obtenerTurno(id) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw { status: 404, message: "Turno no encontrado" };
+  }
   const slot = await slotRepository.obtenerPorId(id);
+  if (!slot) throw { status: 404, message: "Turno no encontrado" };
   return toFrontend(slot);
 }
 
@@ -387,8 +386,11 @@ export async function crearTurno(data) {
 }
 
 export async function actualizarTurno(id, data) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw { status: 404, message: "Turno no encontrado" };
+  }
   const slot = await slotRepository.obtenerPorId(id);
-  if (!slot) return null;
+  if (!slot) throw { status: 404, message: "Turno no encontrado" };
 
   const payload = buildPersistencePayload(data);
   applyPayloadToDocument(slot, payload, data?.estado);
@@ -397,5 +399,10 @@ export async function actualizarTurno(id, data) {
 }
 
 export async function eliminarTurno(id) {
-  return slotRepository.eliminar(id);
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw { status: 404, message: "Turno no encontrado" };
+  }
+  const eliminado = await slotRepository.eliminar(id);
+  if (!eliminado) throw { status: 404, message: "Turno no encontrado" };
+  return eliminado;
 }

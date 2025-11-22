@@ -51,14 +51,22 @@ export async function resetDatabase() {
   await limpiarDB();
 }
 
+/**
+ * Limpia todas las colecciones de la base de datos.
+ * Resuelve problemas de contaminación entre tests.
+ */
+export async function cleanDatabase() {
+  const collections = mongoose.connection.collections;
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
+}
+
 const seedEntryToCredential = (entry) => ({
   email: entry.document.email,
   password: entry.plainPassword,
   role: entry.document.role,
   modulo: entry.document.modulo,
-  moduloSlug: entry.document.moduloSlug,
-  cohortLabel: entry.document.cohortLabel,
-  isRecursante: entry.document.isRecursante,
   source: entry.source,
 });
 
@@ -100,7 +108,7 @@ export async function ensureSuperadmin() {
   };
 }
 
-export async function registerAndLogin({ prefix, role = "alumno", cohort = 1, approvedByToken }) {
+export async function registerAndLogin({ prefix, role = "alumno", moduleNumber, cohort = 1, approvedByToken }) {
   const app = await getApp();
   const email = `${prefix}-${uniqueValue("user")}@test.com`;
   const registerRes = await request(app).post("/auth/register").send({
@@ -108,7 +116,7 @@ export async function registerAndLogin({ prefix, role = "alumno", cohort = 1, ap
     email,
     password,
     role,
-    cohort,
+    moduleNumber: moduleNumber ?? cohort,
   });
 
   if (registerRes.status !== 201) {
@@ -117,16 +125,38 @@ export async function registerAndLogin({ prefix, role = "alumno", cohort = 1, ap
     );
   }
 
-  const userId = registerRes.body.user._id;
+  const userId = registerRes.body.user.id || registerRes.body.user._id;
 
   if (approvedByToken) {
-    const approveRes = await request(app)
-      .patch(`/auth/aprobar/${userId}`)
-      .set("Authorization", `Bearer ${approvedByToken}`);
+    // Retry logic para evitar race conditions con MongoDB
+    let approveRes;
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    while (attempts < maxAttempts) {
+      approveRes = await request(app)
+        .patch(`/auth/aprobar/${userId}`)
+        .set("Authorization", `Bearer ${approvedByToken}`);
+      
+      if (approveRes.status === 200) {
+        break; // Éxito
+      }
+      
+      if (approveRes.status === 404 || approveRes.status === 401) {
+        // Usuario no encontrado aún - esperar y reintentar
+        attempts++;
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay
+        }
+      } else {
+        // Otro error - fallar inmediatamente
+        break;
+      }
+    }
 
     if (approveRes.status !== 200) {
       throw new Error(
-        `Fallo aprobacion de ${prefix}: ${approveRes.status} ${JSON.stringify(approveRes.body)}`
+        `Fallo aprobacion de ${prefix} (${attempts} intentos): ${approveRes.status} ${JSON.stringify(approveRes.body)}`
       );
     }
   }
@@ -139,17 +169,18 @@ export async function registerAndLogin({ prefix, role = "alumno", cohort = 1, ap
     );
   }
 
-  return { id: loginRes.body.user._id, token: loginRes.body.token, email };
+  return { id: loginRes.body.user.id || loginRes.body.user._id, token: loginRes.body.token, email };
 }
 
 export async function crearAsignacion(token, overrides = {}) {
   const app = await getApp();
+  const resolvedModule = overrides.moduleNumber ?? overrides.module ?? 1;
   const payload = {
     title: overrides.title || `TP ${uniqueValue("assignment")}`,
     description: overrides.description || "Descripcion de prueba",
     dueDate: overrides.dueDate || "2026-01-15",
-    module: overrides.module ?? 1,
-    cohort: overrides.cohort ?? 1,
+    moduleNumber: resolvedModule,
+    module: resolvedModule, // legacy validator expects 'module'
   };
 
   const res = await request(app)
@@ -164,7 +195,7 @@ export async function crearTurno(token, assignmentId, overrides = {}) {
   const app = await getApp();
   const payload = {
     assignment: assignmentId,
-    cohort: overrides.cohort ?? 1,
+    moduleNumber: overrides.moduleNumber ?? overrides.cohort ?? 1,
     date: overrides.date || new Date(Date.now() + 86400000).toISOString(),
   };
 
@@ -207,13 +238,13 @@ export async function crearEntrega(token, slotId, overrides = {}) {
 export async function crearSubmissionCompleta({
   tokenProfesor,
   tokenAlumno,
-  cohort = 1,
+  moduleNumber = 1,
   githubLink,
 }) {
-  const { res: asignacionRes } = await crearAsignacion(tokenProfesor, { cohort });
+  const { res: asignacionRes } = await crearAsignacion(tokenProfesor, { moduleNumber });
   const assignmentId = asignacionRes.body._id;
 
-  const turnoRes = await crearTurno(tokenProfesor, assignmentId, { cohort });
+  const turnoRes = await crearTurno(tokenProfesor, assignmentId, { moduleNumber });
   const slotId = turnoRes.res.body._id;
 
   const reserva = await reservarTurno(tokenAlumno, slotId);
@@ -237,7 +268,7 @@ export async function crearSubmissionCompleta({
     assignmentId,
     slotId,
     submission: entrega.body,
-    submissionId: entrega.body._id,
+    submissionId: entrega.body.id || entrega.body._id,
   };
 }
 
@@ -247,28 +278,28 @@ export async function createBaseUsers() {
   const profesorOwner = await registerAndLogin({
     prefix: "prof-owner",
     role: "profesor",
-    cohort: 1,
+    moduleNumber: 1,
     approvedByToken: superadmin.token,
   });
 
   const profesorAjeno = await registerAndLogin({
     prefix: "prof-ajeno",
     role: "profesor",
-    cohort: 2,
+    moduleNumber: 2,
     approvedByToken: superadmin.token,
   });
 
   const alumnoC1 = await registerAndLogin({
     prefix: "alumno-c1",
     role: "alumno",
-    cohort: 1,
+    moduleNumber: 1,
     approvedByToken: profesorOwner.token,
   });
 
   const alumnoC2 = await registerAndLogin({
     prefix: "alumno-c2",
     role: "alumno",
-    cohort: 2,
+    moduleNumber: 2,
     approvedByToken: profesorOwner.token,
   });
 

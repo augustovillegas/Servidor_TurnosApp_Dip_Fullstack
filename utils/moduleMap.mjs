@@ -1,19 +1,4 @@
-const MODULE_DETAILS = {
-  1: { label: "HTML-CSS", slug: "htmlcss" },
-  2: { label: "JAVASCRIPT", slug: "javascript" },
-  3: { label: "BACKEND - NODE JS", slug: "node" },
-  4: { label: "FRONTEND - REACT", slug: "react" },
-};
-
-const NORMALISED_LABELS = Object.entries(MODULE_DETAILS).reduce((acc, [key, value]) => {
-  acc[value.label.toUpperCase()] = Number(key);
-  return acc;
-}, {});
-
-const SLUG_TO_CODE = Object.entries(MODULE_DETAILS).reduce((acc, [key, value]) => {
-  acc[value.slug.toUpperCase()] = Number(key);
-  return acc;
-}, {});
+import { MODULE_DETAILS, NORMALISED_LABELS, SLUG_TO_CODE } from '../constants/constantes.mjs';
 
 function coerceModuleCode(value) {
   if (value === undefined || value === null) return undefined;

@@ -39,7 +39,7 @@ describe.sequential("Assignments", () => {
       });
 
     expect(res.status).toBe(403);
-    expect(res.body.msg).toContain("Acceso denegado");
+    expect(res.body.message).toContain("Acceso denegado");
   });
 
   test("Asignacion con dueDate invalido devuelve 400", async () => {
@@ -88,8 +88,8 @@ describe.sequential("Assignments", () => {
         module: 2,
       });
 
-    expect(update.status).toBe(500);
-    expect(update.body.msg).toContain("No autorizado");
+    expect(update.status).toBe(403);
+    expect(update.body.message).toContain("No autorizado");
   });
 
   test("Superadmin puede actualizar asignacion ajena", async () => {
@@ -119,8 +119,8 @@ describe.sequential("Assignments", () => {
       .delete(`/assignments/${assignmentId}`)
       .set("Authorization", `Bearer ${context.profesorAjeno.token}`);
 
-    expect(eliminacion.status).toBe(500);
-    expect(eliminacion.body.msg).toContain("No autorizado");
+    expect(eliminacion.status).toBe(403);
+    expect(eliminacion.body.message).toContain("No autorizado");
 
     const consulta = await request(app)
       .get(`/assignments/${assignmentId}`)
@@ -147,7 +147,8 @@ describe.sequential("Assignments", () => {
     expect(consulta.status).toBe(404);
   });
 
-  test("Listado para profesor devuelve solo sus asignaciones", async () => {
+  test("Listado para profesor devuelve TODAS las asignaciones de su módulo", async () => {
+    // Crear asignaciones: 2 por profesorOwner (módulo 1), 1 por profesorAjeno (módulo 2)
     await crearAsignacion(context.profesorOwner.token, { title: "Asignacion A" });
     await crearAsignacion(context.profesorOwner.token, { title: "Asignacion B" });
     await crearAsignacion(context.profesorAjeno.token, { title: "Asignacion ajena" });
@@ -158,9 +159,17 @@ describe.sequential("Assignments", () => {
 
     expect(listadoOwner.status).toBe(200);
     expect(Array.isArray(listadoOwner.body)).toBe(true);
-    const creadores = new Set(listadoOwner.body.map((item) => String(item.createdBy)));
-    expect(creadores.size).toBe(1);
-    expect(creadores.has(String(context.profesorOwner.id))).toBe(true);
+    
+    // [CORRECCIÓN] Profesor ahora ve TODAS las asignaciones de su módulo (cohorte 1)
+    // No solo las que él creó - esto permite ver el trabajo de todos los profesores del módulo
+    expect(listadoOwner.body.length).toBeGreaterThan(0);
+    listadoOwner.body.forEach((item) => {
+      expect(String(item.cohorte)).toBe("1"); // Todas deben ser del mismo módulo
+    });
+    
+    // Verificar que NO incluye asignaciones de otros módulos
+    const tieneAjenas = listadoOwner.body.some(item => String(item.cohorte) !== "1");
+    expect(tieneAjenas).toBe(false);
   });
 
   test("Campos extra se ignoran al crear una asignacion", async () => {

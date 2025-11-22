@@ -2,9 +2,8 @@ import { moduleToLabel } from "../moduleMap.mjs";
 import {
   normaliseReviewStatus,
   normaliseString,
-} from "../common/normalizers.mjs";
-
-const ESTADO_DEFAULT = "A revisar";
+} from "../normalizers/normalizers.mjs";
+import { ESTADO_DEFAULT } from '../../constants/constantes.mjs';
 
 function resolveEstado(doc) {
   const estadoDoc = normaliseReviewStatus(doc.estado, { defaultValue: null });
@@ -21,10 +20,13 @@ export function toFrontend(submission) {
     submission.toObject?.({ virtuals: false }) ??
     submission;
   const estado = resolveEstado(doc);
-  const modulo = doc.module || moduleToLabel(doc.assignment?.module);
+  // Derive modulo from populated assignment.modulo or from assignment.cohorte
+  const modulo = doc.assignment?.modulo || moduleToLabel(doc.assignment?.cohorte);
+  const sprint = doc.sprint ?? doc.assignment?.cohorte ?? null;
+  
   return {
     id: doc._id?.toString() || doc.id,
-    sprint: doc.sprint ?? doc.assignment?.module ?? null,
+    sprint,
     githubLink: doc.githubLink,
     renderLink: doc.renderLink || "",
     comentarios: doc.comentarios || "",

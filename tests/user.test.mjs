@@ -50,7 +50,7 @@ describe.sequential("Users", () => {
     expect(roles.has("alumno")).toBe(true);
   });
 
-  test("Superadmin puede filtrar usuarios por modulo", async () => {
+  test("Superadmin puede filtrar usuarios por módulo", async () => {
     const res = await request(app)
       .get("/usuarios?modulo=FRONTEND - REACT")
       .set("Authorization", `Bearer ${context.superadmin.token}`);
@@ -58,7 +58,7 @@ describe.sequential("Users", () => {
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThan(0);
-    const todosDelModulo = res.body.every((user) => user.modulo === "FRONTEND - REACT");
+    const todosDelModulo = res.body.every((user) => user.moduleLabel === "FRONTEND - REACT");
     expect(todosDelModulo).toBe(true);
   });
 
@@ -68,14 +68,14 @@ describe.sequential("Users", () => {
       .set("Authorization", `Bearer ${context.alumnoC1.token}`);
 
     expect(res.status).toBe(403);
-    expect(res.body.msg).toContain("Acceso denegado");
+    expect(res.body.message).toContain("Acceso denegado");
   });
 
   test("Superadmin aprueba un usuario pendiente", async () => {
     const pendiente = await registerAndLogin({
       prefix: "usuario-pendiente",
       role: "profesor",
-      cohort: 1,
+      moduleNumber: 1,
     });
 
     const approveRes = await request(app)

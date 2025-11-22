@@ -1,7 +1,5 @@
 import { body } from "express-validator";
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const usernameRegex = /^[A-Za-z0-9._-]+$/;
+import { emailRegex, usernameRegex } from '../constants/constantes.mjs';
 
 function emailOrUsernameValidator(message) {
   return body("email")
@@ -40,10 +38,10 @@ export const registerValidator = [
     min: 6,
   }),
 
-  body("cohort")
-    .optional()
-    .isInt()
-    .withMessage("Cohorte debe ser un numero entero"),
+  body("moduleNumber")
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage("moduleNumber debe ser un entero positivo"),
 ];
 
 export const loginValidator = [

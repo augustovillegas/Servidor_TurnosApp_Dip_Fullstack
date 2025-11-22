@@ -1,3 +1,14 @@
 node_modules/
 
 .env
+
+# Sistema Consolidado de Reportes v2.0
+# Los reportes generados automáticamente no se versionan
+logs/actual/REPORTE_*.md
+logs/historial/REPORTE_*.md
+
+# Mantener estructura y documentación versionada
+!logs/README.md
+!logs/actual/README.md
+!logs/historial/README.md
+!logs/docs/*.md

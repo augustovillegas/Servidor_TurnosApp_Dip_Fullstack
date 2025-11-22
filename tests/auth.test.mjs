@@ -49,15 +49,9 @@ describe.sequential("Auth", () => {
           expect(user.email).toBe(cred.email.toLowerCase());
           expect(user.role).toBe(cred.role);
           if (cred.modulo !== undefined) {
-            expect(user.modulo).toBe(cred.modulo);
+            expect(user.moduleLabel).toBe(cred.modulo);
           }
-          if (cred.moduloSlug) {
-            expect(user.moduloSlug).toBe(cred.moduloSlug);
-          }
-          if (cred.cohortLabel !== undefined) {
-            expect(user.cohortLabel).toBe(cred.cohortLabel);
-          }
-          expect(Boolean(user.isRecursante)).toBe(Boolean(cred.isRecursante));
+          // moduloSlug field removed - no longer exposed in API
 
           return {
             cred,
@@ -79,11 +73,12 @@ describe.sequential("Auth", () => {
 
     expect(listado.status).toBe(200);
     expect(listado.body.length).toBe(credentials.length);
-    const slugs = new Set(listado.body.map((u) => u.moduloSlug).filter(Boolean));
-    expect(slugs.has("htmlcss")).toBe(true);
-    expect(slugs.has("javascript")).toBe(true);
-    expect(slugs.has("node")).toBe(true);
-    expect(slugs.has("react")).toBe(true);
+    // moduloSlug field removed - verify moduleLabel instead
+    const labels = new Set(listado.body.map((u) => u.moduleLabel).filter(Boolean));
+    expect(labels.has("HTML-CSS")).toBe(true);
+    expect(labels.has("JAVASCRIPT")).toBe(true);
+    expect(labels.has("BACKEND - NODE JS")).toBe(true);
+    expect(labels.has("FRONTEND - REACT")).toBe(true);
   }, 120_000);
 
   test("Registro de alumno valido deja pendiente la aprobacion", async () => {
@@ -93,7 +88,7 @@ describe.sequential("Auth", () => {
       name: "Alumno Test",
       email,
       password,
-      cohort: 3,
+      moduleNumber: 3,
     });
 
     expect(res.status).toBe(201);
@@ -109,7 +104,7 @@ describe.sequential("Auth", () => {
       name: "Original",
       email,
       password,
-      cohort: 2,
+      moduleNumber: 2,
     });
     expect(first.status).toBe(201);
     expect(first.body.user.passwordHash).toBeUndefined();
@@ -118,11 +113,11 @@ describe.sequential("Auth", () => {
       name: "Duplicado",
       email,
       password,
-      cohort: 2,
+      moduleNumber: 2,
     });
 
     expect(duplicate.status).toBe(409);
-    expect(duplicate.body.msg).toContain("Email ya registrado");
+    expect(duplicate.body.message).toContain("Email ya registrado");
   });
 
   test("Login exitoso no expone passwordHash", async () => {
@@ -132,7 +127,7 @@ describe.sequential("Auth", () => {
       name: "Login Ok",
       email,
       password,
-      cohort: 1,
+      moduleNumber: 1,
     });
 
     expect(registro.status).toBe(201);
@@ -150,7 +145,7 @@ describe.sequential("Auth", () => {
       name: "Login Test",
       email,
       password,
-      cohort: 1,
+      moduleNumber: 1,
     });
 
     expect(registro.status).toBe(201);
@@ -161,14 +156,14 @@ describe.sequential("Auth", () => {
     });
 
     expect(login.status).toBe(401);
-    expect(login.body.msg).toBe("Credenciales incorrectas");
+    expect(login.body.message).toBe("Credenciales incorrectas");
   });
 
   test("Superadmin aprueba profesor y queda visible en el listado", async () => {
     const profesor = await registerAndLogin({
       prefix: "prof-aprobar",
       role: "profesor",
-      cohort: 1,
+      moduleNumber: 1,
     });
 
     const approveRes = await request(app)
@@ -191,7 +186,7 @@ describe.sequential("Auth", () => {
   test("Alumno no autorizado recibe 403 al listar usuarios", async () => {
     const alumno = await registerAndLogin({
       prefix: "alumno-403",
-      cohort: 1,
+      moduleNumber: 1,
       approvedByToken: superadmin.token,
     });
 
@@ -200,7 +195,7 @@ describe.sequential("Auth", () => {
       .set("Authorization", `Bearer ${alumno.token}`);
 
     expect(res.status).toBe(403);
-    expect(res.body.msg).toContain("Acceso denegado");
+    expect(res.body.message).toContain("Acceso denegado");
   });
 });
 

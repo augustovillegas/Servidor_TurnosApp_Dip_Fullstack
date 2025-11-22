@@ -17,12 +17,12 @@ export const rolesConfig = {
 };
 
 export const allowRoles = (...roles) => {
-  return (req, res, next) => {
+  return (req, _res, next) => {
     if (!req.user) {
-      return res.status(401).json({ msg: "No autenticado" });
+      throw { status: 401, message: "No autenticado" };
     }
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ msg: "Acceso denegado" });
+      throw { status: 403, message: "Acceso denegado" };
     }
     next();
   };

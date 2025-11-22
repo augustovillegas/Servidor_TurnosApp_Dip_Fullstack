@@ -172,6 +172,7 @@ export async function crearUsuariosRoles(options = {}) {
       moduleCode: mod.code,
       estado: "Aprobado",
       cohortLabel: "2025-Q4",
+      isApproved: true,
       source: "module",
     });
 
@@ -197,6 +198,7 @@ export async function crearUsuariosRoles(options = {}) {
           estado: "Aprobado",
           cohortLabel: cohort.label,
           isRecursante: cohort.isRecursante,
+          isApproved: true,
           source: "module",
         });
         studentIndex += 1;

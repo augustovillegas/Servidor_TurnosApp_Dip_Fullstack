@@ -1,25 +1,4 @@
-const VALID_ROLES = ["alumno", "profesor", "superadmin"];
-const VALID_ESTADOS = ["Disponible", "Solicitado", "Aprobado", "Rechazado"];
-
-const ESTADO_TO_REVIEW_STATUS = {
-  Disponible: "A revisar",
-  Solicitado: "A revisar",
-  Aprobado: "Aprobado",
-  Rechazado: "Desaprobado",
-};
-
-const REVIEW_STATUS_CANONICAL = {
-  "a revisar": "A revisar",
-  revisar: "A revisar",
-  pendiente: "A revisar",
-  "en revision": "A revisar",
-  aprobado: "Aprobado",
-  aprobada: "Aprobado",
-  desaprobado: "Desaprobado",
-  desaprobada: "Desaprobado",
-  rechazado: "Desaprobado",
-  rechazada: "Desaprobado",
-};
+import { VALID_ROLES, VALID_ESTADOS, ESTADO_TO_REVIEW_STATUS, REVIEW_STATUS_CANONICAL } from '../../constants/constantes.mjs';
 
 function capitalise(value = "") {
   if (!value) return "";

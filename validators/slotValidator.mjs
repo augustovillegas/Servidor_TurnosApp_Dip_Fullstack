@@ -9,10 +9,10 @@ export const createSlotValidator = [
     .optional({ nullable: true })
     .isMongoId()
     .withMessage("El assignment debe ser un identificador valido"),
-  body("cohort")
+  body("moduleNumber")
     .optional({ nullable: true })
     .isInt({ min: 1 })
-    .withMessage("El cohort debe ser un entero positivo"),
+    .withMessage("moduleNumber debe ser un entero positivo"),
   body("reviewNumber")
     .optional({ nullable: true })
     .isInt({ min: 1 })

@@ -1,7 +1,8 @@
 ﻿import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import userRepository from "../repository/userRepository.mjs";
-import { sanitizeUser } from "../utils/sanitizeUser.mjs";
+import { sanitizeUser } from "../utils/security/sanitizeUser.mjs";
 import { resolveModuleMetadata } from "../utils/moduleMap.mjs";
 
 export const register = async ({
@@ -10,10 +11,13 @@ export const register = async ({
   apellido,
   email,
   password,
+  // Legacy inputs (cohort/modulo/module/moduloSlug) + new preferred (moduleNumber/moduleLabel)
   cohort,
   modulo,
   module,
   moduloSlug,
+  moduleNumber,
+  moduleLabel,
   role = "alumno",
 }) => {
   const exists = await userRepository.obtenerPorEmail(email);
@@ -27,19 +31,26 @@ export const register = async ({
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const moduleInfo = resolveModuleMetadata({ module, modulo, moduloSlug, cohort });
+  // Prefer explicit moduleNumber/moduleLabel if provided; fallback to legacy inputs.
+  const primaryCode = moduleNumber ?? cohort;
+  const primaryLabel = moduleLabel ?? modulo ?? module;
+  const moduleInfo = resolveModuleMetadata({
+    module: primaryLabel,
+    modulo: primaryLabel,
+    moduloSlug,
+    cohort: primaryCode,
+  });
 
   const user = await userRepository.crear({
     name: fullName,
-    nombre: nombre || undefined,
-    apellido: apellido || undefined,
     email,
     passwordHash,
-    cohort: moduleInfo.code,
+    // Persist normalized fields
+    cohorte: moduleInfo.code,
     modulo: moduleInfo.label,
-    moduloSlug: moduleInfo.slug,
+    moduleCode: moduleInfo.code,
     role,
-    isApproved: false,
+    status: "Pendiente",
   });
 
   return sanitizeUser(user);
@@ -51,13 +62,12 @@ export const login = async ({ email, password }) => {
   if (!valid) {
     throw {
       status: 401,
-      message: "Credenciales invalidas",
-      msg: "Credenciales incorrectas",
+      message: "Credenciales incorrectas",
     };
   }
 
   if (user.status === "Rechazado") {
-    throw { status: 423, message: "Usuario bloqueado", msg: "Usuario bloqueado" };
+    throw { status: 423, message: "Tu cuenta ha sido bloqueada" };
   }
 
   const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -66,7 +76,12 @@ export const login = async ({ email, password }) => {
 };
 
 export const aprobarUsuario = async (id) => {
-  const updated = await userRepository.actualizar(id, { isApproved: true, status: "Aprobado" });
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw { status: 404, message: "Usuario no encontrado" };
+  }
+  const user = await userRepository.obtenerPorId(id);
+  if (!user) throw { status: 404, message: "Usuario no encontrado" };
+  const updated = await userRepository.actualizar(id, { status: "Aprobado" });
   return sanitizeUser(updated);
 };
 
@@ -77,12 +92,13 @@ export const listarUsuarios = async (role, requester) => {
   if (requester) {
     if (requester.role === "profesor") {
       // Profesor: sólo alumnos de su módulo
+      const requesterModule = String(requester.moduleNumber ?? requester.moduleCode);
       filtered = filtered.filter(
-        (u) => u.role === "alumno" && String(u.cohort) === String(requester.cohort)
+        (u) => u.role === "alumno" && String(u.moduleCode ?? u.cohorte) === requesterModule
       );
     } else if (requester.role === "alumno") {
-      // Alumno: sólo su propio usuario
-      filtered = filtered.filter((u) => String(u._id) === String(requester.id));
+      // Alumno: acceso denegado a listado
+      throw { status: 403, message: "No autorizado" };
     }
     // superadmin ve todo
   }
@@ -91,7 +107,10 @@ export const listarUsuarios = async (role, requester) => {
 };
 
 export const getUserById = async (id) => {
-  if (!id) return null;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    throw { status: 401, message: "Sesión inválida" };
+  }
   const user = await userRepository.obtenerPorId(id);
+  if (!user) throw { status: 401, message: "Sesión inválida" };
   return sanitizeUser(user);
 };

@@ -5,10 +5,8 @@ import { Assignment } from "../models/Assignment.mjs";
 import { Submission } from "../models/Submission.mjs";
 import { ensureModuleLabel, moduleToLabel } from "../utils/moduleMap.mjs";
 import { toFrontend, extractEstado } from "../utils/mappers/submissionMapper.mjs";
-import { coerceNumber, normaliseString, normaliseReviewStatus } from "../utils/common/normalizers.mjs";
-
-const FINAL_STATES = new Set(["Aprobado", "Desaprobado"]);
-const ESTADO_DEFAULT = "A revisar";
+import { coerceNumber, normaliseString, normaliseReviewStatus } from "../utils/normalizers/normalizers.mjs";
+import { FINAL_STATES, ESTADO_DEFAULT } from '../constants/constantes.mjs';
 
 function buildAdminPayload(data) {
   const payload = {};
@@ -47,9 +45,14 @@ function buildAdminPayload(data) {
     payload.alumnoNombre = normaliseString(data.alumnoNombre);
   }
 
-  const estado =
-    normaliseReviewStatus(data.estado) ||
-    normaliseReviewStatus(data.reviewStatus);
+  // [FIX] Procesar reviewStatus/estado correctamente - no usar default si uno está presente
+  let estado = null;
+  if (data.reviewStatus !== undefined) {
+    estado = normaliseReviewStatus(data.reviewStatus, { defaultValue: null });
+  }
+  if (!estado && data.estado !== undefined) {
+    estado = normaliseReviewStatus(data.estado, { defaultValue: null });
+  }
   if (estado) {
     payload.estado = estado;
     payload.reviewStatus = estado;
@@ -100,7 +103,7 @@ export const crearEntrega = async (slotId, user, body) => {
   // Assignment schema usa 'cohorte' y 'modulo'. Derivamos etiqueta.
   const moduleLabel = assignment.modulo || moduleToLabel(assignment.cohorte);
 
-  // Crear la nueva entrega usando campo 'modulo' existente en Submission
+  // Crear la nueva entrega
   const nuevaEntrega = await repositorioEntrega.crear({
     assignment: slot.assignment,
     student: user.id,
@@ -110,7 +113,6 @@ export const crearEntrega = async (slotId, user, body) => {
     reviewStatus: ESTADO_DEFAULT,
     estado: ESTADO_DEFAULT,
     alumnoNombre: user.name,
-    modulo: moduleLabel,
   });
 
   return toFrontend(nuevaEntrega);
@@ -122,17 +124,17 @@ export const crearEntrega = async (slotId, user, body) => {
  * @param {object} query Filtros opcionales de query.
  */
 export const listarEntregas = async (user, query) => {
-  const moduloActualCode = Number(user.cohort);
+  const moduloActualCode = Number(user.moduleNumber ?? user.moduleCode);
   let filtro = {};
 
   if (user.role === "superadmin") {
+    // Superadmin: Solo aplicar filtros opcionales de query.
     if (query.cohort) {
-      const label = moduleToLabel(coerceNumber(query.cohort));
-      if (label) filtro.modulo = label;
+      filtro.cohorte = coerceNumber(query.cohort);
     }
   } else if (["profesor", "alumno"].includes(user.role) && Number.isFinite(moduloActualCode)) {
-    const label = moduleToLabel(moduloActualCode);
-    if (label) filtro.modulo = label;
+    // Profesor y Alumno: filtro obligatorio por cohorte
+    filtro.cohorte = moduloActualCode;
     if (user.role === "alumno") {
       filtro.student = user.id;
     }
@@ -159,8 +161,8 @@ export const obtenerEntregasPorUsuario = async (userId, user) => {
         // Asumo que tienes acceso a `userRepository` o alguna forma de obtener el usuario
         const userRepository = await import('../repository/userRepository.mjs').then(m => m.default);
         const student = await userRepository.obtenerPorId(userId);
-        const moduloProfesor = Number(user.cohort);
-        const moduloAlumno = Number(student?.cohort);
+        const moduloProfesor = Number(user.moduleNumber ?? user.moduleCode);
+        const moduloAlumno = Number(student?.moduleCode ?? student?.cohorte);
         
         if (!Number.isFinite(moduloProfesor) || moduloProfesor !== moduloAlumno) {
             throw { status: 403, message: "El alumno no pertenece a su módulo" };
@@ -222,8 +224,8 @@ export const actualizarEntrega = async (id, body, user) => {
     const estadoActualCanonico = extractEstado(entrega);
     if (FINAL_STATES.has(estadoActualCanonico)) {
       throw {
-        status: 400,
-        message: `La entrega ya está en estado final (${estadoActualCanonico}) y no puede ser modificada por el alumno.`,
+        status: 409,
+        message: `No se puede modificar una entrega ya evaluada (${estadoActualCanonico}).`,
       };
     }
 
@@ -280,15 +282,6 @@ export const actualizarEntrega = async (id, body, user) => {
   const final = await Submission.findById(actualizado._id)
     .populate("student", "name role")
     .populate("assignment", "cohorte modulo title");
-
-  // Si el módulo se infirió de assignment y no se envió en el body, se actualiza el documento.
-  if (final?.assignment?.cohorte) {
-    const moduleLabel = moduleToLabel(final.assignment.cohorte);
-    if (moduleLabel && final.modulo !== moduleLabel) {
-      final.modulo = moduleLabel;
-      await Submission.findByIdAndUpdate(id, { modulo: moduleLabel });
-    }
-  }
 
   return toFrontend(final);
 };

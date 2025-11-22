@@ -1,15 +1,16 @@
 import assignmentRepository from "../repository/assignmentRepository.mjs";
+import mongoose from "mongoose";
 import { resolveModuleMetadata } from "../utils/moduleMap.mjs";
 
 export const crearAsignacion = async (body, user) => {
   if (!["profesor", "superadmin"].includes(user.role)) {
-    throw new Error("Solo profesores o superadmin pueden crear asignaciones");
+    throw { status: 403, message: "Solo profesores o superadmin pueden crear asignaciones" };
   }
 
-  // El schema usa 'cohorte' (number) y 'modulo' (label). Forzamos a los del usuario.
-  const moduleCode = Number(user.cohort);
+  // Usar moduleNumber (virtual) / moduleCode preferentemente
+  const moduleCode = Number(user.moduleNumber ?? user.moduleCode);
   if (!Number.isFinite(moduleCode)) {
-    throw new Error("El profesor no tiene un módulo asignado.");
+    throw { status: 400, message: "El usuario no tiene un módulo asignado." };
   }
 
   const { title, description, dueDate } = body;
@@ -28,16 +29,12 @@ export const crearAsignacion = async (body, user) => {
 };
 
 export const obtenerTodasAsignaciones = async (user) => {
-  const moduloActual = Number(user.cohort);
+  const moduloActual = Number(user.moduleNumber ?? user.moduleCode);
   let filtro = {};
 
   if (user.role === "superadmin") {
     filtro = {};
-  } else if (user.role === "profesor" && user.id && Number.isFinite(moduloActual)) {
-    // Profesor: solo SUS asignaciones de SU módulo
-    filtro = { createdBy: user.id, cohorte: moduloActual };
-  } else if (user.role === "alumno" && Number.isFinite(moduloActual)) {
-    // Alumno: todas las asignaciones de su módulo
+  } else if (["profesor", "alumno"].includes(user.role) && Number.isFinite(moduloActual)) {
     filtro.cohorte = moduloActual;
   } else {
     throw { status: 403, message: "No autorizado" };
@@ -47,15 +44,20 @@ export const obtenerTodasAsignaciones = async (user) => {
 };
 
 export const obtenerAsignacionPorId = async (id) => {
-  return await assignmentRepository.obtenerPorId(id);
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw { status: 404, message: "Asignación no encontrada" };
+  }
+  const asignacion = await assignmentRepository.obtenerPorId(id);
+  if (!asignacion) throw { status: 404, message: "Asignación no encontrada" };
+  return asignacion;
 };
 
 export const actualizarAsignacion = async (id, body, user) => {
   const asignacion = await assignmentRepository.obtenerPorId(id);
-  if (!asignacion) throw new Error("Asignación no encontrada");
+  if (!asignacion) throw { status: 404, message: "Asignación no encontrada" };
 
   if (user.role !== "superadmin" && asignacion.createdBy?.toString() !== user.id) {
-    throw new Error("No autorizado a modificar esta asignación");
+    throw { status: 403, message: "No autorizado a modificar esta asignación" };
   }
 
   const { title, description, dueDate } = body;
@@ -69,10 +71,10 @@ export const actualizarAsignacion = async (id, body, user) => {
 
 export const eliminarAsignacion = async (id, user) => {
   const asignacion = await assignmentRepository.obtenerPorId(id);
-  if (!asignacion) throw new Error("Asignación no encontrada");
+  if (!asignacion) throw { status: 404, message: "Asignación no encontrada" };
 
   if (user.role !== "superadmin" && asignacion.createdBy?.toString() !== user.id) {
-    throw new Error("No autorizado a eliminar esta asignación");
+    throw { status: 403, message: "No autorizado a eliminar esta asignación" };
   }
 
   return await assignmentRepository.eliminar(id);

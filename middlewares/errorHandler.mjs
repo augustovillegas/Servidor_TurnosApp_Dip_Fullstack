@@ -6,14 +6,10 @@ export const errorHandler = (err, _req, res, _next) => {
 
   const status = err.status || 500;
   const message = err.message || "Error interno del servidor";
-  const legacyMessage = err.msg || message;
-  const payload = {
-    message,
-    msg: legacyMessage,
-  };
+  const payload = { message };
 
-  if (err.code) {
-    payload.code = err.code;
+  if (err.errores) {
+    payload.errores = err.errores;
   }
 
   res.status(status).json(payload);

@@ -5,8 +5,10 @@ export default defineConfig({
     hookTimeout: 45000,
     testTimeout: 45000,
     threads: false,
+    fileParallelism: false, // Ejecutar archivos de test uno a uno, no en paralelo
     sequence: {
       concurrent: false,
     },
+    setupFiles: ["./tests/setup.mjs"],
   },
 });

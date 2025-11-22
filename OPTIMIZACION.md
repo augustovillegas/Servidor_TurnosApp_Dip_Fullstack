@@ -1,41 +1,35 @@
-A partir de la lógica implementada para el filtrado obligatorio por Módulo (campo 'cohort' en req.user) en los servicios, el siguiente paso es actualizar los scripts de prueba para garantizar la funcionalidad y la seguridad.
+Sos un programador experto senior en backend.
 
-El objetivo es crear un conjunto de tests de integración para las rutas de listado y creación, verificando que la data devuelta o creada respete la segmentación por Módulo.
+Tu objetivo es **crear y/o actualizar la suite de tests unitarios/integración (Vitest)** para asegurar que la refactorización del manejo de errores sea 100% funcional y que no haya regresiones.
 
-### Módulos de Prueba
+---
 
-Para la prueba, se deben simular al menos tres usuarios y dos módulos distintos:
-1.  **MÓDULO 1 (HTML - CSS):** Profesor_M1, Alumno_M1
-2.  **MÓDULO 2 (JAVASCRIPT):** Profesor_M2, Alumno_M2
-3.  **SUPERADMIN:** Visión total.
+### ⚠️ Instrucción Crítica: Foco en la Inversión de Control
 
-### Casos de Prueba Requeridos
+Los tests deben validar la **inversión de control** (que el Controller ya no responde errores y que el `errorHandler.mjs` lo hace) y el **nuevo contrato de errores** (`{ status, message, errores? }` sin campo `msg` ni `code`).
 
-Generar tests de integración (usando el cliente HTTP/supertest) para los siguientes escenarios en los servicios mencionados:
+### **Paso 1: Validar Middlewares (Autenticación/Autorización)**
 
-#### 1. Tests de Listado de Datos (/slots, /assignments, /submissions, /users)
+Crea o modifica los tests para los endpoints protegidos, asegurando que los Middlewares lancen el error canónico:
 
-| Escenario | Rol del Usuario | Módulo del Usuario | Acción | Resultado Esperado |
-| :--- | :--- | :--- | :--- | :--- |
-| **P1** | Profesor_M1 | M1 | `GET /slots` (Listar Turnos) | Debe recibir turnos **SOLO de M1**. No debe recibir turnos de M2. |
-| **P2** | Profesor_M1 | M1 | `GET /assignments` (Listar Asignaciones) | Debe recibir asignaciones **SOLO de M1**. No debe recibir asignaciones de M2. |
-| **P3** | Profesor_M2 | M2 | `GET /users` (Listar Usuarios) | Debe recibir **SOLO alumnos de M2**. No debe recibir alumnos de M1 ni otros profesores. |
-| **P4** | Alumno_M1 | M1 | `GET /submissions` (Listar Entregas) | Debe recibir **SOLO sus propias entregas de M1**. No debe recibir entregas de Alumno_M2. |
-| **P5** | Alumno_M2 | M2 | `GET /slots` | Debe recibir turnos **SOLO de M2** y solo aquellos disponibles (`student: null`) o reservados por él mismo. |
-| **P6** | Superadmin | N/A | `GET /slots` | Debe recibir **TODOS los turnos** (de M1 y M2). |
-| **P7** | Profesor_M1 | M1 | `GET /submissions` (Listar Entregas) | Debe recibir **todas las entregas de M1**, incluyendo las de Alumno_M1. |
+1.  **Test 401 (No Autenticado):** En rutas que requieren `auth`, verifica que si no se envía el token, la respuesta sea **status 401** y el body contenga solo `{ message: "Token requerido" }`.
+2.  **Test 403 (Rol Denegado):** En rutas protegidas por `allowRoles('profesor')`, verifica que un usuario con rol 'alumno' reciba **status 403** y el body contenga `{ message: "Acceso denegado" }`.
+3.  **Test 403 (Cuenta No Aprobada):** En rutas protegidas por `requireApproved`, verifica que un 'alumno' no aprobado reciba **status 403** y el body contenga el mensaje de aprobación pendiente.
 
-#### 2. Tests de Integridad en la Creación de Datos
+### **Paso 2: Validar Middleware de Validación (`validationResult.mjs`)**
 
-| Escenario | Rol del Usuario | Módulo del Usuario | Acción | Payload Enviado | Resultado Esperado |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **C1** | Profesor_M1 | M1 | `POST /slots` (Crear Turno) | `{ cohort: M2, ... }` | El turno se crea correctamente, pero con **`cohort: M1`** (forzado por el `req.user`). |
-| **C2** | Profesor_M2 | M2 | `POST /assignments` (Crear Asignación) | `{ cohort: M1, ... }` | La asignación se crea correctamente, pero con **`cohort: M2`** (forzado por el `req.user`). |
-| **C3** | Alumno_M1 | M1 | `POST /slots` | `{...}` | **Falla** con status 403 (No autorizado por Rol), ya que los alumnos no pueden crear turnos. |
+1.  **Test 400 (Validation Error):** En un `POST` o `PATCH` con validadores (ej. `slotValidator.mjs`, `assignmentValidator.mjs`), envía un payload intencionalmente inválido.
+2.  **Aserción:** La respuesta debe ser **status 400** y el body debe contener **`{ message: "Error de validación", errores: [...] }`**, verificando que el array `errores` se mapee correctamente y que el campo `msg` (resumen) haya sido eliminado.
 
-### Tarea a Realizar
+### **Paso 3: Validar Flujo de Servicio (404/Errores de Negocio)**
 
-1.  **Actualizar el *script* de *seeds*** para que cree usuarios y data (turnos, asignaciones) distribuidos entre MÓDULO 1 y MÓDULO 2.
-2.  **Implementar los tests** para todos los escenarios P1 a P7 y C1 a C3.
-3.  **Lanzar el *test suite*** y utilizar el *log* de *output* para identificar cualquier servicio que aún dependa de `req.query` o falle la segmentación de datos por Módulo.
-4.  **Ajustar la lógica** en los servicios si los tests fallan, hasta que todos los escenarios pasen y el comportamiento de aislamiento por Módulo sea el esperado.
+Crea o modifica tests de integración para asegurar que la lógica de existencia de recursos y formato de ID se ha movido al Service:
+
+1.  **Test 404 (ID Inválido/No Existe):**
+    * **ID Válido pero Inexistente:** Prueba una ruta con un ID de MongoDB con formato correcto pero que no exista en la BD (ej: `GET /slots/:id`). El Servicio debe lanzar `throw { status: 404, message: "Recurso no encontrado" }`, resultando en una respuesta **status 404**.
+    * **ID Inválido (Formato):** Prueba una ruta con un ID que no cumpla el formato de Mongo ID (ej: `id=123`). El Servicio debe lanzar un error apropiado (probablemente 404, dependiendo de cómo manejes el `isValid`), resultando en una respuesta **status 404**.
+2.  **Test 400/409 (Errores de Negocio):** Para servicios con lógica de negocio específica (ej: `authService.login` o `slotService.solicitarTurno`), asegúrate de que al fallar, lancen el `status` y `message` correctos (ej: **401** para credenciales inválidas en login, **400** para intentar solicitar un turno ya solicitado).
+
+---
+
+**Prioriza el trabajo en `auth.mjs`, `roles.mjs` y `slotController.mjs` / `slotService.mjs` ya que son los que tienen la mayor cantidad de lógica de respuesta HTTP a migrar.**
