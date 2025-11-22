@@ -6,6 +6,7 @@ import {
   cancelarTurnoController,
   misSolicitudesController,
   obtenerTurnosController,
+  obtenerTurnoController,
 } from "../controllers/slotController.mjs";
 import { auth } from "../middlewares/auth.mjs";
 import { allowRoles } from "../middlewares/roles.mjs";
@@ -21,6 +22,16 @@ const router = express.Router();
 
 // Obtener los turnos
 router.get("/", auth, obtenerTurnosController);
+
+// Obtener un turno por ID (profesor o superadmin)
+router.get(
+  "/:id",
+  auth,
+  allowRoles("profesor", "superadmin"),
+  ...slotIdParamValidator,
+  validateRequest,
+  obtenerTurnoController
+);
 
 // Crear turno (profesor o superadmin)
 router.post(

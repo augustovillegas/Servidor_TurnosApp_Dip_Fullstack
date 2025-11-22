@@ -1,4 +1,5 @@
 import * as authService from "../services/authService.mjs";
+import * as userService from "../services/userService.mjs";
 
 // Verificación de disponibilidad sin dependencias externas
 export const pingController = (_req, res) => {
@@ -27,7 +28,7 @@ export const loginController = async (req, res, next) => {
 
 export const sessionController = async (req, res, next) => {
   try {
-    const user = await authService.getUserById(req.user?.id);
+    const user = await userService.getUserById(req.user?.id);
     res.status(200).json({ user });
   } catch (err) {
     next(err);
@@ -48,7 +49,7 @@ export const aprobarUsuarioController = async (req, res, next) => {
 // Listar usuarios
 export const listarUsuariosController = async (req, res, next) => {
   try {
-    const users = await authService.listarUsuarios(req.query.role, req.user);
+    const users = await userService.listarUsuarios(req.user, req.query);
     res.json(users);
   } catch (err) {
     next(err);

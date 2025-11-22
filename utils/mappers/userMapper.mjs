@@ -19,13 +19,15 @@ function getUserModuleLabel(user) {
 export function mapToFrontend(user) {
   if (!user) return null;
   const plain = user.toObject ? user.toObject() : user;
+  const estado = mapEstado(plain);
   return {
     id: plain._id?.toString() || plain.id,
     nombre: plain.name,
     email: plain.email,
     role: plain.role,
     rol: capitalise(plain.role),
-    estado: mapEstado(plain),
+    estado: estado,
+    isApproved: estado === "Aprobado",
     moduleNumber: plain.moduleNumber ?? plain.moduleCode ?? null,
     moduleLabel: plain.moduleLabel || getUserModuleLabel(plain) || "",
     creadoEn: plain.createdAt ? new Date(plain.createdAt).toISOString() : null,

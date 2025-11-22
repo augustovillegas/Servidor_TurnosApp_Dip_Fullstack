@@ -5,6 +5,17 @@ import userRepository from "../repository/userRepository.mjs";
 import { sanitizeUser } from "../utils/security/sanitizeUser.mjs";
 import { resolveModuleMetadata } from "../utils/moduleMap.mjs";
 
+/**
+ * 🔑 authService.mjs - SOLO AUTENTICACIÓN
+ * 
+ * Este servicio maneja únicamente:
+ * - register: Registro de nuevos usuarios
+ * - login: Autenticación y generación de tokens
+ * - aprobarUsuario: Aprobación de cuentas pendientes
+ * 
+ * Para operaciones de usuarios (listado, obtención, etc.), usar userService.mjs
+ */
+
 export const register = async ({
   name,
   nombre,
@@ -83,34 +94,4 @@ export const aprobarUsuario = async (id) => {
   if (!user) throw { status: 404, message: "Usuario no encontrado" };
   const updated = await userRepository.actualizar(id, { status: "Aprobado" });
   return sanitizeUser(updated);
-};
-
-export const listarUsuarios = async (role, requester) => {
-  const all = await userRepository.obtenerTodos();
-  let filtered = role ? all.filter((u) => u.role === role) : all;
-
-  if (requester) {
-    if (requester.role === "profesor") {
-      // Profesor: sólo alumnos de su módulo
-      const requesterModule = String(requester.moduleNumber ?? requester.moduleCode);
-      filtered = filtered.filter(
-        (u) => u.role === "alumno" && String(u.moduleCode ?? u.cohorte) === requesterModule
-      );
-    } else if (requester.role === "alumno") {
-      // Alumno: acceso denegado a listado
-      throw { status: 403, message: "No autorizado" };
-    }
-    // superadmin ve todo
-  }
-
-  return filtered.map(sanitizeUser);
-};
-
-export const getUserById = async (id) => {
-  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    throw { status: 401, message: "Sesión inválida" };
-  }
-  const user = await userRepository.obtenerPorId(id);
-  if (!user) throw { status: 401, message: "Sesión inválida" };
-  return sanitizeUser(user);
 };

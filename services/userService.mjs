@@ -16,6 +16,7 @@ import {
   normaliseRole,
   normaliseEstado,
 } from "../utils/normalizers/normalizers.mjs";
+import { buildUserListFilter } from "../utils/permissionUtils.mjs";
 
 function applyModuleInfo(target, moduleInfo) {
   if (!moduleInfo) return;
@@ -30,6 +31,10 @@ export const getUserByEmail = async (email) => {
   return await userRepository.obtenerPorEmail(email);
 };
 
+/**
+ * 🔑 Función centralizada para obtener usuario por ID.
+ * Única fuente de verdad para getUserById en toda la aplicación.
+ */
 export const getUserById = async (id) => {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     throw { status: 401, message: "Sesión inválida" };
@@ -61,30 +66,24 @@ export const deleteUser = async (id) => {
   return eliminado;
 };
 
+/**
+ * 🔑 Función MAESTRA para listado de usuarios.
+ * Centraliza toda la lógica de permisos de módulo y filtros.
+ * Única fuente de verdad para listar usuarios en toda la aplicación.
+ */
 export const listarUsuarios = async (user, query = {}) => {
-  let filtro = {};
-  const moduloActual = Number(
-    user.moduleNumber ?? user.moduleCode
-  );
-
+  // Usar utilidad centralizada para generar filtro con permisos
+  const filtro = buildUserListFilter(user, query);
+  
+  // Si hay filtro de módulo en query (para superadmin)
   if (user.role === "superadmin") {
-    // Superadmin: Aplica filtro de query si existe, si no existe, ve todo
-    const rawCode = query.moduleNumber ?? query.moduleCode;
-    if (rawCode !== undefined) {
-      const queryCode = Number(rawCode);
-      if (Number.isFinite(queryCode)) filtro.cohorte = queryCode; // persist legacy field
-    }
     if (query.modulo || query.moduleLabel) {
       const moduloNormalizado = ensureModuleLabel(query.modulo || query.moduleLabel);
       const cohortCode = labelToModule(moduloNormalizado);
-      if (cohortCode !== undefined) filtro.cohorte = cohortCode;
+      if (cohortCode !== undefined) {
+        filtro.cohorte = cohortCode;
+      }
     }
-  } else if (user.role === "profesor" && Number.isFinite(moduloActual)) {
-    // Profesor ve solo alumnos de su módulo
-    filtro = { role: "alumno", cohorte: moduloActual };
-  } else {
-    // Alumno u otro rol: acceso denegado
-    throw { status: 403, message: "No autorizado" };
   }
 
   return await userRepository.obtenerTodos(filtro).then(mapUsers);

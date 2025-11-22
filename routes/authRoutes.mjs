@@ -28,6 +28,6 @@ router.patch(
   aprobarUsuarioController
 );
 
-router.get("/usuarios", auth, allowRoles("superadmin", "profesor"), listarUsuariosController);
+ router.get("/usuarios", auth, allowRoles("superadmin", "profesor"), listarUsuariosController);
 
 export default router;

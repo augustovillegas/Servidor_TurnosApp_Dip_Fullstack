@@ -28,7 +28,7 @@ describe.sequential("Users", () => {
 
   test("Superadmin puede listar usuarios y los datos sensibles no se exponen", async () => {
     const res = await request(app)
-      .get("/auth/usuarios")
+      .get("/usuarios")
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(res.status).toBe(200);
@@ -40,7 +40,7 @@ describe.sequential("Users", () => {
 
   test("Profesor puede filtrar usuarios por rol", async () => {
     const res = await request(app)
-      .get("/auth/usuarios?role=alumno")
+      .get("/usuarios?role=alumno")
       .set("Authorization", `Bearer ${context.profesorOwner.token}`);
 
     expect(res.status).toBe(200);
@@ -52,7 +52,7 @@ describe.sequential("Users", () => {
 
   test("Superadmin puede filtrar usuarios por módulo", async () => {
     const res = await request(app)
-      .get("/usuarios?modulo=FRONTEND - REACT")
+            .get("/usuarios?modulo=FRONTEND - REACT")
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(res.status).toBe(200);

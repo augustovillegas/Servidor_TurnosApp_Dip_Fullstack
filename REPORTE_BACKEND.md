@@ -1,7 +1,7 @@
 # Reporte integral del backend "Gestion de turnos APP"
 
 ## 1. Configuración general del servidor
-- **Punto de entrada:** `server.mjs` levanta Express 5, aplica `cors`, `morgan`, `express.json()` y monta los routers (`/turnos`, `/entregas`, `/usuarios`, `/auth`, `/assignments`, `/submissions`, `/slots`). Expone `/health` sin autenticación.
+- **Punto de entrada:** `server.mjs` levanta Express 5, aplica `cors`, `morgan`, `express.json()` y monta los routers (`/entregas`, `/usuarios`, `/auth`, `/assignments`, `/submissions`, `/slots`). Expone `/health` sin autenticación.
 - **Base de datos:** `config/dbConfig.mjs` usa Mongoose 8; activa `autoIndex` salvo en producción y aborta el proceso ante errores de conexión.
 - **Arquitectura de manejo de errores (Inversión de Control):**
   * **Contrato unificado:** `errorHandler.mjs` retorna exclusivamente `{ message, errores? }`. Se eliminaron campos legacy (`msg`, `code`, `status` en response body).
@@ -68,15 +68,17 @@ Campos para relacionar una review y su agenda: `assignment` (opcional), `cohorte
 - `obtenerAsignacionPorId`, `actualizarAsignacion`, `eliminarAsignacion`: exigen propiedad (match `createdBy`) salvo rol `superadmin`.
 
 ### authService.mjs
-- `register`: verifica email único, usa directamente `name` recibido (los campos `nombre/apellido` ya no existen), hashea con bcrypt (10 salt rounds), persiste y sanitiza (remueve `passwordHash`).
+- `register`: verifica email único, usa directamente `name` recibido (los campos `nombre/apellido` ya no existen), hashea con bcrypt (10 salt rounds), persiste con `status="Pendiente"` y sanitiza (remueve `passwordHash`).
 - `login`: compara password, bloquea usuarios con `status === "Rechazado"`, firma JWT (7 días) con `{ id, role }` usando `JWT_SECRET`.
-- `aprobarUsuario`: establece `status="Aprobado"` (sin campo `isApproved`).
-- `listarUsuarios`, `getUserById`: devuelven usuario sanitizado.
+- `aprobarUsuario`: establece `status="Aprobado"` (el campo `isApproved` fue eliminado del modelo).
+- `getUserById`: devuelve usuario sanitizado (sin `passwordHash`).
 
-### slotService.mjs (operaciones protegidas + panel admin)
-- Normaliza estados (`REVIEW_STATUS_CANONICAL`) y expone las operaciones de negocio clásicas (`crear`, `solicitarTurno`, `cancelarTurno`, `actualizarEstadoRevision`, `obtenerPorUsuario`, `obtenerTurnosPorFiltro`, `obtenerSolicitudesPorAlumno`) con validaciones de rol/cohorte.
-- Los endpoints del panel `/turnos` reutilizan las mismas funciones, pero antes de devolver el listado o un turno concreto pasan los datos por `utils/mappers/slotMapper.mjs` + `utils/common/normalizers.mjs` para generar el DTO (`toFrontend`) que incluye fecha, horario, módulo, duración, `estado`, `reviewStatus`, `solicitanteId`, etc.
-- Las funciones `listarTurnos`, `obtenerTurno`, `crearTurno`, `actualizarTurno` y `eliminarTurno` también construyen/normalizan payloads (horarios, strings, estados) para persistir sin duplicar lógica.
+### slotService.mjs (operaciones sobre turnos)
+- Normaliza estados (`REVIEW_STATUS_CANONICAL`) y expone las operaciones de negocio: `crear`, `solicitarTurno`, `cancelarTurno`, `actualizarEstadoRevision`, `obtenerPorUsuario`, `obtenerTurnosPorFiltro`, `obtenerSolicitudesPorAlumno` con validaciones de rol/cohorte.
+- Aplica `buildModuleFilter` (desde `permissionUtils`) para segmentación automática por módulo según rol del usuario.
+- **Filtrado para alumnos:** Solo ven turnos de su cohorte que estén `estado: "Disponible"` O sean propios (reservados por ellos). Post-filtrado defensivo asegura que no se expongan turnos reservados por otros alumnos.
+- **Filtrado para profesores/superadmin:** Ven todos los turnos de su módulo/cohorte sin restricciones adicionales.
+- Las funciones `listarTurnos`, `obtenerTurno`, `crearTurno`, `actualizarTurno`, `eliminarTurno` construyen/normalizan payloads (horarios, strings, estados) y aplican `toFrontend` mapper para generar DTOs con campos calculados (duración, módulo, solicitanteNombre).
 
 ### submissionService.mjs (entregas del core y del panel)
 - Funciones core: `crearEntrega`, `obtenerEntregasPorUsuario`, `obtenerEntregaPorId`, `actualizarEntrega`, `eliminarEntrega` (control de autorización y estados finales).
@@ -112,14 +114,15 @@ Campos para relacionar una review y su agenda: `assignment` (opcional), `cohorte
 | PUT | `/assignments/:id` | Igual a POST + `param` ID | `actualizarAsignacionController` | Solo dueño o superadmin.
 | DELETE | `/assignments/:id` | `auth`, `allowRoles`, `param`, `validateRequest` | `eliminarAsignacionController` | 204 vació.
 
-### `/slots` (operaciones sobre turnos principales)
+### `/slots` (operaciones sobre turnos - API unificada)
 | Método | Ruta | Middlewares | Controlador -> Servicio | Notas |
 | --- | --- | --- | --- | --- |
-| GET | `/slots/` | `auth` | `obtenerTurnosController` -> `slotService.obtenerTurnosPorFiltro` | Filtra por query `cohort`.
-| POST | `/slots/` | `auth`, `allowRoles(profesor,superadmin)`, `createSlotValidator`, `validateRequest` | `createSlotController` -> `slotService.crear` | Requiere fecha ISO.
-| PATCH | `/slots/:id/solicitar` | `auth`, `allowRoles(alumno)`, `requireApproved`, `slotIdParamValidator`, `validateRequest` | `solicitarTurnoController` -> `slotService.solicitarTurno` | Alumno reserva.
-| PATCH | `/slots/:id/estado` | `auth`, `allowRoles(profesor,superadmin)`, `slotIdParamValidator`, `updateEstadoValidator`, `validateRequest` | `actualizarEstadoRevisionController` -> `slotService.actualizarEstadoRevision` | Cambia estado (aprobado/pendiente/cancelado).
-| PATCH | `/slots/:id/cancelar` | `auth`, `allowRoles(alumno)`, `requireApproved`, `slotIdParamValidator`, `validateRequest` | `cancelarTurnoController` -> `slotService.cancelarTurno` | Libera slot.
+| GET | `/slots/` | `auth` | `obtenerTurnosController` -> `slotService.obtenerTurnosPorFiltro` | Filtra por query `cohort`. Alumno ve solo disponibles o propios; profesor/superadmin ven todos de su módulo.
+| GET | `/slots/:id` | `auth`, `allowRoles(profesor,superadmin)`, `slotIdParamValidator`, `validateRequest` | `obtenerTurnoController` -> `slotService.obtenerTurno` | Obtiene un turno específico por ID.
+| POST | `/slots/` | `auth`, `allowRoles(profesor,superadmin)`, `createSlotValidator`, `validateRequest` | `createSlotController` -> `slotService.crear` | Crea turno. Requiere fecha ISO.
+| PATCH | `/slots/:id/solicitar` | `auth`, `allowRoles(alumno)`, `requireApproved`, `slotIdParamValidator`, `validateRequest` | `solicitarTurnoController` -> `slotService.solicitarTurno` | Alumno reserva turno.
+| PATCH | `/slots/:id/estado` | `auth`, `allowRoles(profesor,superadmin)`, `slotIdParamValidator`, `updateEstadoValidator`, `validateRequest` | `actualizarEstadoRevisionController` -> `slotService.actualizarEstadoRevision` | Cambia reviewStatus (aprobado/pendiente/cancelado).
+| PATCH | `/slots/:id/cancelar` | `auth`, `allowRoles(alumno)`, `requireApproved`, `slotIdParamValidator`, `validateRequest` | `cancelarTurnoController` -> `slotService.cancelarTurno` | Libera slot reservado.
 | GET | `/slots/mis-solicitudes` | `auth`, `allowRoles(alumno)`, `requireApproved` | `misSolicitudesController` -> `slotService.obtenerSolicitudesPorAlumno` | Lista reservas del alumno.
 
 ### `/submissions` (API de alumnos/profesores)
@@ -131,38 +134,29 @@ Campos para relacionar una review y su agenda: `assignment` (opcional), `cohorte
 | PUT | `/submissions/:id` | `auth`, `allowRoles(alumno,profesor,superadmin)`, `requireApproved`, `param`, `submissionValidator`, `validateRequest` | `actualizarEntregaController` -> `submissionService.actualizarEntrega` | Restringe ediciones finales.
 | DELETE | `/submissions/:id` | `auth`, `allowRoles(alumno,profesor,superadmin)`, `requireApproved`, `param`, `validateRequest` | `eliminarEntregaController` -> `submissionService.eliminarEntrega` | 204 sin cuerpo.
 
-### `/turnos` (panel administrativo, reuse `slotController` + `slotService`)
+
+
+### `/entregas` (panel administrativo sobre submissions)
 Middlewares globales: `auth`, `allowRoles(profesor,superadmin)` (aplicados con `router.use`).
 
 | Método | Ruta | Controlador -> Servicio | Notas |
 | --- | --- | --- | --- |
-| GET | `/turnos/` | `listarTurnosFrontendController` -> `slotService.listarTurnos` | Devuelve DTO listo para UI filtrable por query.
-| GET | `/turnos/:id` | `obtenerTurnoFrontendController` -> `slotService.obtenerTurno` | Valida ObjectId.
-| POST | `/turnos/` | `crearTurnoFrontendController` -> `slotService.crearTurno` | Crea y retorna DTO.
-| PUT | `/turnos/:id` | `actualizarTurnoFrontendController` -> `slotService.actualizarTurno` | Recalcula estado/estudiante.
-| DELETE | `/turnos/:id` | `eliminarTurnoFrontendController` -> `slotService.eliminarTurno` | 204.
+| GET | `/entregas/` | `listarEntregasController` -> `submissionService.listarEntregasFrontend` | Lista todas las entregas con filtros.
+| GET | `/entregas/:id` | `obtenerEntregaPorIdController` -> `submissionService.obtenerEntregaFrontend` | Obtiene entrega específica.
+| POST | `/entregas/` | `crearEntregaController` -> `submissionService.crearEntregaFrontend` | Crea nueva entrega.
+| PUT | `/entregas/:id` | `actualizarEntregaController` -> `submissionService.actualizarEntregaFrontend` | Actualiza entrega existente.
+| DELETE | `/entregas/:id` | `eliminarEntregaController` -> `submissionService.eliminarEntregaFrontend` | Elimina entrega (204).
 
-### `/entregas` (panel administrativo sobre submissions)
-Middlewares globales: `auth`, `allowRoles(profesor,superadmin)`.
+### `/usuarios` (gestión de usuarios)
+Middlewares globales: `auth`, `allowRoles(superadmin, profesor)` (aplicados con `router.use`).
 
-| Método | Ruta | Controlador -> Servicio |
-| --- | --- | --- |
-| GET | `/entregas/` | `listarEntregasFrontendController` -> `submissionService.listarEntregasFrontend` |
-| GET | `/entregas/:id` | `obtenerEntregaFrontendController` -> `submissionService.obtenerEntregaFrontend` |
-| POST | `/entregas/` | `crearEntregaFrontendController` -> `submissionService.crearEntregaFrontend` |
-| PUT | `/entregas/:id` | `actualizarEntregaFrontendController` -> `submissionService.actualizarEntregaFrontend` |
-| DELETE | `/entregas/:id` | `eliminarEntregaFrontendController` -> `submissionService.eliminarEntregaFrontend` |
-
-### `/usuarios` (gestión desde frontend admin)
-Middlewares globales: `auth`, `allowRoles(superadmin, profesor, alumno)` según `usuariosRoutes.mjs`. El acceso de `alumno` a creación podría restringirse en producción.
-
-| Método | Ruta | Controlador -> Servicio |
-| --- | --- | --- |
-| GET | `/usuarios/` | `listarUsuariosFrontendController` -> `userService.listarUsuarios` |
-| GET | `/usuarios/:id` | `obtenerUsuarioFrontendController` -> `userService.obtenerUsuario` |
-| POST | `/usuarios/` | `crearUsuarioFrontendController` -> `userService.crearUsuario` (actualmente accesible también para `profesor` y `alumno`, revisar implicancias de seguridad) |
-| PUT | `/usuarios/:id` | `actualizarUsuarioFrontendController` -> `userService.actualizarUsuario` |
-| DELETE | `/usuarios/:id` | `eliminarUsuarioFrontendController` -> `userService.eliminarUsuario` |
+| Método | Ruta | Controlador -> Servicio | Notas |
+| --- | --- | --- | --- |
+| GET | `/usuarios/` | `listarUsuariosController` -> `userService.listarUsuarios` | Soporta filtros por `role` y `moduleNumber`. Profesor ve solo usuarios de su módulo.
+| GET | `/usuarios/:id` | `obtenerUsuarioController` -> `userService.obtenerUsuario` | Obtiene usuario específico.
+| POST | `/usuarios/` | `crearUsuarioController` -> `userService.crearUsuario` | Crea nuevo usuario (delega a authService.register).
+| PUT | `/usuarios/:id` | `actualizarUsuarioController` -> `userService.actualizarUsuario` | Actualiza usuario existente.
+| DELETE | `/usuarios/:id` | `eliminarUsuarioController` -> `userService.eliminarUsuario` | Elimina usuario (204).
 
 ## 6. Middlewares clave (`middlewares/`)
 ### Arquitectura de Inversión de Control
@@ -207,15 +201,20 @@ Todos los middlewares **lanzan errores** en lugar de responder directamente. El 
 - `submissionValidator`: chequea `assignment` como ObjectId opcional, `githubLink` o `link` apuntando a `github.com`, `renderLink` válido.
 
 ## 8. Utilidades y otros componentes
-- `utils/moduleMap.mjs`: mapea número -> etiqueta; ayuda a derivar `moduleCode` / `moduleLabel` cuando no está explícito.
-- `utils/sanitizeUser.mjs`: elimina `passwordHash` y metadata antes de exponer usuarios.
-- `utils/mappers/`: 
-  * `slotMapper.mjs`: transforma slots DB a DTO frontend con campos calculados (duración, fechas formateadas).
-  * `submissionMapper.mjs`: normaliza submissions usando campo `id` (no `_id`) y resuelve estado canonical.
-  * `userMapper.mjs`: formatea usuarios para respuestas frontend.
-- `utils/normalizers/normalizers.mjs`: funciones de normalización de strings, estados, fechas y números.
-- `repository/slotRepository.mjs`: hace `populate` de `assignment` y `student` para entregar contexto completo a los servicios sin consultas adicionales.
-- Directorios extra: `scripts/` (seed/reset/índices), `logs/`, `tests/`, `public/`.
+- **`utils/permissionUtils.mjs`**: Centraliza lógica de permisos:
+  * `buildModuleFilter(user, options)`: Genera filtros de consulta según rol y módulo del usuario.
+  * `buildUserListFilter(user, queryFilters)`: Filtros específicos para listado de usuarios.
+  * `getModuleNumber(user)`: Extrae número de módulo desde `moduleNumber`, `moduleCode` o `cohort`.
+- **`utils/moduleMap.mjs`**: Mapea número ↔ etiqueta de módulo; funciones `ensureModuleLabel`, `labelToModule`.
+- **`utils/security/sanitizeUser.mjs`**: Elimina `passwordHash`, `__v` y metadata antes de exponer usuarios.
+- **`utils/mappers/`**: 
+  * `slotMapper.mjs`: Transforma slots DB a DTO frontend con campos calculados (duración, fechas ISO, módulo, solicitanteNombre).
+  * `submissionMapper.mjs`: Normaliza submissions usando campo `id` (no `_id`) y resuelve estado canonical.
+  * `userMapper.mjs`: Formatea usuarios para respuestas frontend (incluye `moduleLabel`, `isApproved` virtual).
+- **`utils/normalizers/normalizers.mjs`**: Funciones de normalización de strings, estados, fechas y números; constantes `REVIEW_STATUS_CANONICAL`, `ESTADO_TO_REVIEW_STATUS`, `VALID_ESTADOS`.
+- **`utils/validation/dbValidation.mjs`**: Validaciones de ObjectId y lógica de negocio.
+- **`repository/slotRepository.mjs`**: Hace `populate` de `assignment` y `student` para entregar contexto completo a los servicios.
+- **Directorios extra**: `scripts/` (seed/reset/índices), `logs/`, `tests/`, `public/`, `constants/`.
 
 ## 9. Testing y Quality Assurance
 
@@ -299,8 +298,8 @@ Todos los middlewares **lanzan errores** en lugar de responder directamente. El 
    **e) Servicios - Errores 404** (8 tests)
    - GET /assignments/:id con ID inválido (400 por validación de parámetro)
    - GET /assignments/:id con ID válido inexistente (404)
-   - GET /turnos/:id con ID inválido (404)
-   - GET /turnos/:id con ID válido inexistente (404)
+   - GET /slots/:id con ID inválido (400/404 por validación)
+   - GET /slots/:id con ID válido inexistente (404)
    - PUT /assignments/:id con ID inválido (400 por validación)
    - DELETE /assignments/:id con ID inválido (400 por validación)
    - PATCH /auth/aprobar/:id con ID inválido (404)
@@ -337,7 +336,21 @@ Todos los middlewares **lanzan errores** en lugar de responder directamente. El 
 4. **Seguridad:** Tests verifican que datos sensibles no se exponen
 5. **Contratos:** Validación estricta del formato de error unificado
 
-## 10. Reglas y consideraciones para integrar un frontend a medida
+## 10. Arquitectura consolidada y eliminación de deuda técnica
+
+### Consolidación de rutas (Noviembre 2025)
+- **Eliminadas rutas duplicadas:** El endpoint legacy `/turnos` ha sido completamente eliminado. Toda la funcionalidad de gestión de turnos está ahora unificada en `/slots`.
+- **Rutas activas finales:**
+  * `/auth` - Autenticación y aprobación de usuarios
+  * `/usuarios` - Gestión de usuarios (profesor/superadmin)
+  * `/slots` - CRUD completo de turnos + operaciones de reserva
+  * `/assignments` - Gestión de asignaciones
+  * `/submissions` - API de entregas para alumnos/profesores
+  * `/entregas` - Panel administrativo de entregas
+- **Centralización de permisos:** Se creó `utils/permissionUtils.mjs` para centralizar la lógica de filtros por rol/módulo, eliminando duplicación en servicios.
+- **Tests actualizados:** Suite completa migrada de rutas legacy a rutas consolidadas (71/71 tests passing).
+
+## 11. Reglas y consideraciones para integrar un frontend a medida
 
 ### Autenticación y Seguridad
 1. **JWT:** Todos los endpoints (excepto `/health`, `/auth/ping`, `/auth/login`, `/auth/register`) requieren header `Authorization: Bearer <token>`.
@@ -427,8 +440,12 @@ Este reporte refleja el estado **ACTUAL** tras:
 - ✅ Refactorización de modelos (eliminación de campos redundantes `isApproved`, `nombre`, `apellido`, etc.)
 - ✅ Arquitectura de **Inversión de Control** (middlewares lanzan errores, errorHandler centraliza respuestas)
 - ✅ Estandarización de manejo de errores (formato único `{message, errores?}`)
-- ✅ Suite de tests completa (71/71 passing) validando contratos de error
+- ✅ **Consolidación de rutas** (eliminación completa de `/turnos` duplicado, funcionalidad unificada en `/slots`)
+- ✅ **Centralización de permisos** (creación de `permissionUtils.mjs` con `buildModuleFilter`, `buildUserListFilter`)
+- ✅ **Filtrado defensivo** para alumnos en slots (solo ven disponibles o propios, normalización de `student._id`)
+- ✅ Suite de tests completa (71/71 passing) validando contratos de error y migrada a rutas consolidadas
 - ✅ Mappers y normalizadores para DTOs consistentes
 - ✅ Validación de IDs en servicios (404 para IDs inexistentes)
+- ✅ Eliminación física de archivos obsoletos (`turnosRoutes.mjs`, imports redundantes)
 
-**Última actualización:** Noviembre 2025 - Sistema listo para integración frontend sin deuda técnica legacy.
+**Última actualización:** 22 Noviembre 2025 - Sistema completamente consolidado, sin deuda técnica legacy, listo para integración frontend.

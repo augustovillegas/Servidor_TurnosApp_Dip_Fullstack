@@ -15,6 +15,7 @@ import {
   VALID_ESTADOS,
 } from "../utils/normalizers/normalizers.mjs";
 import { REVIEW_STATUS_CANONICAL } from '../constants/constantes.mjs';
+import { buildModuleFilter } from "../utils/permissionUtils.mjs";
 
 export async function crear(data, usuario) {
   if (!["profesor", "superadmin"].includes(usuario.role)) {
@@ -122,70 +123,56 @@ export async function obtenerPorUsuario(usuarioId) {
 }
 
 export async function obtenerTurnosPorFiltro(query = {}, usuario) {
-  const filtro = {};
-  const { role, moduleNumber, moduleCode, id: userId } = usuario;
-  const moduloActual = Number(moduleNumber ?? moduleCode);
+  // Usar utilidad centralizada para generar filtro base con permisos
+  const filtro = buildModuleFilter(usuario, { queryFilters: query });
 
-  // --- FILTRO DE MÓDULO (Acceso Rígido) ---
-  if (role === "superadmin") {
-    // El Superadmin puede ver todos los módulos o filtrar opcionalmente.
-    // Usamos el filtro de query si existe, si no, ve todo.
-    let queryCohortValue = coerceNumber(query.cohort);
-    if (query.modulo) {
-      // También manejar si se filtra por la etiqueta del módulo
-      const moduloValue = labelToModule(query.modulo);
-      if (moduloValue !== undefined) {
-        queryCohortValue = moduloValue;
-      }
-    }
-    if (queryCohortValue !== undefined) {
-      filtro.cohort = queryCohortValue;
-    }
-  } else if (
-    ["profesor", "alumno"].includes(role) &&
-    Number.isFinite(moduloActual)
-  ) {
-    // Profesor y Alumno: Obligatoriamente filtran por SU Módulo
-    // Usar alias 'cohorte' real del schema y redundar 'cohort' por compatibilidad
-    filtro.$or = [ { cohorte: moduloActual }, { cohort: moduloActual } ];
-  } else {
-    // Rol no permitido o sin Módulo asignado
-    return [];
-  }
-
-  // --- FILTRO DE PERMISOS (Basado en Rol) ---
-  if (role === "alumno") {
-    // Alumno: Solo ve turnos que están disponibles o que ya solicitó, DENTRO de SU Módulo.
-    filtro.$or = [
-      { student: null },
-      { student: new mongoose.Types.ObjectId(userId) },
-    ];
-  }
-  // Profesor y Superadmin: Ven todos los turnos del Módulo ya filtrado.
-
-  // --- Otros filtros de Query (Si aplica) ---
+  // --- Filtro adicional por reviewNumber ---
   const reviewValue = coerceNumber(query.review);
   if (reviewValue !== undefined) {
     filtro.reviewNumber = reviewValue;
   }
 
-  // Si usamos $or para cohorte, quitamos $or y resolvemos manualmente
-  let raw;
-  if (filtro.$or) {
-    const candidates = await slotRepository.obtenerTodos({});
-    raw = candidates.filter((doc) => filtro.$or.some(cond => {
-      const valor = (doc.cohorte ?? doc.cohort);
-      const esperado = cond.cohorte ?? cond.cohort;
-      return String(valor) === String(esperado);
-    })).filter(doc => {
-      // aplicar resto de claves (reviewNumber)
-      if (filtro.reviewNumber !== undefined && doc.reviewNumber !== filtro.reviewNumber) return false;
-      if (filtro.$or && filtro.$or.length) return true;
-      return true;
+  // --- FILTRO ESPECÍFICO PARA ALUMNOS ---
+  if (usuario.role === "alumno") {
+    // Alumno: Solo ve turnos de su cohorte que estén disponibles o propios
+    const userId = new mongoose.Types.ObjectId(usuario.id);
+    const finalFilter = {};
+    if (filtro.cohorte !== undefined) {
+      finalFilter.cohorte = filtro.cohorte;
+    }
+    if (filtro.reviewNumber !== undefined) {
+      finalFilter.reviewNumber = filtro.reviewNumber;
+    }
+    // Usar estado Disponible como criterio de disponibilidad en lugar de student:null
+    finalFilter.$or = [
+      { estado: "Disponible" },
+      { student: userId }
+    ];
+    const raw = await slotRepository.obtenerTodos(finalFilter);
+    // Post-filtrado defensivo: asegurar que no entren turnos reservados por otros alumnos
+    const filtrados = raw.filter(slot => {
+      const stu = slot.student;
+      if (!stu) return true; // disponible
+      const stuId = typeof stu === 'object' && stu._id ? String(stu._id) : String(stu);
+      // Excluir slots solicitados por otros alumnos
+      if (stuId !== String(usuario.id)) return false;
+      return true; // propio
     });
-  } else {
-    raw = await slotRepository.obtenerTodos(filtro);
+    // Normalizar student a su _id para cumplir expectativas de comparación
+    const normalizados = filtrados.map(s => {
+      if (s.student && typeof s.student === 'object' && s.student._id) {
+        // Clonar de forma ligera para no mutar documento de Mongoose
+        const clone = { ...s.toObject() };
+        clone.student = s.student._id; // reemplazar por ObjectId bruto
+        return clone;
+      }
+      return s;
+    });
+    return normalizados;
   }
+  
+  // Profesor y Superadmin: Ven todos los turnos del módulo ya filtrado.
+  const raw = await slotRepository.obtenerTodos(filtro);
   return raw;
 }
 

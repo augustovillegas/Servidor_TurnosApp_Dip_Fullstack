@@ -7,6 +7,7 @@ import { ensureModuleLabel, moduleToLabel } from "../utils/moduleMap.mjs";
 import { toFrontend, extractEstado } from "../utils/mappers/submissionMapper.mjs";
 import { coerceNumber, normaliseString, normaliseReviewStatus } from "../utils/normalizers/normalizers.mjs";
 import { FINAL_STATES, ESTADO_DEFAULT } from '../constants/constantes.mjs';
+import { buildModuleFilter } from "../utils/permissionUtils.mjs";
 
 function buildAdminPayload(data) {
   const payload = {};
@@ -124,26 +125,14 @@ export const crearEntrega = async (slotId, user, body) => {
  * @param {object} query Filtros opcionales de query.
  */
 export const listarEntregas = async (user, query) => {
-  const moduloActualCode = Number(user.moduleNumber ?? user.moduleCode);
-  let filtro = {};
-
-  if (user.role === "superadmin") {
-    // Superadmin: Solo aplicar filtros opcionales de query.
-    if (query.cohort) {
-      filtro.cohorte = coerceNumber(query.cohort);
-    }
-  } else if (["profesor", "alumno"].includes(user.role) && Number.isFinite(moduloActualCode)) {
-    // Profesor y Alumno: filtro obligatorio por cohorte
-    filtro.cohorte = moduloActualCode;
-    if (user.role === "alumno") {
-      filtro.student = user.id;
-    }
-  } else {
-    throw { status: 403, message: "No autorizado" };
-  }
-
+  // Usar utilidad centralizada para generar filtro con permisos
+  const filtro = buildModuleFilter(user, { 
+    queryFilters: query,
+    studentField: user.role === "alumno" ? "student" : null 
+  });
+  
   return await repositorioEntrega.obtenerTodos(filtro);
-  };
+};
 
 /**
  * 💡 Obtiene entregas de un usuario (filtrado por rol y módulo).

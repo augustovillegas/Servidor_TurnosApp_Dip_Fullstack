@@ -93,7 +93,7 @@ describe.sequential("Error Handling - Inversión de Control", () => {
 
     test("Alumno intentando listar usuarios recibe 403", async () => {
       const res = await request(app)
-        .get("/auth/usuarios")
+        .get("/usuarios")
         .set("Authorization", `Bearer ${context.alumnoC1.token}`);
 
       expect(res.status).toBe(403);
@@ -249,21 +249,24 @@ describe.sequential("Error Handling - Inversión de Control", () => {
       expect(res.body).not.toHaveProperty("msg");
     });
 
-    test("GET /turnos/:id con ID inválido devuelve 404", async () => {
+    test("GET /slots/:id con ID inválido devuelve 400/404", async () => {
       const res = await request(app)
-        .get("/turnos/abc123")
+        .get("/slots/abc123")
         .set("Authorization", `Bearer ${context.profesorOwner.token}`);
 
-      expect(res.status).toBe(404);
+      expect([400,404]).toContain(res.status);
       expect(res.body).toHaveProperty("message");
-      expect(res.body.message).toContain("Turno no encontrado");
+      expect(
+        res.body.message === "Error de validacion" ||
+        res.body.message.includes("Turno no encontrado")
+      ).toBe(true);
       expect(res.body).not.toHaveProperty("msg");
     });
 
-    test("GET /turnos/:id con ID válido pero inexistente devuelve 404", async () => {
+    test("GET /slots/:id con ID válido pero inexistente devuelve 404", async () => {
       const fakeId = new mongoose.Types.ObjectId();
       const res = await request(app)
-        .get(`/turnos/${fakeId}`)
+        .get(`/slots/${fakeId}`)
         .set("Authorization", `Bearer ${context.profesorOwner.token}`);
 
       expect(res.status).toBe(404);

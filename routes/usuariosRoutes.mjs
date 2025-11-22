@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.use(auth);
 // Permitir también profesores para listado segmentado y alumnos para ver su propio usuario
-router.use(allowRoles("superadmin", "profesor", "alumno"));
+router.use(allowRoles("superadmin", "profesor"));
 
 router.get("/", listarUsuariosController);
 router.get("/:id", obtenerUsuarioController);

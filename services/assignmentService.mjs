@@ -1,6 +1,7 @@
 import assignmentRepository from "../repository/assignmentRepository.mjs";
 import mongoose from "mongoose";
 import { resolveModuleMetadata } from "../utils/moduleMap.mjs";
+import { buildModuleFilter } from "../utils/permissionUtils.mjs";
 
 export const crearAsignacion = async (body, user) => {
   if (!["profesor", "superadmin"].includes(user.role)) {
@@ -29,17 +30,8 @@ export const crearAsignacion = async (body, user) => {
 };
 
 export const obtenerTodasAsignaciones = async (user) => {
-  const moduloActual = Number(user.moduleNumber ?? user.moduleCode);
-  let filtro = {};
-
-  if (user.role === "superadmin") {
-    filtro = {};
-  } else if (["profesor", "alumno"].includes(user.role) && Number.isFinite(moduloActual)) {
-    filtro.cohorte = moduloActual;
-  } else {
-    throw { status: 403, message: "No autorizado" };
-  }
-
+  // Usar utilidad centralizada para generar filtro con permisos
+  const filtro = buildModuleFilter(user, {});
   return await assignmentRepository.obtenerTodos(filtro);
 };
 
