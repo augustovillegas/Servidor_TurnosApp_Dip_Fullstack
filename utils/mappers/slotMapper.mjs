@@ -219,19 +219,34 @@ export function toFrontend(slot) {
 
   return {
     id: doc._id?.toString() || doc.id,
+    // Review number (provide both legacy key and canonical key)
     review: doc.reviewNumber ?? 1,
+    reviewNumber: doc.reviewNumber ?? 1,
+    // Fecha legible (legacy) y fecha ISO normalizada
     fecha: formatFecha(start ?? doc.date),
+    date: start ? start.toISOString() : (doc.date ? new Date(doc.date).toISOString() : null),
+    dateISO: start ? start.toISOString() : (doc.date ? new Date(doc.date).toISOString() : null),
+    // Horario legible y límites normalizados
     horario: formatHorario(start, end, doc.startTime, doc.endTime),
-    sala: doc.room || "",
-    zoomLink: doc.zoomLink || "",
-    estado,
     start: start ? start.toISOString() : null,
     end: end ? end.toISOString() : null,
+    startISO: start ? start.toISOString() : null,
+    endISO: end ? end.toISOString() : null,
+    // Sala / recursos
+    sala: doc.room || "",
+    room: doc.room || "",
+    zoomLink: doc.zoomLink || "",
+    // Estado y derivados
+    estado,
+    reviewStatus: doc.reviewStatus || ESTADO_TO_REVIEW_STATUS[estado] || "A revisar",
+    // Texto adicional
     comentarios: doc.comentarios || "",
     titulo: doc.assignment?.title || doc.titulo || "",
     descripcion: doc.assignment?.description || doc.descripcion || "",
+    // Módulo y duración
     modulo: modulo || "",
     duracion,
+    // Identificadores relacionales
     solicitanteId,
     profesorId,
   };

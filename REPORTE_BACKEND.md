@@ -32,7 +32,7 @@ Scripts relevantes: `start` (node `server.mjs`), `dev` (nodemon), `pretest` (`sc
 ### Assignment (`models/Assignment.mjs`)
 | Campo | Tipo/enum | Reglas |
 | --- | --- | --- |
-| `modulo` | enum `HTML-CSS`/`JAVASCRIPT`/`BACKEND - NODE JS`/`FRONTEND - REACT` | Trim, default "-" |
+| `modulo` | enum `HTML-CSS`/`JAVASCRIPT`/`BACKEND - NODE JS`/`FRONTEND - REACT` | Trim, required |
 | `title` | String | Required, trim |
 | `description` | String | Required |
 | `dueDate` | Date | Required |
@@ -44,7 +44,7 @@ Campos para relacionar una review y su agenda: `assignment` (opcional), `cohorte
 
 ### Submission (`models/Submission.mjs`)
 - Relaciona `assignment` y `student` (ambos opcionales).
-- Metadatos: `alumnoNombre`, `sprint`, `githubLink` (obligatorio), `renderLink`, `comentarios`.
+- Metadatos: `alumnoNombre` (default "-"), `sprint`, `githubLink` (obligatorio, sin default), `renderLink` (default "-"), `comentarios` (default "-").
 - Se eliminó el campo `modulo` (derivable vía `assignment` o normalizadores). No existe campo `estado` en el schema.
 - Estado único: `reviewStatus` (enum: `Pendiente`, `Aprobado`, `Desaprobado`, `A revisar`, `Aprobado`, `Desaprobado`, `Rechazado`; default `A revisar`).
 
@@ -54,6 +54,15 @@ Campos para relacionar una review y su agenda: `assignment` (opcional), `cohorte
 - Virtuales disponibles: `moduleNumber` (refleja `moduleCode || cohorte` y permite set para sincronizar), `moduleLabel` (deriva etiqueta desde el número).
 - Aprobación de cuenta: se controla exclusivamente con `status === "Aprobado"` (el frontend puede derivar `isApproved` si lo necesita). No hay duplicación de estado.
 - Seguridad: `passwordHash` nunca se expone; sanitización remove `passwordHash`, `__v` y otros metadatos.
+
+### Notas sobre valores por defecto "-"
+Se usa el sentinel "-" únicamente en campos STRING opcionales para indicar "llegó el campo pero sin valor asignado" (evita distinguir entre ausencia y vacío en frontend):
+- ReviewSlot: `startTime`, `endTime`, `zoomLink`, `comentarios`.
+- Submission: `alumnoNombre`, `renderLink`, `comentarios`.
+No se aplica "-" en campos `required` ni en enums cuya semántica inicial es significativa (`estado` = "Disponible", `reviewStatus` = "A revisar").
+
+### Uniformidad del DTO de Slots
+El mapper `slotMapper.toFrontend` se invoca ahora en TODAS las operaciones (crear, solicitar, cancelar, actualizar estado, listar, eliminar) garantizando un shape estable: incluye claves (`id`, fechas ISO y legadas, horario derivado, módulo, duración, estado, reviewStatus, solicitanteId/Nombre, zoomLink, sala/room). Para compatibilidad legacy de tests, si el DTO expone `id` sin `_id`, los helpers replican `_id = id` durante la fase de testing; el contrato de la API externa permanece usando `id`.
 
 ## 3. Repositorios (`repository/`)
 - `assignmentRepository.mjs`, `slotRepository.mjs`, `submissionRepository.mjs`, `userRepository.mjs` implementan la interfaz `IRepository` con métodos CRUD tipificados. `slotRepository` siempre `populate` assignments/students para que los servicios tengan todo listo.

@@ -24,7 +24,13 @@ import {
   queueUser,
   hashPasswords,
 } from "./lib/seedUtils.mjs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { User } from "../models/User.mjs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "..");
 import { Assignment } from "../models/Assignment.mjs";
 import { ReviewSlot } from "../models/ReviewSlot.mjs";
 import { Submission } from "../models/Submission.mjs";
@@ -478,8 +484,9 @@ async function generarSeedUsers() {
   markdown += `- **Usuarios aprobados**: ${usuarios.filter(u => u.isApproved).length}\n`;
   markdown += `- **Usuarios pendientes**: ${usuarios.filter(u => !u.isApproved).length}\n\n`;
 
-  await fs.writeFile("SEED_USERS.md", markdown, "utf-8");
-  console.log("✅ SEED_USERS.md generado\n");
+  const seedPath = path.join(projectRoot, "logs", "docs", "SEED_USERS.md");
+  await fs.outputFile(seedPath, markdown, "utf-8");
+  console.log("✅ SEED_USERS.md generado en logs/docs/\n");
 }
 
 // ============================================================================

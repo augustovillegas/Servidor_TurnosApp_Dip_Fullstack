@@ -23,12 +23,12 @@ const slotSchema = new mongoose.Schema(
     },
     startTime: {
       type: String,
-      default: null,
+      default: "-",
       trim: true,
     },
     endTime: {
       type: String,
-      default: null,
+      default: "-",
       trim: true,
     },
     start: {
@@ -47,7 +47,7 @@ const slotSchema = new mongoose.Schema(
     zoomLink: {
       type: String,
       trim: true,
-      default: "",
+      default: "-",
     },
     student: {
       type: mongoose.Schema.Types.ObjectId,
@@ -61,12 +61,9 @@ const slotSchema = new mongoose.Schema(
     reviewStatus: {
       type: String,
       enum: [
-        "revisar",
-        "aprobado",
-        "desaprobado",
         "A revisar",
         "Aprobado",
-        "Desaprobado",
+        "Desaprobado"
       ],
       default: "A revisar",
     },
@@ -78,7 +75,7 @@ const slotSchema = new mongoose.Schema(
     comentarios: {
       type: String,
       trim: true,
-      default: "",
+      default: "-",
     },
   },
   {

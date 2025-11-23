@@ -1,23 +1,10 @@
-## 💻 Instrucciones para el Equipo de Backend (Corrección de Fallos Críticos)
+## 💻 Instrucciones para el Equipo de Backend (Debugging de Entregables)
 
-Las siguientes tareas deben abordar los errores 4xx reportados por la suite de pruebas E2E, centrándose en la funcionalidad faltante y la validación del contrato de errores unificado.
+**Problema Central:** El componente "Entregables" o "Evaluar Entregas" nunca se muestra, indicando un fallo en la ruta, autenticación o permisos. El *backend* es la causa más probable de un error de carga de datos (401, 403, 404).
 
-### 1. 🛑 Implementación Crítica de Rutas Faltantes (Error 404)
-
-El principal problema es la falta de soporte para las operaciones de modificación de `Slot` individuales.
-
-* **Implementar `PUT /slots/:id`:**
-    * Crear la ruta y el método en `slotsController` para manejar la actualización completa de un slot.
-    * Debe invocar a la lógica de negocio en `slotService.actualizarTurno`.
-    * Proteger la ruta con `auth` y `allowRoles(profesor, superadmin)`.
-* **Implementar `DELETE /slots/:id`:**
-    * Crear la ruta y el método en `slotsController` para manejar la eliminación de un slot.
-    * Debe invocar a la lógica de negocio en `slotService.eliminarTurno`.
-    * Proteger la ruta con `auth` y `allowRoles(profesor, superadmin)`.
-* **Objetivo:** Resolver los errores **404** que fallan al intentar actualizar o eliminar turnos/slots.
-
-### 2. ✅ Refuerzo en Contrato de Errores y Seguridad (400 / 403)
-
-* **Validación de Datos (400):** Verificar que, en el test de `CreateUsers` (que falla con 400), el *payload* de error retorne estrictamente el formato esperado por el frontend: **`{ message: string, errores: [{campo: string, mensaje: string}] }`**. Esto asegura que `validationResult.mjs` no haya retornado un formato *legacy*.
-* **Permisos en Entregas (403):** Corroborar la lógica en `submissionService` para garantizar que la consulta de entregas de un alumno **solo devuelva las suyas** (filtrado por `userId` del token). Esto valida la defensa de seguridad en profundidad reportada en los tests.
-
+| Tarea | Foco de la Corrección | Justificación |
+| :--- | :--- | :--- |
+| **1. Validación de Rutas y Montaje (404)** | **Auditar `server.mjs` y `entregasRoutes.mjs`:** Confirmar que los *routers* para **`/entregas`** (Profesores/Admin) y **`/submissions`** (Alumnos) estén **correctamente montados** en el servidor de Express y que las URLs no tengan errores tipográficos. | Un error de montaje en Express resulta en un 404 inmediato que el *frontend* interpreta como un fallo total, bloqueando la carga. |
+| **2. Test de Permisos (401/403)** | **Prueba Exhaustiva de Autenticación/Roles:** Forzar la llamada a `GET /entregas` (con token de Profesor) y `GET /submissions/:userId` (con token de Alumno). **Verificar que la respuesta sea 200 OK.** | Si el resultado es **401 (No Autorizado)** o **403 (Prohibido)**, el *middleware* de permisos (`auth.mjs` o `roles.mjs`) está bloqueando el acceso. Esto impide que el *frontend* reciba datos. |
+| **3. Contrato con Lista Vacía** | **Asegurar 200 OK con Array Vacío:** Si una consulta no devuelve resultados (ej. el profesor no tiene entregas para evaluar, o el alumno no tiene entregas subidas), la respuesta **DEBE ser 200 OK** con un *payload* de **array vacío `[]`**. | Si el *backend* retorna un 404 cuando la lista está vacía, el *frontend* lo tratará como un error y no renderizará el componente `EmptyRow` (el comportamiento deseado). |
+| **4. Revisión de `populate` de Datos** | **Auditar `entregaService.js`:** Confirmar que el servicio esté realizando el `populate` de todos los campos necesarios (`slotId`, `alumnoId`, etc.) y que la *query* de Mongoose no esté fallando internamente. | Un fallo en la *query* o en el *populate* puede lanzar un error 500 que bloquea la respuesta. |

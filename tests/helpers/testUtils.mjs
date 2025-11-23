@@ -204,6 +204,11 @@ export async function crearTurno(token, assignmentId, overrides = {}) {
     .set("Authorization", `Bearer ${token}`)
     .send(payload);
 
+  // Compatibilidad: si el DTO usa 'id' y no expone '_id', replicar para tests legacy.
+  if (res.body && res.body.id && !res.body._id) {
+    res.body._id = res.body.id;
+  }
+
   return { res, payload };
 }
 
@@ -245,7 +250,7 @@ export async function crearSubmissionCompleta({
   const assignmentId = asignacionRes.body._id;
 
   const turnoRes = await crearTurno(tokenProfesor, assignmentId, { moduleNumber });
-  const slotId = turnoRes.res.body._id;
+  const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
   const reserva = await reservarTurno(tokenAlumno, slotId);
   if (reserva.status !== 200) {
@@ -319,11 +324,31 @@ export async function seedAllScriptUsers({ reset = true } = {}) {
 
   const baseSeed = await crearSuperadmin();
   const moduleSeed = await crearUsuariosRoles();
-  const combined = [...baseSeed, ...moduleSeed];
+  const combinedRaw = [...baseSeed, ...moduleSeed];
+  // Deduplicar por email para evitar conteos inesperados si los scripts generan superadmin repetido
+  const seen = new Set();
+  const combined = [];
+  for (const entry of combinedRaw) {
+    const email = entry?.document?.email?.toLowerCase();
+    if (!email) continue;
+    if (seen.has(email)) continue;
+    seen.add(email);
+    combined.push(entry);
+  }
 
   return {
     baseSeed,
     moduleSeed,
     credentials: combined.map(seedEntryToCredential),
   };
+}
+
+export function assertSlotDtoShape(slot, expectFn) {
+  const requiredKeys = [
+    'id','review','reviewNumber','fecha','date','dateISO','horario','start','end','startISO','endISO',
+    'sala','room','zoomLink','estado','reviewStatus','comentarios','titulo','descripcion','modulo','duracion'
+  ];
+  for (const key of requiredKeys) {
+    expectFn(slot).toHaveProperty(key);
+  }
 }

@@ -101,7 +101,7 @@ async function main() {
     const roleUsers = await crearUsuariosRoles();
 
     const allUsers = [...baseUsers, ...roleUsers];
-    const seedFilePath = path.join(projectRoot, "SEED_USERS.md");
+    // writeSeedFile ahora guarda automáticamente en /logs/docs/
     await writeSeedFile(allUsers, "SEED_USERS.md");
 
     console.log("[4/7] Aplicando indices en colecciones principales...");

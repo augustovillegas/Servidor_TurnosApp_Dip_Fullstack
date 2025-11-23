@@ -1,4 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import { assertSlotDtoShape } from './helpers/testUtils.mjs';
 import request from "supertest";
 import {
   disconnectTestDB,
@@ -67,6 +68,7 @@ describe.sequential("Slots", () => {
 
     expect(aprobado.status).toBe(200);
     expect(aprobado.body.reviewStatus).toBe("Aprobado");
+    assertSlotDtoShape(aprobado.body, expect);
 
     const pendiente = await request(app)
       .patch(`/slots/${slotId}/estado`)
@@ -75,6 +77,7 @@ describe.sequential("Slots", () => {
 
     expect(pendiente.status).toBe(200);
     expect(pendiente.body.reviewStatus).toBe("A revisar");
+    assertSlotDtoShape(pendiente.body, expect);
   });
 
   test("Alumno no autorizado no puede cambiar estado de turno", async () => {
@@ -112,6 +115,7 @@ describe.sequential("Slots", () => {
 
     const primera = await reservarTurno(context.alumnoC1.token, slotId);
     expect(primera.status).toBe(200);
+    assertSlotDtoShape(primera.body, expect);
 
     const segunda = await reservarTurno(context.alumnoC1.token, slotId);
     expect(segunda.status).toBe(403);

@@ -2,8 +2,6 @@ import mongoose from "mongoose";
 
 const REVIEW_STATUS_VALUES = [
   "Pendiente",
-  "Aprobado",
-  "Desaprobado",
   "A revisar",
   "Aprobado",
   "Desaprobado",
@@ -25,7 +23,7 @@ const submissionSchema = new mongoose.Schema(
     alumnoNombre: {
       type: String,
       trim: true,
-      default: "",
+      default: "-",
     },
     sprint: {
       type: Number,
@@ -39,11 +37,11 @@ const submissionSchema = new mongoose.Schema(
     },
     renderLink: {
       type: String,
-      default: null,
+      default: "-",
     },
     comentarios: {
       type: String,
-      default: "",
+      default: "-",
       trim: true,
     },
     reviewStatus: {

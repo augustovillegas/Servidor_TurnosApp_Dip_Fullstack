@@ -50,7 +50,8 @@ export async function crear(data, usuario) {
     delete payload.assignment;
   }
 
-  return await slotRepository.crear(payload);
+  const creado = await slotRepository.crear(payload);
+  return toFrontend(creado);
 }
 
 export async function solicitarTurno(idTurno, usuario) {
@@ -93,7 +94,7 @@ export async function cancelarTurno(idTurno, usuario) {
   turno.student = null;
   turno.reviewStatus = "A revisar";
   await turno.save();
-  return turno;
+  return toFrontend(turno);
 }
 
 export async function actualizarEstadoRevision(idTurno, estado, usuario) {
@@ -115,7 +116,7 @@ export async function actualizarEstadoRevision(idTurno, estado, usuario) {
 
   turno.reviewStatus = reviewStatus;
   await turno.save();
-  return turno;
+  return toFrontend(turno);
 }
 
 export async function obtenerPorUsuario(usuarioId) {
@@ -161,19 +162,19 @@ export async function obtenerTurnosPorFiltro(query = {}, usuario) {
     // Normalizar student a su _id para cumplir expectativas de comparación
     const normalizados = filtrados.map(s => {
       if (s.student && typeof s.student === 'object' && s.student._id) {
-        // Clonar de forma ligera para no mutar documento de Mongoose
         const clone = { ...s.toObject() };
-        clone.student = s.student._id; // reemplazar por ObjectId bruto
+        clone.student = s.student._id;
         return clone;
       }
       return s;
     });
-    return normalizados;
+    // Mapear a DTO uniforme
+    return normalizados.map(toFrontend);
   }
   
   // Profesor y Superadmin: Ven todos los turnos del módulo ya filtrado.
   const raw = await slotRepository.obtenerTodos(filtro);
-  return raw;
+  return raw.map(toFrontend);
 }
 
 export async function obtenerSolicitudesPorAlumno(alumnoId) {
@@ -391,5 +392,5 @@ export async function eliminarTurno(id) {
   }
   const eliminado = await slotRepository.eliminar(id);
   if (!eliminado) throw { status: 404, message: "Turno no encontrado" };
-  return eliminado;
+  return toFrontend(eliminado);
 }

@@ -214,7 +214,8 @@ export function buildMarkdown(seedUsers) {
 
 export async function writeSeedFile(seedUsers, filename = "SEED_USERS.md") {
   const md = buildMarkdown(seedUsers);
-  const outPath = path.join(projectRoot, filename);
+  // Siempre guardar en /logs/docs/
+  const outPath = path.join(projectRoot, "logs", "docs", filename);
   await fs.outputFile(outPath, md, { encoding: "utf8" });
-  console.log(`Archivo de credenciales generado: ${path.relative(process.cwd(), outPath)}`);
+  console.log(`✅ Archivo de credenciales generado: ${path.relative(projectRoot, outPath)}`);
 }

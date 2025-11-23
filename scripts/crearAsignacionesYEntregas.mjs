@@ -15,22 +15,18 @@ const SPRINTS = [1, 2, 3, 4];
 const SUBMISSION_STATUS_ROTATION = [
   {
     reviewStatus: "A revisar",
-    estado: "A revisar",
     comentario: "Listo para una nueva revision del profesor.",
   },
   {
     reviewStatus: "Pendiente",
-    estado: "Pendiente",
     comentario: "Entrega pendiente de feedback definitivo.",
   },
   {
     reviewStatus: "Aprobado",
-    estado: "Aprobado",
     comentario: "Trabajo aprobado con sugerencias menores.",
   },
   {
     reviewStatus: "Desaprobado",
-    estado: "Desaprobado",
     comentario: "Se requieren ajustes antes de volver a enviar.",
   },
 ];
@@ -54,15 +50,11 @@ export async function crearAsignacionesYEntregas() {
   for (const mod of MODULES) {
     let profesor = await User.findOne({
       role: "profesor",
-      email: { $regex: `\\.${mod.slug}\\.`, $options: "i" },
+      moduleCode: mod.code
     }).lean();
 
     if (!profesor) {
-      profesor = await User.findOne({ role: "profesor", moduloSlug: mod.slug }).lean();
-    }
-
-    if (!profesor) {
-      throw new Error(`No se encontro profesor para el modulo ${mod.slug}`);
+      throw new Error(`No se encontro profesor para el modulo ${mod.name} (code: ${mod.code})`);
     }
 
     const asignacionesModulo = [];
@@ -90,12 +82,15 @@ export async function crearAsignacionesYEntregas() {
   const submissions = [];
 
   for (const mod of MODULES) {
-    const students = await User.find({ role: "alumno", moduloSlug: mod.slug })
+    const students = await User.find({ 
+      role: "alumno", 
+      moduleCode: mod.code 
+    })
       .sort({ email: 1 })
       .lean();
 
     if (!students.length) {
-      throw new Error(`No hay alumnos configurados para el modulo ${mod.slug}`);
+      throw new Error(`No hay alumnos configurados para el modulo ${mod.name} (code: ${mod.code})`);
     }
 
     const moduleAssignments = assignmentsPorModulo.get(mod.slug) ?? [];
@@ -112,14 +107,12 @@ export async function crearAsignacionesYEntregas() {
         submissions.push({
           assignment: moduleAssignments[sprintIndex]._id,
           student: student._id,
-          alumnoNombre: `${student.nombre} ${student.apellido}`.trim(),
+          alumnoNombre: student.name || "Alumno",
           sprint,
-          modulo: mod.name,
           githubLink: buildGithubLink(mod.slug, sprint, emailLocal),
           renderLink: buildRenderLink(mod.slug, sprint, emailLocal),
           comentarios: `Sprint ${sprint} - ${rotation.comentario}`,
           reviewStatus: rotation.reviewStatus,
-          estado: rotation.estado,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
@@ -127,9 +120,12 @@ export async function crearAsignacionesYEntregas() {
     });
   }
 
-  const insertedSubmissions = await Submission.insertMany(submissions, { ordered: true });
+  const insertedSubmissions = await Submission.insertMany(submissions, { ordered: false });
 
   await disconnectMongo();
+
+  console.log(`✅ Total submissions preparadas: ${submissions.length}`);
+  console.log(`✅ Total submissions insertadas: ${insertedSubmissions.length}`);
 
   return {
     assignments: assignmentDocs.length,

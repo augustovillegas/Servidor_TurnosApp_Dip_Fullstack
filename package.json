@@ -1,7 +1,7 @@
 {
   "name": "gestion-de-turnos-app",
   "version": "1.0.0",
-    "description": "Gestión profesional de turnos, entregas y revisiones actualizada",
+  "description": "Gestión profesional de turnos, entregas y revisiones actualizada",
   "type": "module",
   "main": "server.mjs",
   "scripts": {
@@ -33,6 +33,7 @@
     "method-override": "^3.0.0",
     "mongoose": "^8.18.1",
     "morgan": "^1.10.1",
+    "node-fetch": "^3.3.2",
     "yargs": "^17.7.2"
   },
   "devDependencies": {

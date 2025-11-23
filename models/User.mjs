@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
       enum: MODULE_NAME_VALUES,
       trim: true,
       required: true,
-      alias: "module",
+      alias: "module",    
     },
     moduleCode: {
       type: Number,
@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ROLE_TYPE_VALUES,
-      required: true,
+      required: true,      
     },
     cohorte: {
       type: Number,
