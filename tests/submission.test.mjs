@@ -119,7 +119,8 @@ test("Entrega valida queda en estado 'A revisar' tras reservar correctamente", a
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.some((item) => item._id === submission.submissionId)).toBe(true);
+    // Use 'id' instead of '_id' since DTO uses 'id'
+    expect(res.body.some((item) => item.id === submission.submissionId)).toBe(true);
   });
 
   test("Profesor creador puede aprobar una entrega y el alumno ya no puede modificarla", async () => {

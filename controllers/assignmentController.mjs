@@ -24,7 +24,7 @@ export const obtenerAsignacionesController = async (req, res, next) => {
 
 export const obtenerAsignacionPorIdController = async (req, res, next) => {
   try {
-    const asignacion = await servicioAsignacion.obtenerAsignacionPorId(req.params.id);
+    const asignacion = await servicioAsignacion.obtenerAsignacionPorId(req.params.id, req.user);
     const salida = { ...asignacion.toObject(), module: asignacion.cohorte };
     res.json(salida);
   } catch (err) {

@@ -398,6 +398,43 @@ Todos los middlewares **lanzan errores** en lugar de responder directamente. El 
    - El status HTTP viene en `response.status` (401, 403, 404, 400, 409, 500).
 
 4. **Códigos de estado comunes:**
+ 
+## 12. Corrección de visibilidad de entregas para profesores (Noviembre 2025)
+
+### Problema Detectado
+Los profesores reportaron no ver las entregas (submissions) de alumnos en el panel y/o endpoint `/submissions`. El servicio `submissionService.listarEntregasFrontend` y la lógica de listado genérica aplicaban `buildModuleFilter(user)` directamente sobre la colección `Submission`. El schema `Submission` no contiene campos `modulo` ni `cohorte` (se derivan indirectamente vía `assignment` o el alumno), por lo que el filtro devolvía siempre un conjunto vacío para roles `profesor`.
+
+### Causa Raíz
+Se intentó reutilizar un filtro pensado para colecciones que sí materializan `modulo/cohorte` (p.ej. `Assignment`, `ReviewSlot`). Al no existir esos campos en `Submission`, el query se evaluaba con condiciones inexistentes y retornaba 0 resultados.
+
+### Solución Implementada
+Se modificó la rama de lógica para rol `profesor` dentro del servicio de listados de entregas:
+1. Derivar el número de módulo del profesor (`getModuleNumber(user)` / `user.moduleNumber`).
+2. Buscar los `User` alumnos cuyo `moduleNumber` coincide (y opcionalmente filtrar por cohorte si se precisara en el futuro).
+3. Construir un arreglo de IDs de alumnos y aplicar query `Submission.find({ student: { $in: idsAlumnos } })`.
+4. Mapear los resultados con el mapper existente para mantener DTO consistente.
+
+### Beneficios
+- Alinea la lógica con el modelo denormalizado sin alterar el schema de `Submission`.
+- Evita añadir campos redundantes que podrían desincronizarse (`modulo`, `cohorte`).
+- Mantiene bajo costo de mantenimiento y prepara terreno para index compuesto futuro (`student, assignment`).
+
+### Test de Regresión Añadido
+Se incorporó el test: `Profesor HTML-CSS ve entregas de alumnos de su módulo aunque cohorte difiera` dentro de `tests/seed-data-filtering.test.mjs`. Ejecutado con:
+```
+npx vitest run tests/seed-data-filtering.test.mjs -t "Profesor HTML-CSS ve entregas"
+```
+Resultado: pasa correctamente y devuelve >0 entregas (580 generadas en seed v2).
+
+### Consideraciones de Performance
+- Query actual realiza: (a) búsqueda de alumnos por módulo, (b) búsqueda de submissions por `$in`. Para volúmenes altos puede ser útil un índice sobre `student` en la colección `submissions`.
+- Si la cardinalidad crece se podría introducir un campo derivado `moduleNumber` en `Submission` mantenido vía middleware Mongoose pre-save (evaluar sólo si las consultas comienzan a degradarse).
+
+### Próximos Pasos Opcionales
+- Documentar formalmente en frontend que la segmentación por cohorte en entregas se realiza indirectamente vía alumnos y assignments.
+- Añadir endpoint de conteo rápido (`GET /entregas/count?moduleNumber=1`).
+- Revisar consistencia entre `/submissions` y `/entregas` para unificar nomenclatura futura.
+
    - `400`: Validación fallida (incluye array `errores`)
    - `401`: No autenticado (token faltante/inválido)
    - `403`: Acceso denegado (rol insuficiente, cuenta no aprobada, recurso ajeno)

@@ -35,12 +35,23 @@ export const obtenerTodasAsignaciones = async (user) => {
   return await assignmentRepository.obtenerTodos(filtro);
 };
 
-export const obtenerAsignacionPorId = async (id) => {
+export const obtenerAsignacionPorId = async (id, user) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw { status: 404, message: "Asignación no encontrada" };
   }
   const asignacion = await assignmentRepository.obtenerPorId(id);
   if (!asignacion) throw { status: 404, message: "Asignación no encontrada" };
+  
+  // Verificar permisos por módulo para profesores
+  if (user && user.role === "profesor") {
+    const profesorModule = Number(user.moduleNumber ?? user.moduleCode);
+    const assignmentModule = Number(asignacion.cohorte); // cohorte es Number, modulo es String
+    
+    if (profesorModule !== assignmentModule) {
+      throw { status: 403, message: "No autorizado para ver asignaciones de otros módulos" };
+    }
+  }
+  
   return asignacion;
 };
 

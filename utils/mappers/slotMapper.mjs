@@ -222,6 +222,8 @@ export function toFrontend(slot) {
     // Review number (provide both legacy key and canonical key)
     review: doc.reviewNumber ?? 1,
     reviewNumber: doc.reviewNumber ?? 1,
+    // Cohorte/módulo numérico
+    cohort: doc.cohort ?? doc.cohorte,
     // Fecha legible (legacy) y fecha ISO normalizada
     fecha: formatFecha(start ?? doc.date),
     date: start ? start.toISOString() : (doc.date ? new Date(doc.date).toISOString() : null),

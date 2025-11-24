@@ -125,13 +125,40 @@ export const crearEntrega = async (slotId, user, body) => {
  * @param {object} query Filtros opcionales de query.
  */
 export const listarEntregas = async (user, query) => {
-  // Usar utilidad centralizada para generar filtro con permisos
-  const filtro = buildModuleFilter(user, { 
-    queryFilters: query,
-    studentField: user.role === "alumno" ? "student" : null 
-  });
-  
-  return await repositorioEntrega.obtenerTodos(filtro);
+  // Caso alumno y superadmin: usamos filtro estándar
+  if (user.role === "alumno" || user.role === "superadmin") {
+    const filtro = buildModuleFilter(user, { 
+      queryFilters: query,
+      studentField: user.role === "alumno" ? "student" : null 
+    });
+    return await repositorioEntrega.obtenerTodos(filtro);
+  }
+
+  // Caso profesor: el modelo Submission NO almacena cohorte/moduleCode directamente.
+  // Debemos resolver los alumnos de su módulo y filtrar por sus IDs.
+  if (user.role === "profesor") {
+    const moduloActual = Number(user.moduleNumber ?? user.moduleCode);
+    if (!Number.isFinite(moduloActual)) return [];
+
+    // Cargar dinámicamente User para evitar ciclos
+    const { User } = await import("../models/User.mjs");
+    // Buscar alumnos cuyo moduleCode coincida o cohorte como fallback
+    const alumnosModulo = await User.find({
+      role: "alumno",
+      $or: [
+        { moduleCode: moduloActual },
+        { cohorte: moduloActual }
+      ]
+    }).select("_id");
+
+    if (!alumnosModulo.length) return [];
+    const ids = alumnosModulo.map(a => a._id);
+
+    return await repositorioEntrega.obtenerTodos({ student: { $in: ids } });
+  }
+
+  // Otros roles (por si se agregan futuros): no devolvemos nada
+  return [];
 };
 
 /**
@@ -159,7 +186,8 @@ export const obtenerEntregasPorUsuario = async (userId, user) => {
     }
     
     // Superadmin y Alumno viendo sus propias entregas pasan.
-    return await repositorioEntrega.obtenerPorEstudiante(userId);
+    const submissions = await repositorioEntrega.obtenerPorEstudiante(userId);
+    return submissions.map(toFrontend);
 };
 
 /**
