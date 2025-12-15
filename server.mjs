@@ -41,7 +41,18 @@ app.use("/slots", slotRoutes);
 app.use(errorHandler);
 
 process.on("unhandledRejection", (err) => {
-  console.error("Error no manejado:", err);
+  const unhandledErrorJson = {
+    timestamp: new Date().toISOString(),
+    type: "UNHANDLED_REJECTION",
+    message: err?.message || String(err),
+    stack: err?.stack || undefined,
+    error: err,
+  };
+  try {
+    console.error("UNHANDLED_ERROR_JSON:", JSON.stringify(unhandledErrorJson));
+  } catch (jsonErr) {
+    console.error("UNHANDLED_ERROR_JSON_FALLBACK:", unhandledErrorJson);
+  }
   process.exit(1);
 });
 

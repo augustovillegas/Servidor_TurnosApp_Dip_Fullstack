@@ -97,8 +97,8 @@ export const updateSlotValidator = [
     .withMessage("Estado de turno invalido"),
   body("room")
     .optional({ nullable: true })
-    .isString()
-    .withMessage("La sala debe ser texto"),
+    .isInt({ min: 1 })
+    .withMessage("La sala debe ser un número"),
   body("zoomLink")
     .optional({ nullable: true })
     .isString()

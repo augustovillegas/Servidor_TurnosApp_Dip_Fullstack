@@ -42,8 +42,7 @@ export const actualizarEstadoRevisionController = async (req, res, next) => {
 };
 
 export const obtenerTurnosController = async (req, res, next) => {
-  try {
-    // Se pasa req.user para aplicar segmentación por módulo y rol
+  try {    
     const turnos = await slotService.obtenerTurnosPorFiltro(req.query, req.user);
     res.status(200).json(turnos);
   } catch (error) {
