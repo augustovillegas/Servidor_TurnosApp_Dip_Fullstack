@@ -17,20 +17,33 @@ import {
 import { REVIEW_STATUS_CANONICAL } from '../constants/constantes.mjs';
 import { buildModuleFilter } from "../utils/permissionUtils.mjs";
 
+const MODULE_CODE_MAP = {
+  "HTML-CSS": 1,
+  "JAVASCRIPT": 2,
+  "BACKEND - NODE JS": 3,
+  "FRONTEND - REACT": 4,
+};
+
 export async function crear(data, usuario) {
   if (!["profesor", "superadmin"].includes(usuario.role)) {
     throw { status: 403, message: "No autorizado" };
   }
 
-  // El 'cohorte' del turno SIEMPRE debe ser el Módulo del profesor logueado.
-  const moduleValue = Number(
-    usuario?.moduleNumber ?? usuario?.moduleCode ?? usuario?.cohorte
-  );
+  // El 'cohorte' del turno SIEMPRE debe ser el Módulo del creador.
   const moduleLabel = data?.modulo || usuario?.modulo || null;
 
   if (!moduleLabel) {
     throw { status: 400, message: "El campo 'modulo' es requerido" };
   }
+
+  // Derivar código de módulo aun si el usuario (superadmin) no tiene módulo numérico
+  const moduleValue = Number(
+    data?.cohorte ??
+      data?.moduleCode ??
+      usuario?.moduleNumber ??
+      usuario?.moduleCode ??
+      usuario?.cohorte
+  ) || MODULE_CODE_MAP[moduleLabel] || null;
 
   const payload = {
     ...data,
