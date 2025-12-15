@@ -22,15 +22,19 @@ export async function crear(data, usuario) {
     throw { status: 403, message: "No autorizado" };
   }
 
-  // El 'cohort' del turno SIEMPRE debe ser el Módulo del profesor logueado.
+  // El 'cohorte' del turno SIEMPRE debe ser el Módulo del profesor logueado.
   const moduleValue = Number(
     usuario?.moduleNumber ?? usuario?.moduleCode ?? usuario?.cohorte
   );
-  const moduleLabel = usuario?.modulo || null;
+  const moduleLabel = data?.modulo || usuario?.modulo || null;
+
+  if (!moduleLabel) {
+    throw { status: 400, message: "El campo 'modulo' es requerido" };
+  }
 
   const payload = {
     ...data,
-    cohort: moduleValue, // ¡Forzamos el Módulo del turno!
+    cohorte: moduleValue, // ¡Forzamos el Módulo del turno!
     modulo: moduleLabel, // Capturar módulo del profesor
     reviewStatus: "A revisar",
     reviewNumber: 1,
@@ -77,7 +81,7 @@ export async function solicitarTurno(idTurno, usuario) {
 
   // Aislamiento de cohorte (usar Number para comparación robusta)
   if (
-    Number(turno.cohort) !==
+    Number(turno.cohorte) !==
     Number(usuario.moduleNumber ?? usuario.moduleCode ?? usuario.cohorte)
   ) {
     throw { status: 403, message: "Modulo no coincide" };
@@ -252,12 +256,12 @@ function buildPersistencePayload(input = {}) {
 
   const moduloValue = labelToModule(input.modulo);
   if (moduloValue !== undefined) {
-    payload.cohort = moduloValue;
+    payload.cohorte = moduloValue;
   }
 
-  const cohortValue = coerceNumber(input.cohort);
+  const cohortValue = coerceNumber(input.cohorte ?? input.cohort);
   if (cohortValue !== undefined) {
-    payload.cohort = cohortValue;
+    payload.cohorte = cohortValue;
   }
 
   const assignmentId =
@@ -281,7 +285,7 @@ function applyPayloadToDocument(slot, payload, incomingEstado) {
   if (payload.startTime !== undefined) slot.startTime = payload.startTime;
   if (payload.endTime !== undefined) slot.endTime = payload.endTime;
   if (payload.assignment !== undefined) slot.assignment = payload.assignment;
-  if (payload.cohort !== undefined) slot.cohort = payload.cohort;
+  if (payload.cohorte !== undefined) slot.cohorte = payload.cohorte;
   if (payload.student !== undefined) slot.student = payload.student;
 
   if (incomingEstado && VALID_ESTADOS.includes(incomingEstado)) {
@@ -306,7 +310,8 @@ function applyPayloadToDocument(slot, payload, incomingEstado) {
 function sanitiseForCreate(input = {}) {
   const payload = buildPersistencePayload(input);
   const base = {
-    cohort: payload.cohort ?? coerceNumber(input.cohort) ?? 1,
+    cohorte: payload.cohorte ?? coerceNumber(input.cohorte ?? input.cohort) ?? 1,
+    modulo: input.modulo ?? payload.modulo,
     reviewNumber: payload.reviewNumber ?? 1,
     room: payload.room ?? "",
     zoomLink: payload.zoomLink ?? "",
@@ -333,9 +338,9 @@ function sanitiseForCreate(input = {}) {
 
 export async function listarTurnos(query = {}) {
   const filtro = {};
-  const cohortValue = coerceNumber(query.cohort);
+  const cohortValue = coerceNumber(query.cohorte ?? query.cohort);
   if (cohortValue !== undefined) {
-    filtro.cohort = cohortValue;
+    filtro.cohorte = cohortValue;
   }
   const reviewValue = coerceNumber(query.review);
   if (reviewValue !== undefined) {
