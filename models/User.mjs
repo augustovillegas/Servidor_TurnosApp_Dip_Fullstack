@@ -34,12 +34,10 @@ const userSchema = new mongoose.Schema(
       enum: MODULE_NAME_VALUES,
       trim: true,
       required: true,
-      alias: "module",    
     },
     moduleCode: {
       type: Number,
-      min: 1,
-      default: null,
+      min: 1      
     },
     role: {
       type: String,
@@ -48,8 +46,7 @@ const userSchema = new mongoose.Schema(
     },
     cohorte: {
       type: Number,
-      required: true,
-      alias: "cohort",
+      required: true     
     },
     status: {
       type: String,
@@ -59,37 +56,8 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: { virtuals: false },
+    toObject: { virtuals: false },
   }
 );
-
-// Virtual consistente: moduleNumber (preferido) refleja cohorte
-userSchema.virtual("moduleNumber").get(function () {
-  // Prioriza moduleCode si está, luego cohorte
-  return this.moduleCode || this.cohorte;
-});
-
-// Virtual derivado: moduleLabel desde moduleNumber
-userSchema.virtual("moduleLabel").get(function () {
-  const code = this.moduleCode || this.cohorte;
-  if (!code) return null;
-  const map = {
-    1: "HTML-CSS",
-    2: "JAVASCRIPT",
-    3: "BACKEND - NODE JS",
-    4: "FRONTEND - REACT",
-  };
-  return map[code] || this.modulo || null;
-});
-
-// Setter opcional: asignar moduleNumber actualiza cohorte y moduleCode sin romper tests.
-userSchema.virtual("moduleNumber").set(function (value) {
-  const numeric = Number(value);
-  if (!Number.isNaN(numeric) && numeric > 0) {
-    this.cohorte = numeric;
-    this.moduleCode = numeric;
-  }
-});
-
 export const User = mongoose.model("User", userSchema);

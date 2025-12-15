@@ -23,7 +23,6 @@ function applyModuleInfo(target, moduleInfo) {
   if (moduleInfo.label) target.modulo = moduleInfo.label;
   if (Number.isFinite(moduleInfo.code)) {
     target.moduleCode = moduleInfo.code;
-    target.cohorte = moduleInfo.code;
   }
 }
 
@@ -117,11 +116,18 @@ export async function crearUsuario(data) {
   }
   if (!Number.isFinite(code)) code = 1; // valor por defecto
 
+  // Cohorte independiente: si viene explícita, úsala; si no, usar el código resuelto
+  let cohortValue = Number(data.cohorte ?? data.cohort);
+  if (!Number.isFinite(cohortValue)) {
+    cohortValue = code;
+  }
+
   const creado = await register({
     name: data.nombre,
     email: data.email,
     password: data.password,
-    cohort: code, // register mantiene firma legacy
+    cohort: cohortValue,
+    moduleNumber: code,
     role: rol,
   });
 
@@ -152,6 +158,14 @@ export async function actualizarUsuario(id, data) {
   const rol = normaliseRole(data.rol);
   if (rol) {
     usuario.role = rol;
+  }
+
+  // Cohorte independiente: actualizar si viene
+  if (data.cohorte !== undefined || data.cohort !== undefined) {
+    const cohortValue = Number(data.cohorte ?? data.cohort);
+    if (Number.isFinite(cohortValue)) {
+      usuario.cohorte = cohortValue;
+    }
   }
 
   if (data.moduleNumber !== undefined || data.moduleCode !== undefined) {

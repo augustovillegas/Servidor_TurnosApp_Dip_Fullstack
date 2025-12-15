@@ -23,8 +23,8 @@
  */
 export function buildModuleFilter(requester, options = {}) {
   const { queryFilters = {}, studentOnly = false, studentField = null, userId = null } = options;
-  const { role, moduleNumber, moduleCode, id } = requester;
-  const moduloActual = Number(moduleNumber ?? moduleCode);
+  const { role, moduleNumber, moduleCode, cohorte, id } = requester;
+  const moduloActual = Number(moduleNumber ?? moduleCode ?? cohorte);
   
   let filtro = {};
 
@@ -32,8 +32,18 @@ export function buildModuleFilter(requester, options = {}) {
   if (role === "superadmin") {
     // Superadmin ve todo, pero puede aplicar filtros opcionales de query
     // No forzamos módulo, solo aplicamos si viene en query
-    if (queryFilters.cohort !== undefined || queryFilters.moduleNumber !== undefined || queryFilters.moduleCode !== undefined) {
-      const queryCohort = Number(queryFilters.cohort ?? queryFilters.moduleNumber ?? queryFilters.moduleCode);
+    if (
+      queryFilters.cohort !== undefined ||
+      queryFilters.cohorte !== undefined ||
+      queryFilters.moduleNumber !== undefined ||
+      queryFilters.moduleCode !== undefined
+    ) {
+      const queryCohort = Number(
+        queryFilters.cohort ??
+          queryFilters.cohorte ??
+          queryFilters.moduleNumber ??
+          queryFilters.moduleCode
+      );
       if (Number.isFinite(queryCohort)) {
         filtro.cohorte = queryCohort;
       }
@@ -88,16 +98,26 @@ export function buildModuleFilter(requester, options = {}) {
  * @throws {Object} Error si el usuario no tiene autorización
  */
 export function buildUserListFilter(requester, queryFilters = {}) {
-  const { role, moduleNumber, moduleCode } = requester;
-  const moduloActual = Number(moduleNumber ?? moduleCode);
+  const { role, moduleNumber, moduleCode, cohorte } = requester;
+  const moduloActual = Number(moduleNumber ?? moduleCode ?? cohorte);
   
   let filtro = {};
 
   // === SUPERADMIN ===
   if (role === "superadmin") {
     // Superadmin puede filtrar opcionalmente, si no filtra ve todo
-    if (queryFilters.cohort !== undefined || queryFilters.moduleNumber !== undefined || queryFilters.moduleCode !== undefined) {
-      const queryCohort = Number(queryFilters.cohort ?? queryFilters.moduleNumber ?? queryFilters.moduleCode);
+    if (
+      queryFilters.cohort !== undefined ||
+      queryFilters.cohorte !== undefined ||
+      queryFilters.moduleNumber !== undefined ||
+      queryFilters.moduleCode !== undefined
+    ) {
+      const queryCohort = Number(
+        queryFilters.cohort ??
+          queryFilters.cohorte ??
+          queryFilters.moduleNumber ??
+          queryFilters.moduleCode
+      );
       if (Number.isFinite(queryCohort)) {
         filtro.cohorte = queryCohort;
       }
@@ -137,6 +157,6 @@ export function buildUserListFilter(requester, queryFilters = {}) {
  */
 export function getModuleNumber(user) {
   if (!user) return undefined;
-  const moduleNum = Number(user.moduleNumber ?? user.moduleCode ?? user.cohorte);
+  const moduleNum = Number(user.cohorte ?? user.moduleNumber ?? user.moduleCode);
   return Number.isFinite(moduleNum) ? moduleNum : undefined;
 }

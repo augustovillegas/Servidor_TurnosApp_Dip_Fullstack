@@ -23,11 +23,15 @@ export async function crear(data, usuario) {
   }
 
   // El 'cohort' del turno SIEMPRE debe ser el Módulo del profesor logueado.
-  const moduleValue = Number(usuario?.moduleNumber ?? usuario?.moduleCode);
+  const moduleValue = Number(
+    usuario?.moduleNumber ?? usuario?.moduleCode ?? usuario?.cohorte
+  );
+  const moduleLabel = usuario?.modulo || null;
 
   const payload = {
     ...data,
     cohort: moduleValue, // ¡Forzamos el Módulo del turno!
+    modulo: moduleLabel, // Capturar módulo del profesor
     reviewStatus: "A revisar",
     reviewNumber: 1,
   };
@@ -72,7 +76,10 @@ export async function solicitarTurno(idTurno, usuario) {
   }
 
   // Aislamiento de cohorte (usar Number para comparación robusta)
-  if (Number(turno.cohort) !== Number(usuario.moduleNumber ?? usuario.moduleCode)) {
+  if (
+    Number(turno.cohort) !==
+    Number(usuario.moduleNumber ?? usuario.moduleCode ?? usuario.cohorte)
+  ) {
     throw { status: 403, message: "Modulo no coincide" };
   }
 

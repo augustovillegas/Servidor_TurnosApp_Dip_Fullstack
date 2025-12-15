@@ -137,7 +137,7 @@ export const listarEntregas = async (user, query) => {
   // Caso profesor: el modelo Submission NO almacena cohorte/moduleCode directamente.
   // Debemos resolver los alumnos de su módulo y filtrar por sus IDs.
   if (user.role === "profesor") {
-    const moduloActual = Number(user.moduleNumber ?? user.moduleCode);
+    const moduloActual = Number(user.moduleNumber ?? user.moduleCode ?? user.cohorte);
     if (!Number.isFinite(moduloActual)) return [];
 
     // Cargar dinámicamente User para evitar ciclos
@@ -177,7 +177,7 @@ export const obtenerEntregasPorUsuario = async (userId, user) => {
         // Asumo que tienes acceso a `userRepository` o alguna forma de obtener el usuario
         const userRepository = await import('../repository/userRepository.mjs').then(m => m.default);
         const student = await userRepository.obtenerPorId(userId);
-        const moduloProfesor = Number(user.moduleNumber ?? user.moduleCode);
+        const moduloProfesor = Number(user.moduleNumber ?? user.moduleCode ?? user.cohorte);
         const moduloAlumno = Number(student?.moduleCode ?? student?.cohorte);
         
         if (!Number.isFinite(moduloProfesor) || moduloProfesor !== moduloAlumno) {

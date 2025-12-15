@@ -20,8 +20,9 @@ export const auth = async (req, res, next) => {
       id: user._id.toString(),
       role: user.role,
       status: user.status || "Pendiente",
-      moduleCode: user.moduleCode || user.cohorte,
-      moduleNumber: user.moduleCode || user.cohorte,
+      moduleCode: user.moduleCode ?? null,
+      moduleNumber: user.cohorte ?? user.moduleCode ?? null,
+      cohorte: user.cohorte ?? null,
     };
     req.userDocument = user;
 

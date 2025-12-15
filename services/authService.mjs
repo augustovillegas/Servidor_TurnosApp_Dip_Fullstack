@@ -43,7 +43,9 @@ export const register = async ({
 
   const passwordHash = await bcrypt.hash(password, 10);
   // Prefer explicit moduleNumber/moduleLabel if provided; fallback to legacy inputs.
-  const primaryCode = moduleNumber ?? cohort;
+  const primaryCode = Number.isFinite(Number(moduleNumber))
+    ? Number(moduleNumber)
+    : Number(cohort);
   const primaryLabel = moduleLabel ?? modulo ?? module;
   const moduleInfo = resolveModuleMetadata({
     module: primaryLabel,
@@ -52,14 +54,23 @@ export const register = async ({
     cohort: primaryCode,
   });
 
+  const resolvedModuleCode = Number.isFinite(moduleInfo.code)
+    ? moduleInfo.code
+    : 1;
+  const resolvedCohort = Number.isFinite(Number(cohort))
+    ? Number(cohort)
+    : Number.isFinite(Number(moduleNumber))
+    ? Number(moduleNumber)
+    : resolvedModuleCode;
+
   const user = await userRepository.crear({
     name: fullName,
     email,
     passwordHash,
     // Persist normalized fields
-    cohorte: moduleInfo.code,
+    cohorte: resolvedCohort,
     modulo: moduleInfo.label,
-    moduleCode: moduleInfo.code,
+    moduleCode: resolvedModuleCode,
     role,
     status: "Pendiente",
   });

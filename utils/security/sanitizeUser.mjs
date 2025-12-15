@@ -6,14 +6,14 @@ export const sanitizeUser = (userDoc) => {
   if (!full.id && full._id) {
     full.id = full._id.toString();
   }
-  const code = full.moduleCode ?? full.cohorte ?? null;
+  const code = full.cohorte ?? full.moduleCode ?? null;
   const labelMap = {
     1: "HTML-CSS",
     2: "JAVASCRIPT",
     3: "BACKEND - NODE JS",
     4: "FRONTEND - REACT",
   };
-  const label = full.modulo || (code ? labelMap[code] : null) || null;
+  const label = full.modulo || (full.moduleCode ? labelMap[full.moduleCode] : null) || null;
   
   // Derive isApproved from status field
   const isApproved = full.status === "Aprobado";
@@ -25,8 +25,9 @@ export const sanitizeUser = (userDoc) => {
     role: full.role,
     status: full.status || "Pendiente",
     isApproved,
-    moduleNumber: code,
-    moduleCode: code,
+    cohorte: full.cohorte ?? null,
+    moduleNumber: full.cohorte ?? full.moduleNumber ?? full.moduleCode ?? null,
+    moduleCode: full.moduleCode ?? null,
     moduleLabel: label,
     createdAt: full.createdAt,
     updatedAt: full.updatedAt,

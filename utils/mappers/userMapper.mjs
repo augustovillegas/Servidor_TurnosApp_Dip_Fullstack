@@ -13,6 +13,9 @@ function getUserModuleLabel(user) {
   if (typeof user.moduleLabel === "string" && user.moduleLabel.trim()) {
     return user.moduleLabel.trim();
   }
+  if (typeof user.modulo === "string" && user.modulo.trim()) {
+    return user.modulo.trim();
+  }
   return moduleToLabel(user.moduleCode) || null;
 }
 
@@ -28,7 +31,8 @@ export function mapToFrontend(user) {
     rol: capitalise(plain.role),
     estado: estado,
     isApproved: estado === "Aprobado",
-    moduleNumber: plain.moduleNumber ?? plain.moduleCode ?? null,
+    cohorte: plain.cohorte ?? null,
+    moduleNumber: plain.cohorte ?? plain.moduleNumber ?? plain.moduleCode ?? null,
     moduleLabel: plain.moduleLabel || getUserModuleLabel(plain) || "",
     creadoEn: plain.createdAt ? new Date(plain.createdAt).toISOString() : null,
   };

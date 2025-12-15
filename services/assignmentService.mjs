@@ -8,8 +8,8 @@ export const crearAsignacion = async (body, user) => {
     throw { status: 403, message: "Solo profesores o superadmin pueden crear asignaciones" };
   }
 
-  // Usar moduleNumber (virtual) / moduleCode preferentemente
-  const moduleCode = Number(user.moduleNumber ?? user.moduleCode);
+  // Usar moduleNumber / moduleCode; fallback a cohorte
+  const moduleCode = Number(user.moduleNumber ?? user.moduleCode ?? user.cohorte);
   if (!Number.isFinite(moduleCode)) {
     throw { status: 400, message: "El usuario no tiene un módulo asignado." };
   }
@@ -44,7 +44,7 @@ export const obtenerAsignacionPorId = async (id, user) => {
   
   // Verificar permisos por módulo para profesores
   if (user && user.role === "profesor") {
-    const profesorModule = Number(user.moduleNumber ?? user.moduleCode);
+    const profesorModule = Number(user.moduleNumber ?? user.moduleCode ?? user.cohorte);
     const assignmentModule = Number(asignacion.cohorte); // cohorte es Number, modulo es String
     
     if (profesorModule !== assignmentModule) {

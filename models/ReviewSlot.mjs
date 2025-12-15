@@ -8,9 +8,12 @@ const slotSchema = new mongoose.Schema(
       required: false,
     },
     cohorte: {
-      type: Number,
-      required: true,
-      alias: "cohort",
+      type: Number         
+    },
+    modulo: {
+      type: String,
+      enum: ["HTML-CSS", "JAVASCRIPT", "BACKEND - NODE JS", "FRONTEND - REACT"],
+      required: true
     },
     reviewNumber: {
       type: Number,
