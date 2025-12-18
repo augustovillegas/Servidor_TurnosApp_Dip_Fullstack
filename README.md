@@ -70,11 +70,11 @@ El servidor estará disponible en `http://localhost:3000`
 - Middleware de aprobación para alumnos
 
 ### Gestión de Módulos
-- 4 módulos con cohortes 1-4:
-  - **HTML-CSS** (cohorte 1)
-  - **JAVASCRIPT** (cohorte 2)
-  - **BACKEND - NODE JS** (cohorte 3)
-  - **FRONTEND - REACT** (cohorte 4)
+- 4 módulos con Modulos 1-4:
+  - **HTML-CSS** (Modulo 1)
+  - **JAVASCRIPT** (Modulo 2)
+  - **BACKEND - NODE JS** (Modulo 3)
+  - **FRONTEND - REACT** (Modulo 4)
 
 ### Aislamiento por Módulo
 - Usuarios solo ven datos de su módulo
