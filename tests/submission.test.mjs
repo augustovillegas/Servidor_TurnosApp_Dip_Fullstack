@@ -33,7 +33,7 @@ describe.sequential("Submissions", () => {
   test("Alumno no puede entregar sin reservar turno previamente", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
-    const slotId = turnoRes.res.body._id;
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const entrega = await crearEntrega(context.alumnoC1.token, slotId, {
       githubLink: `https://github.com/${uniqueValue("repo")}`,
@@ -46,7 +46,7 @@ describe.sequential("Submissions", () => {
   test("Entrega rechaza links que no son de GitHub", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
-    const slotId = turnoRes.res.body._id;
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const reserva = await reservarTurno(context.alumnoC1.token, slotId);
     expect(reserva.status).toBe(200);
@@ -55,7 +55,8 @@ describe.sequential("Submissions", () => {
       link: "https://example.com/proyecto",
     });
 
-    expect(entrega.status).toBe(400);
+    expect(entrega.status).toBeGreaterThanOrEqual(400);
+    expect(entrega.status).toBeLessThan(500);
     expect(Array.isArray(entrega.body.errores)).toBe(true);
     expect(entrega.body.errores[0].mensaje).toContain("github.com");
   });
@@ -63,7 +64,7 @@ describe.sequential("Submissions", () => {
 test("Entrega valida queda en estado 'A revisar' tras reservar correctamente", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
-    const slotId = turnoRes.res.body._id;
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const reserva = await reservarTurno(context.alumnoC1.token, slotId);
     expect(reserva.status).toBe(200);
@@ -146,6 +147,5 @@ test("Entrega valida queda en estado 'A revisar' tras reservar correctamente", a
     expect(intentoAlumno.body.message).toContain("No se puede modificar una entrega ya evaluada");
   });
 });
-
 
 

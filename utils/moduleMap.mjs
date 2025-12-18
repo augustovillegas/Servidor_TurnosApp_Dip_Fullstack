@@ -45,7 +45,7 @@ export function resolveModuleMetadata(input = {}, { fallbackCode = 1 } = {}) {
     coerceModuleCode(input.module) ??
     labelToModule(input.modulo) ??
     slugToModule(input.moduloSlug) ??
-    coerceModuleCode(input.cohort);
+    coerceModuleCode(input.moduleCode);
 
   if (code === undefined) {
     code = fallbackCode;

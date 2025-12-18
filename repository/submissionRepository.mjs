@@ -1,17 +1,23 @@
 import { Submission } from "../models/Submission.mjs";
 import { IRepository } from "./IRepository.mjs";
 
+function populateSubmission(query) {
+  return query
+    .populate({ path: "assignment", select: "cohorte modulo title description" })
+    .populate({ path: "student", select: "nombre rol cohorte modulo" });
+}
+
 class RepositorioEntrega extends IRepository {
   async obtenerTodos(filtro = {}) {
-    return await Submission.find(filtro);
+    return await populateSubmission(Submission.find(filtro));
   }
 
   async obtenerPorId(id) {
-    return await Submission.findById(id);
+    return await populateSubmission(Submission.findById(id));
   }
 
   async obtenerPorEstudiante(idEstudiante) {
-    return await Submission.find({ student: idEstudiante });
+    return await populateSubmission(Submission.find({ student: idEstudiante }));
   }
 
   async crear(datos) {
@@ -19,11 +25,11 @@ class RepositorioEntrega extends IRepository {
   }
 
   async actualizar(id, datos) {
-    return await Submission.findByIdAndUpdate(id, datos, { new: true });
+    return await populateSubmission(Submission.findByIdAndUpdate(id, datos, { new: true }));
   }
 
   async eliminar(id) {
-    return await Submission.findByIdAndDelete(id);
+    return await populateSubmission(Submission.findByIdAndDelete(id));
   }
 }
 

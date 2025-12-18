@@ -18,17 +18,13 @@ function emailOrUsernameValidator(message) {
 }
 
 export const registerValidator = [
-  body("name")
-    .optional()
-    .trim()
-    .notEmpty()
-    .withMessage("El nombre es requerido"),
-
   body("nombre")
-    .optional()
-    .trim()
-    .notEmpty()
-    .withMessage("El nombre es requerido"),
+    .exists({ checkFalsy: true })
+    .withMessage("El nombre es requerido")
+    .bail()
+    .isString()
+    .withMessage("El nombre debe ser texto")
+    .trim(),
 
   body("apellido").optional().trim(),
 
@@ -38,10 +34,18 @@ export const registerValidator = [
     min: 6,
   }),
 
-  body("moduleNumber")
+  body("modulo")
+    .exists({ checkFalsy: true })
+    .withMessage("El modulo es requerido")
+    .bail()
+    .isString()
+    .withMessage("El modulo debe ser texto")
+    .trim(),
+
+  body("cohorte")
     .optional({ nullable: true })
     .isInt({ min: 1 })
-    .withMessage("moduleNumber debe ser un entero positivo"),
+    .withMessage("La cohorte debe ser un numero"),
 ];
 
 export const loginValidator = [

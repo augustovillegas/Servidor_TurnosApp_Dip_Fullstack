@@ -22,8 +22,16 @@ const submissionSchema = new mongoose.Schema(
     },
     alumnoNombre: {
       type: String,
+      trim: true,      
+    },
+    modulo: {
+      type: String,
+      default: null,
       trim: true,
-      default: "-",
+    },
+    cohorte: {
+      type: Number,
+      default: null,
     },
     sprint: {
       type: Number,
@@ -37,11 +45,10 @@ const submissionSchema = new mongoose.Schema(
     },
     renderLink: {
       type: String,
-      default: "-",
+      
     },
     comentarios: {
-      type: String,
-      default: "-",
+      type: String,     
       trim: true,
     },
     reviewStatus: {

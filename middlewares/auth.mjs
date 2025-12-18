@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import { getUserById } from "../services/userService.mjs";
+import { labelToModule } from "../utils/moduleMap.mjs";
 
-export const auth = async (req, res, next) => {
+export const auth = async (req, _res, next) => {
   const authHeader = req.headers["authorization"];
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw { status: 401, message: "Token requerido" };
@@ -16,18 +17,25 @@ export const auth = async (req, res, next) => {
       throw { status: 401, message: "Usuario no encontrado" };
     }
 
+    const cohorte =
+      Number.isFinite(Number(user.cohorte)) && user.cohorte !== null
+        ? Number(user.cohorte)
+        : labelToModule(user.modulo);
+
     req.user = {
       id: user._id.toString(),
-      role: user.role,
+      rol: user.rol,
       status: user.status || "Pendiente",
-      moduleCode: user.moduleCode ?? null,
-      moduleNumber: user.cohorte ?? user.moduleCode ?? null,
-      cohorte: user.cohorte ?? null,
+      modulo: user.modulo ?? null,
+      cohorte: cohorte ?? null,
     };
     req.userDocument = user;
 
     next();
   } catch (error) {
-    throw { status: 401, message: "Token inválido o expirado" };
+    if (error?.status) {
+      return next(error);
+    }
+    return next({ status: 401, message: "Token invalido o expirado" });
   }
 };

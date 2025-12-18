@@ -2,85 +2,158 @@ import slotRepository from "../repository/slotRepository.mjs";
 import mongoose from "mongoose";
 import { ensureModuleLabel, labelToModule } from "../utils/moduleMap.mjs";
 import {
+  buildScheduleFromInput,
+  parseIsoDate,
   toFrontend,
   timeFormatter,
-  parseFecha,
-  resolveEstado,
-  buildScheduleFromInput,
 } from "../utils/mappers/slotMapper.mjs";
 import {
-  coerceNumber,
   normaliseString,
+  coerceNumber,
   ESTADO_TO_REVIEW_STATUS,
   VALID_ESTADOS,
+  REVIEW_STATUS_CANONICAL,
 } from "../utils/normalizers/normalizers.mjs";
-import { REVIEW_STATUS_CANONICAL } from '../constants/constantes.mjs';
 import { buildModuleFilter } from "../utils/permissionUtils.mjs";
 
-const MODULE_CODE_MAP = {
-  "HTML-CSS": 1,
-  "JAVASCRIPT": 2,
-  "BACKEND - NODE JS": 3,
-  "FRONTEND - REACT": 4,
-};
-
-export async function crear(data, usuario) {
-  if (!["profesor", "superadmin"].includes(usuario.role)) {
-    throw { status: 403, message: "No autorizado" };
+function resolveModulo(usuario, data) {
+  const rawModulo = usuario?.modulo ?? data?.modulo;
+  const modulo = ensureModuleLabel(rawModulo);
+  if (!modulo) {
+    throw { status: 400, message: "El modulo es requerido" };
   }
+  const cohorte =
+    Number.isFinite(Number(usuario?.cohorte)) && usuario?.cohorte !== null
+      ? Number(usuario.cohorte)
+      : Number.isFinite(Number(data?.cohorte))
+      ? Number(data.cohorte)
+      : labelToModule(modulo) ?? null;
+  return { modulo, cohorte };
+}
 
-  // El 'cohorte' del turno SIEMPRE debe ser el Módulo del creador.
-  const moduleLabel = data?.modulo || usuario?.modulo || null;
+function normaliseEstadoTurno(value, { defaultValue = "Disponible" } = {}) {
+  if (!value) return defaultValue;
+  const limpio = value.toString().trim();
+  const capitalizado = limpio.charAt(0).toUpperCase() + limpio.slice(1).toLowerCase();
+  return VALID_ESTADOS.includes(capitalizado) ? capitalizado : defaultValue;
+}
 
-  if (!moduleLabel) {
-    throw { status: 400, message: "El campo 'modulo' es requerido" };
+function normaliseReviewNumber(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num) || num < 1) return 1;
+  return Math.max(1, Math.trunc(num));
+}
+
+function normaliseFechaPayload(data) {
+  const fecha = parseIsoDate(data.fecha ?? data.date);
+  return fecha ?? new Date();
+}
+
+function parseFechaQuery(value) {
+  if (!value) return undefined;
+  // Intentar ISO directo
+  const iso = parseIsoDate(value);
+  if (iso) return iso;
+  // Intentar DD/MM/YYYY
+  if (typeof value === "string" && value.includes("/")) {
+    const parts = value.split("/").map((p) => p.trim());
+    if (parts.length === 3) {
+      const [dd, mm, yyyy] = parts;
+      const day = Number(dd);
+      const month = Number(mm) - 1;
+      const year = Number(yyyy);
+      if (
+        Number.isFinite(day) &&
+        Number.isFinite(month) &&
+        Number.isFinite(year) &&
+        day >= 1 &&
+        day <= 31 &&
+        month >= 0 &&
+        month <= 11
+      ) {
+        const d = new Date(Date.UTC(year, month, day));
+        if (!Number.isNaN(d.getTime())) return d;
+      }
+    }
   }
+  return undefined;
+}
 
-  // Derivar código de módulo aun si el usuario (superadmin) no tiene módulo numérico
-  const moduleValue = Number(
-    data?.cohorte ??
-      data?.moduleCode ??
-      usuario?.moduleNumber ??
-      usuario?.moduleCode ??
-      usuario?.cohorte
-  ) || MODULE_CODE_MAP[moduleLabel] || null;
-
-  const payload = {
-    ...data,
-    cohorte: moduleValue, // ¡Forzamos el Módulo del turno!
-    modulo: moduleLabel, // Capturar módulo del profesor
-    reviewStatus: "A revisar",
-    reviewNumber: 1,
-  };
-
-  if (data?.reviewNumber !== undefined) {
-    const reviewNumber = Number(data.reviewNumber);
-    payload.reviewNumber = Number.isNaN(reviewNumber)
-      ? 1
-      : Math.max(1, reviewNumber);
-  } else if (!payload.reviewNumber) {
-    payload.reviewNumber = 1;
+function applyFechaSalaFiltersFromQuery(filtro, query = {}) {
+  // sala / room
+  if (query.sala !== undefined || query.room !== undefined) {
+    const sala = Number(query.sala ?? query.room);
+    if (Number.isFinite(sala)) filtro.sala = sala;
   }
+  // fecha / date (por día, rango [00:00, 24:00) UTC)
+  const rawFecha = query.fecha ?? query.date;
+  const day = parseFechaQuery(rawFecha);
+  if (day) {
+    const start = new Date(Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), 0, 0, 0, 0));
+    const end = new Date(Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate() + 1, 0, 0, 0, 0));
+    filtro.fecha = { $gte: start, $lt: end };
+  }
+}
 
-  if (data?.assignment) {
+function applyAssignment(payload, data) {
+  if (data.assignment) {
     if (!mongoose.Types.ObjectId.isValid(data.assignment)) {
       throw { status: 400, message: "Assignment invalido" };
     }
     payload.assignment = new mongoose.Types.ObjectId(data.assignment);
-  } else {
-    delete payload.assignment;
+  }
+}
+
+function buildSlotPayload(data, usuario) {
+  const { modulo, cohorte } = resolveModulo(usuario, data);
+  const { startDate, endDate } = buildScheduleFromInput({
+    start: data.start,
+    end: data.end,
+    fecha: data.fecha ?? data.date,
+    horario: data.horario,
+  });
+
+  const fecha = normaliseFechaPayload({ fecha: data.fecha, date: data.date }) ?? startDate;
+  const reviewNumber = normaliseReviewNumber(data.reviewNumber);
+
+  const baseEstado = normaliseEstadoTurno(data.estado);
+  const baseReviewStatus = ESTADO_TO_REVIEW_STATUS[baseEstado] ?? "A revisar";
+
+  const payload = {
+    cohorte,
+    modulo,
+    reviewNumber,
+    fecha,
+    start: startDate ?? fecha,
+    end: endDate ?? null,
+    startTime: data.startTime ?? (startDate ? timeFormatter.format(startDate) : "-"),
+    endTime: data.endTime ?? (endDate ? timeFormatter.format(endDate) : "-"),
+    sala: coerceNumber(data.sala, { defaultValue: 1 }),
+    zoomLink: normaliseString(data.zoomLink) || "-",
+    comentarios: normaliseString(data.comentarios) || "",
+    estado: baseEstado,
+    reviewStatus: baseReviewStatus,
+    student: null,
+  };
+
+  applyAssignment(payload, data);
+  return payload;
+}
+
+export async function crear(data, usuario) {
+  if (!["profesor", "superadmin"].includes(usuario.rol)) {
+    throw { status: 403, message: "No autorizado" };
   }
 
+  const payload = buildSlotPayload(data, usuario);
   const creado = await slotRepository.crear(payload);
   return toFrontend(creado);
 }
 
 export async function solicitarTurno(idTurno, usuario) {
-  // Solo alumnos pueden solicitar turnos
-  if (usuario.role !== "alumno") {
+  if (usuario.rol !== "alumno") {
     throw { status: 403, message: "Solo alumnos pueden solicitar turnos" };
   }
-  // Debe estar aprobado
   if (usuario.status !== "Aprobado") {
     throw { status: 403, message: "Tu cuenta debe ser aprobada" };
   }
@@ -92,17 +165,13 @@ export async function solicitarTurno(idTurno, usuario) {
     throw { status: 403, message: "Turno ya reservado" };
   }
 
-  // Aislamiento de cohorte (usar Number para comparación robusta)
-  if (
-    Number(turno.cohorte) !==
-    Number(usuario.moduleNumber ?? usuario.moduleCode ?? usuario.cohorte)
-  ) {
+  if (turno.modulo !== usuario.modulo) {
     throw { status: 403, message: "Modulo no coincide" };
   }
 
   turno.student = usuario.id;
-  // Actualizar estado del slot cuando se solicita
   turno.estado = "Solicitado";
+  turno.reviewStatus = ESTADO_TO_REVIEW_STATUS[turno.estado] || "A revisar";
   await turno.save();
   return toFrontend(turno);
 }
@@ -116,22 +185,21 @@ export async function cancelarTurno(idTurno, usuario) {
   }
 
   turno.student = null;
-  turno.reviewStatus = "A revisar";
+  turno.estado = "Disponible";
+  turno.reviewStatus = ESTADO_TO_REVIEW_STATUS[turno.estado] || "A revisar";
   await turno.save();
   return toFrontend(turno);
 }
 
 export async function actualizarEstadoRevision(idTurno, estado, usuario) {
-  if (!["profesor", "superadmin"].includes(usuario.role)) {
+  if (!["profesor", "superadmin"].includes(usuario.rol)) {
     throw { status: 403, message: "No autorizado" };
   }
 
   const turno = await slotRepository.obtenerPorId(idTurno);
   if (!turno) throw { status: 404, message: "Turno no encontrado" };
 
-  const estadoNormalizado = estado
-    ? estado.toString().trim().toLowerCase()
-    : "";
+  const estadoNormalizado = estado ? estado.toString().trim().toLowerCase() : "";
   const reviewStatus = REVIEW_STATUS_CANONICAL[estadoNormalizado];
 
   if (!reviewStatus) {
@@ -139,6 +207,10 @@ export async function actualizarEstadoRevision(idTurno, estado, usuario) {
   }
 
   turno.reviewStatus = reviewStatus;
+  turno.estado = Object.keys(ESTADO_TO_REVIEW_STATUS).find(
+    (key) => ESTADO_TO_REVIEW_STATUS[key] === reviewStatus
+  ) || "Disponible";
+
   await turno.save();
   return toFrontend(turno);
 }
@@ -148,55 +220,36 @@ export async function obtenerPorUsuario(usuarioId) {
 }
 
 export async function obtenerTurnosPorFiltro(query = {}, usuario) {
-  // Usar utilidad centralizada para generar filtro base con permisos
   const filtro = buildModuleFilter(usuario, { queryFilters: query });
 
-  // --- Filtro adicional por reviewNumber ---
   const reviewValue = coerceNumber(query.review);
   if (reviewValue !== undefined) {
     filtro.reviewNumber = reviewValue;
   }
 
-  // --- FILTRO ESPECÍFICO PARA ALUMNOS ---
-  if (usuario.role === "alumno") {
-    // Alumno: Solo ve turnos de su cohorte que estén disponibles o propios
+  if (usuario.rol === "alumno") {
     const userId = new mongoose.Types.ObjectId(usuario.id);
-    const finalFilter = {};
-    if (filtro.cohorte !== undefined) {
-      finalFilter.cohorte = filtro.cohorte;
-    }
-    if (filtro.reviewNumber !== undefined) {
-      finalFilter.reviewNumber = filtro.reviewNumber;
-    }
-    // Usar estado Disponible como criterio de disponibilidad en lugar de student:null
-    finalFilter.$or = [
-      { estado: "Disponible" },
-      { student: userId }
-    ];
+    const finalFilter = { ...filtro };
+    finalFilter.$or = [{ estado: "Disponible" }, { student: userId }];
     const raw = await slotRepository.obtenerTodos(finalFilter);
-    // Post-filtrado defensivo: asegurar que no entren turnos reservados por otros alumnos
-    const filtrados = raw.filter(slot => {
+    const filtrados = raw.filter((slot) => {
       const stu = slot.student;
-      if (!stu) return true; // disponible
-      const stuId = typeof stu === 'object' && stu._id ? String(stu._id) : String(stu);
-      // Excluir slots solicitados por otros alumnos
-      if (stuId !== String(usuario.id)) return false;
-      return true; // propio
+      if (!stu) return true;
+      const stuId = typeof stu === "object" && stu._id ? String(stu._id) : String(stu);
+      return stuId === String(usuario.id);
     });
-    // Normalizar student a su _id para cumplir expectativas de comparación
-    const normalizados = filtrados.map(s => {
-      if (s.student && typeof s.student === 'object' && s.student._id) {
-        const clone = { ...s.toObject() };
+    const normalizados = filtrados.map((s) => {
+      if (s.student && typeof s.student === "object" && s.student._id) {
+        const clone = s.toObject ? s.toObject() : { ...s };
         clone.student = s.student._id;
         return clone;
       }
       return s;
     });
-    // Mapear a DTO uniforme
     return normalizados.map(toFrontend);
   }
-  
-  // Profesor y Superadmin: Ven todos los turnos del módulo ya filtrado.
+  // Mapear query.date/room a fecha/sala en filtros
+  applyFechaSalaFiltersFromQuery(filtro, query);
   const raw = await slotRepository.obtenerTodos(filtro);
   return raw.map(toFrontend);
 }
@@ -205,19 +258,16 @@ export async function obtenerSolicitudesPorAlumno(alumnoId) {
   return await slotRepository.obtenerTodos({ student: alumnoId });
 }
 
-function buildPersistencePayload(input = {}) {
+function buildUpdatePayload(input = {}) {
   const payload = {};
 
-  const reviewValue =
-    input.review !== undefined
-      ? coerceNumber(input.review)
-      : coerceNumber(input.reviewNumber);
+  const reviewValue = coerceNumber(input.reviewNumber ?? input.review);
   if (reviewValue !== undefined) {
-    payload.reviewNumber = reviewValue;
+    payload.reviewNumber = normaliseReviewNumber(reviewValue);
   }
 
-  if ("sala" in input || "room" in input) {
-    payload.room = normaliseString(input.sala ?? input.room ?? "");
+  if ("sala" in input) {
+    payload.sala = coerceNumber(input.sala);
   }
 
   if ("zoomLink" in input) {
@@ -228,10 +278,19 @@ function buildPersistencePayload(input = {}) {
     payload.comentarios = normaliseString(input.comentarios ?? "");
   }
 
-  const { startDate, endDate } = buildScheduleFromInput(input);
+  const { startDate, endDate } = buildScheduleFromInput({
+    start: input.start,
+    end: input.end,
+    fecha: input.fecha,
+    horario: input.horario,
+  });
+
+  const fecha = parseIsoDate(input.fecha);
+  if (fecha) {
+    payload.fecha = fecha;
+  }
   if (startDate) {
     payload.start = startDate;
-    payload.date = startDate;
     payload.startTime = timeFormatter.format(startDate);
   }
   if (endDate) {
@@ -239,121 +298,73 @@ function buildPersistencePayload(input = {}) {
     payload.endTime = timeFormatter.format(endDate);
   }
 
-  if (!payload.date && input.fecha) {
-    const fecha = parseFecha(input.fecha);
-    if (fecha) {
-      payload.date = fecha;
+  if (input.estado) {
+    const estadoNormalizado = normaliseEstadoTurno(input.estado, { defaultValue: null });
+    if (estadoNormalizado) {
+      payload.estado = estadoNormalizado;
+      payload.reviewStatus = ESTADO_TO_REVIEW_STATUS[estadoNormalizado] || "A revisar";
     }
   }
 
-  if ("estado" in input && VALID_ESTADOS.includes(input.estado)) {
-    payload.estado = input.estado;
-    payload.reviewStatus = ESTADO_TO_REVIEW_STATUS[input.estado];
-  }
-
-  if ("alumnoId" in input) {
-    if (!input.alumnoId) {
+  if ("alumnoId" in input || "solicitanteId" in input) {
+    const incoming = input.alumnoId ?? input.solicitanteId;
+    if (!incoming) {
       payload.student = null;
-    } else if (mongoose.Types.ObjectId.isValid(input.alumnoId)) {
-      payload.student = new mongoose.Types.ObjectId(input.alumnoId);
+    } else if (mongoose.Types.ObjectId.isValid(incoming)) {
+      payload.student = new mongoose.Types.ObjectId(incoming);
     }
   }
 
-  if (!("alumnoId" in input) && "solicitanteId" in input) {
-    if (!input.solicitanteId) {
-      payload.student = null;
-    } else if (mongoose.Types.ObjectId.isValid(input.solicitanteId)) {
-      payload.student = new mongoose.Types.ObjectId(input.solicitanteId);
+  if (input.modulo) {
+    const modulo = ensureModuleLabel(input.modulo);
+    if (modulo) {
+      payload.modulo = modulo;
+      payload.cohorte = labelToModule(modulo) ?? payload.cohorte;
     }
   }
 
-  const moduloValue = labelToModule(input.modulo);
-  if (moduloValue !== undefined) {
-    payload.cohorte = moduloValue;
+  if (input.cohorte !== undefined) {
+    const cohorte = coerceNumber(input.cohorte);
+    if (cohorte !== undefined) {
+      payload.cohorte = cohorte;
+    }
   }
 
-  const cohortValue = coerceNumber(input.cohorte ?? input.cohort);
-  if (cohortValue !== undefined) {
-    payload.cohorte = cohortValue;
-  }
-
-  const assignmentId =
-    input.assignmentId ?? input.assignment ?? input.assignmentId;
-  if (assignmentId && mongoose.Types.ObjectId.isValid(assignmentId)) {
-    payload.assignment = new mongoose.Types.ObjectId(assignmentId);
+  if (input.assignment) {
+    applyAssignment(payload, input);
   }
 
   return payload;
 }
 
-function applyPayloadToDocument(slot, payload, incomingEstado) {
-  if (payload.reviewNumber !== undefined)
-    slot.reviewNumber = payload.reviewNumber;
-  if (payload.room !== undefined) slot.room = payload.room;
-  if (payload.zoomLink !== undefined) slot.zoomLink = payload.zoomLink;
-  if (payload.comentarios !== undefined) slot.comentarios = payload.comentarios;
-  if (payload.start !== undefined) slot.start = payload.start;
-  if (payload.end !== undefined) slot.end = payload.end;
-  if (payload.date !== undefined) slot.date = payload.date;
-  if (payload.startTime !== undefined) slot.startTime = payload.startTime;
-  if (payload.endTime !== undefined) slot.endTime = payload.endTime;
-  if (payload.assignment !== undefined) slot.assignment = payload.assignment;
-  if (payload.cohorte !== undefined) slot.cohorte = payload.cohorte;
-  if (payload.student !== undefined) slot.student = payload.student;
+function applyPayloadToDocument(slot, payload) {
+  Object.assign(slot, payload);
 
-  if (incomingEstado && VALID_ESTADOS.includes(incomingEstado)) {
-    slot.estado = incomingEstado;
-    slot.reviewStatus =
-      payload.reviewStatus ?? ESTADO_TO_REVIEW_STATUS[incomingEstado];
-    if (incomingEstado === "Disponible") {
+  if (payload.estado) {
+    slot.reviewStatus = payload.reviewStatus ?? ESTADO_TO_REVIEW_STATUS[payload.estado] ?? slot.reviewStatus;
+    if (payload.estado === "Disponible") {
       slot.student = null;
     }
-  } else if (payload.reviewStatus) {
-    slot.reviewStatus = payload.reviewStatus;
   }
 
-  const resolved = resolveEstado(slot);
-  slot.estado = resolved;
-  slot.reviewStatus = ESTADO_TO_REVIEW_STATUS[resolved] || "A revisar";
-  if (resolved === "Disponible" && slot.student) {
+  const estadoFinal = slot.estado || normaliseEstadoTurno(slot.estado);
+  slot.estado = estadoFinal;
+  slot.reviewStatus = ESTADO_TO_REVIEW_STATUS[estadoFinal] || slot.reviewStatus || "A revisar";
+  if (estadoFinal === "Disponible" && slot.student) {
     slot.student = null;
   }
 }
 
 function sanitiseForCreate(input = {}) {
-  const payload = buildPersistencePayload(input);
-  const base = {
-    cohorte: payload.cohorte ?? coerceNumber(input.cohorte ?? input.cohort) ?? 1,
-    modulo: input.modulo ?? payload.modulo,
-    reviewNumber: payload.reviewNumber ?? 1,
-    room: payload.room ?? "",
-    zoomLink: payload.zoomLink ?? "",
-    comentarios: payload.comentarios ?? "",
-    start: payload.start,
-    end: payload.end,
-    date: payload.date,
-    startTime: payload.startTime ?? input.startTime,
-    endTime: payload.endTime ?? input.endTime,
-    assignment: payload.assignment,
-    student: payload.student,
-  };
-
-  const estado = resolveEstado(base);
-  base.estado = payload.estado ?? estado;
-  base.reviewStatus =
-    payload.reviewStatus ?? ESTADO_TO_REVIEW_STATUS[base.estado] ?? "A revisar";
-  if (base.estado === "Disponible" && base.student === undefined) {
-    base.student = null;
-  }
-
-  return base;
+  const payload = buildSlotPayload(input, {});
+  return payload;
 }
 
 export async function listarTurnos(query = {}) {
   const filtro = {};
-  const cohortValue = coerceNumber(query.cohorte ?? query.cohort);
-  if (cohortValue !== undefined) {
-    filtro.cohorte = cohortValue;
+  const cohorte = coerceNumber(query.cohorte);
+  if (cohorte !== undefined) {
+    filtro.cohorte = cohorte;
   }
   const reviewValue = coerceNumber(query.review);
   if (reviewValue !== undefined) {
@@ -362,25 +373,18 @@ export async function listarTurnos(query = {}) {
   if (query.userId && mongoose.Types.ObjectId.isValid(query.userId)) {
     filtro.student = query.userId;
   }
-  
-  // [CORRECCIÓN 3] Aplicar filtro de estado directamente en la query de Mongoose
   if (query.estado && VALID_ESTADOS.includes(query.estado)) {
     filtro.estado = query.estado;
   }
+  if (query.modulo) {
+    const modulo = ensureModuleLabel(query.modulo);
+    if (modulo) filtro.modulo = modulo;
+  }
+  // Mapear query.date/room a fecha/sala en filtros
+  applyFechaSalaFiltersFromQuery(filtro, query);
 
   const raw = await slotRepository.obtenerTodos(filtro);
-  let mapped = raw.map(toFrontend);
-
-  // Solo mantener filtro de userId invalido (edge case)
-  if (query.userId && !mongoose.Types.ObjectId.isValid(query.userId)) {
-    const userFilter = query.userId.toString().trim();
-    mapped = mapped.filter((slot) => slot.solicitanteId === userFilter);
-  }
-
-  // [CORRECCIÓN 3] ELIMINADO: Filtrado redundante post-fetch de modulo y estado
-  // El filtro de cohort ya se aplicó en la DB, y el modulo se deriva del cohort
-
-  return mapped;
+  return raw.map(toFrontend);
 }
 
 export async function obtenerTurno(id) {
@@ -405,8 +409,8 @@ export async function actualizarTurno(id, data) {
   const slot = await slotRepository.obtenerPorId(id);
   if (!slot) throw { status: 404, message: "Turno no encontrado" };
 
-  const payload = buildPersistencePayload(data);
-  applyPayloadToDocument(slot, payload, data?.estado);
+  const payload = buildUpdatePayload(data);
+  applyPayloadToDocument(slot, payload);
   await slot.save();
   return toFrontend(slot);
 }

@@ -13,7 +13,7 @@ const STATUS_USER = ["Pendiente", "Aprobado", "Rechazado"];
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    nombre: {
       type: String,
       required: true,
       trim: true,
@@ -35,18 +35,15 @@ const userSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
-    moduleCode: {
-      type: Number,
-      min: 1      
-    },
-    role: {
+    rol: {
       type: String,
       enum: ROLE_TYPE_VALUES,
       required: true,      
     },
     cohorte: {
       type: Number,
-      required: true     
+      required: true,
+      min: 1    
     },
     status: {
       type: String,

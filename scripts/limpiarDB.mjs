@@ -3,7 +3,7 @@
  * Actualizado para mantener consistencia con el nuevo seed completo.
  */
 import mongoose from "mongoose";
-import { connectMongo, disconnectMongo } from "./lib/seedUtils.mjs";
+import { connectMongo, disconnectMongo, isDirectRun } from "./lib/seedUtils.mjs";
 import { User } from "../models/User.mjs";
 import { Assignment } from "../models/Assignment.mjs";
 import { ReviewSlot } from "../models/ReviewSlot.mjs";
@@ -42,7 +42,7 @@ export async function limpiarDB() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectRun(import.meta.url)) {
   limpiarDB().catch((e) => {
     console.error(e);
     process.exit(1);

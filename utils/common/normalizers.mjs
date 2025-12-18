@@ -7,8 +7,8 @@ function capitalise(value = "") {
 
 function normaliseRole(value) {
   if (!value) return undefined;
-  const role = value.toString().trim().toLowerCase();
-  return VALID_ROLES.includes(role) ? role : undefined;
+  const rol = value.toString().trim().toLowerCase();
+  return VALID_ROLES.includes(rol) ? rol : undefined;
 }
 
 function normaliseEstado(value) {

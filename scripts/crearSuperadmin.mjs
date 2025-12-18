@@ -3,8 +3,6 @@
  *
  * - admin.seed@gmail.com          / admin123
  * - superadmin.diplomatura@gmail.com / Superadmin#2025
- * - profesor.general@gmail.com    / Profesor#2025
- * - alumno.general@gmail.com      / Alumno#2025
  */
 import mongoose from "mongoose";
 import {
@@ -13,58 +11,29 @@ import {
   queueUser,
   hashPasswords,
   validateEmailsCom,
+  isDirectRun,
 } from "./lib/seedUtils.mjs";
 import { User } from "../models/User.mjs";
 
 export const BASE_USERS_CONFIG = Object.freeze([
   {
-    role: "superadmin",
+    rol: "superadmin",
     nombre: "Admin",
     apellido: "App",
     email: "admin.seed@gmail.com",
     plainPassword: "admin123",
     moduloName: "-",
-    moduloSlug: "",
-    moduleCode: 0,
     estado: "Aprobado",
-    cohortLabel: "-",
     preserveEmail: true,
   },
   {
-    role: "superadmin",
+    rol: "superadmin",
     nombre: "Superadmin",
     apellido: "AdminApp",
     email: "superadmin.diplomatura@gmail.com",
     plainPassword: "Superadmin#2025",
     moduloName: "-",
-    moduloSlug: "",
-    moduleCode: 0,
     estado: "Aprobado",
-    cohortLabel: "-",
-  },
-  {
-    role: "profesor",
-    nombre: "Profesor",
-    apellido: "AdminApp",
-    email: "profesor.general@gmail.com",
-    plainPassword: "Profesor#2025",
-    moduloName: "FRONTEND - REACT",
-    moduloSlug: "react",
-    moduleCode: 4,
-    estado: "Aprobado",
-    cohortLabel: "2025-Q4",
-  },
-  {
-    role: "alumno",
-    nombre: "Alumno",
-    apellido: "AdminApp",
-    email: "alumno.general@gmail.com",
-    plainPassword: "Alumno#2025",
-    moduloName: "FRONTEND - REACT",
-    moduloSlug: "react",
-    moduleCode: 4,
-    estado: "Aprobado",
-    cohortLabel: "2025-Q4",
   },
 ]);
 
@@ -73,8 +42,10 @@ export async function crearSuperadmin(options = {}) {
   const seedUsers = [];
 
   for (const config of BASE_USERS_CONFIG) {
+    const { apellido, ...rest } = config;
     queueUser(seedUsers, {
-      ...config,
+      ...rest,
+      fullName: apellido ? `${config.nombre} ${apellido}` : config.nombre,
       // Asegurar isApproved verdadero si estado es Aprobado
       isApproved: config.estado === "Aprobado",
       source: "base",
@@ -110,18 +81,16 @@ export async function crearSuperadmin(options = {}) {
 
 export function getBaseUserCredentials() {
   return BASE_USERS_CONFIG.map(
-    ({ email, plainPassword, role, moduloName, moduloSlug, cohortLabel }) => ({
+    ({ email, plainPassword, rol, moduloName }) => ({
       email,
       password: plainPassword,
-      role,
+      rol,
       moduloName,
-      moduloSlug,
-      cohortLabel,
     })
   );
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectRun(import.meta.url)) {
   crearSuperadmin()
     .then(() => console.log("Superadmin + profesor + alumno base creados."))
     .catch((e) => {

@@ -9,6 +9,14 @@ import { crearUsuariosRoles } from "../../scripts/crearUsuariosRoles.mjs";
 dotenv.config();
 
 const TEST_DB_URI = process.env.MONGO_URL;
+const MODULE_LABELS = {
+  1: "HTML-CSS",
+  2: "JAVASCRIPT",
+  3: "BACKEND - NODE JS",
+  4: "FRONTEND - REACT",
+};
+
+const moduleNumberToLabel = (value) => MODULE_LABELS[value] || MODULE_LABELS[1];
 
 const appPromise = import("../../server.mjs").then((mod) => mod.default);
 
@@ -39,6 +47,7 @@ export async function connectTestDB() {
   if (mongoose.connection.readyState === 0) {
     await mongoose.connect(TEST_DB_URI);
   }
+  await dropLegacyIndexes();
 }
 
 export async function disconnectTestDB() {
@@ -62,10 +71,21 @@ export async function cleanDatabase() {
   }
 }
 
+async function dropLegacyIndexes() {
+  const collection = mongoose.connection.collections.reviewslots;
+  if (!collection) return;
+  try {
+    await collection.dropIndex("unique_cohorte_fecha_sala_index");
+  } catch (err) {
+    if (err.codeName !== "IndexNotFound") {
+    }
+  }
+}
+
 const seedEntryToCredential = (entry) => ({
   email: entry.document.email,
   password: entry.plainPassword,
-  role: entry.document.role,
+  rol: entry.document.rol,
   modulo: entry.document.modulo,
   source: entry.source,
 });
@@ -82,7 +102,7 @@ export async function ensureSuperadmin() {
     baseSeedUsers = await crearSuperadmin({ persist: false });
   }
 
-  const superadminSeed = baseSeedUsers.find((entry) => entry.document.role === "superadmin");
+  const superadminSeed = baseSeedUsers.find((entry) => entry.document.rol === "superadmin");
   if (!superadminSeed) {
     throw new Error("Seed base no contiene un superadmin para login");
   }
@@ -108,15 +128,23 @@ export async function ensureSuperadmin() {
   };
 }
 
-export async function registerAndLogin({ prefix, role = "alumno", moduleNumber, cohort = 1, approvedByToken }) {
+export async function registerAndLogin({
+  prefix,
+  rol = "alumno",
+  moduleNumber = 1,
+  approvedByToken,
+}) {
   const app = await getApp();
+  const resolvedRole = rol;
+  const modulo = moduleNumberToLabel(moduleNumber);
   const email = `${prefix}-${uniqueValue("user")}@test.com`;
   const registerRes = await request(app).post("/auth/register").send({
-    name: `${prefix} Test`,
+    nombre: `${prefix} Test`,
     email,
     password,
-    role,
-    moduleNumber: moduleNumber ?? cohort,
+    rol: resolvedRole,
+    modulo,
+    cohorte: moduleNumber,
   });
 
   if (registerRes.status !== 201) {
@@ -128,7 +156,6 @@ export async function registerAndLogin({ prefix, role = "alumno", moduleNumber, 
   const userId = registerRes.body.user.id || registerRes.body.user._id;
 
   if (approvedByToken) {
-    // Retry logic para evitar race conditions con MongoDB
     let approveRes;
     let attempts = 0;
     const maxAttempts = 3;
@@ -137,19 +164,17 @@ export async function registerAndLogin({ prefix, role = "alumno", moduleNumber, 
       approveRes = await request(app)
         .patch(`/auth/aprobar/${userId}`)
         .set("Authorization", `Bearer ${approvedByToken}`);
-      
+
       if (approveRes.status === 200) {
-        break; // Éxito
+        break;
       }
-      
+
       if (approveRes.status === 404 || approveRes.status === 401) {
-        // Usuario no encontrado aún - esperar y reintentar
         attempts++;
         if (attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       } else {
-        // Otro error - fallar inmediatamente
         break;
       }
     }
@@ -162,14 +187,19 @@ export async function registerAndLogin({ prefix, role = "alumno", moduleNumber, 
   }
 
   const loginRes = await request(app).post("/auth/login").send({ email, password });
-
   if (loginRes.status !== 200) {
     throw new Error(
-      `Fallo login de ${prefix}: ${loginRes.status} ${JSON.stringify(loginRes.body)}`
+      `Fallo login de ${prefix} (${email}): ${loginRes.status} ${JSON.stringify(loginRes.body)}`
     );
   }
 
-  return { id: loginRes.body.user.id || loginRes.body.user._id, token: loginRes.body.token, email };
+  return {
+    token: loginRes.body.token,
+    id: userId,
+    user: loginRes.body.user,
+    email: email.toLowerCase(),
+    password,
+  };
 }
 
 export async function crearAsignacion(token, overrides = {}) {
@@ -179,8 +209,7 @@ export async function crearAsignacion(token, overrides = {}) {
     title: overrides.title || `TP ${uniqueValue("assignment")}`,
     description: overrides.description || "Descripcion de prueba",
     dueDate: overrides.dueDate || "2026-01-15",
-    moduleNumber: resolvedModule,
-    module: resolvedModule, // legacy validator expects 'module'
+    modulo: overrides.modulo || moduleNumberToLabel(resolvedModule),
   };
 
   const res = await request(app)
@@ -195,8 +224,9 @@ export async function crearTurno(token, assignmentId, overrides = {}) {
   const app = await getApp();
   const payload = {
     assignment: assignmentId,
-    moduleNumber: overrides.moduleNumber ?? overrides.cohort ?? 1,
-    date: overrides.date || new Date(Date.now() + 86400000).toISOString(),
+    modulo: overrides.modulo || moduleNumberToLabel(overrides.moduleNumber ?? 1),
+    fecha: overrides.fecha || overrides.date || new Date(Date.now() + 86400000).toISOString(),
+    sala: overrides.sala ?? Math.floor(Math.random() * 100000) + 1,
   };
 
   const res = await request(app)
@@ -204,7 +234,6 @@ export async function crearTurno(token, assignmentId, overrides = {}) {
     .set("Authorization", `Bearer ${token}`)
     .send(payload);
 
-  // Compatibilidad: si el DTO usa 'id' y no expone '_id', replicar para tests legacy.
   if (res.body && res.body.id && !res.body._id) {
     res.body._id = res.body.id;
   }
@@ -282,28 +311,28 @@ export async function createBaseUsers() {
 
   const profesorOwner = await registerAndLogin({
     prefix: "prof-owner",
-    role: "profesor",
+    rol: "profesor",
     moduleNumber: 1,
     approvedByToken: superadmin.token,
   });
 
   const profesorAjeno = await registerAndLogin({
     prefix: "prof-ajeno",
-    role: "profesor",
+    rol: "profesor",
     moduleNumber: 2,
     approvedByToken: superadmin.token,
   });
 
   const alumnoC1 = await registerAndLogin({
     prefix: "alumno-c1",
-    role: "alumno",
+    rol: "alumno",
     moduleNumber: 1,
     approvedByToken: profesorOwner.token,
   });
 
   const alumnoC2 = await registerAndLogin({
     prefix: "alumno-c2",
-    role: "alumno",
+    rol: "alumno",
     moduleNumber: 2,
     approvedByToken: profesorOwner.token,
   });
@@ -325,7 +354,6 @@ export async function seedAllScriptUsers({ reset = true } = {}) {
   const baseSeed = await crearSuperadmin();
   const moduleSeed = await crearUsuariosRoles();
   const combinedRaw = [...baseSeed, ...moduleSeed];
-  // Deduplicar por email para evitar conteos inesperados si los scripts generan superadmin repetido
   const seen = new Set();
   const combined = [];
   for (const entry of combinedRaw) {
@@ -345,10 +373,25 @@ export async function seedAllScriptUsers({ reset = true } = {}) {
 
 export function assertSlotDtoShape(slot, expectFn) {
   const requiredKeys = [
-    'id','review','reviewNumber','fecha','date','dateISO','horario','start','end','startISO','endISO',
-    'sala','room','zoomLink','estado','reviewStatus','comentarios','titulo','descripcion','modulo','duracion'
+    "id",
+    "reviewNumber",
+    "fecha",
+    "fechaISO",
+    "horario",
+    "sala",
+    "zoomLink",
+    "estado",
+    "reviewStatus",
+    "comentarios",
+    "titulo",
+    "descripcion",
+    "modulo",
+    "duracion",
+    "cohorte",
   ];
   for (const key of requiredKeys) {
     expectFn(slot).toHaveProperty(key);
   }
 }
+
+export { moduleNumberToLabel };

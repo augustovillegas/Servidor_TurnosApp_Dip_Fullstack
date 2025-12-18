@@ -8,13 +8,15 @@
 /**
  * Genera un filtro de consulta basado en el rol y módulo del usuario autenticado.
  * 
+ * FILTRO PRINCIPAL: `modulo` (String) - Define qué contenido ve cada usuario.
+ * METADATO: `cohorte` (Number) - Solo para reportes, NO para filtrado de acceso.
+ * 
  * @param {Object} requester - Usuario autenticado (req.user)
- * @param {string} requester.role - Rol del usuario ('superadmin', 'profesor', 'alumno')
- * @param {number} requester.moduleNumber - Número de módulo del usuario
- * @param {number} requester.moduleCode - Código de módulo (fallback)
+ * @param {string} requester.rol - Rol del usuario ('superadmin', 'profesor', 'alumno')
+ * @param {string} requester.modulo - Módulo del usuario (String: "HTML-CSS", "JAVASCRIPT", etc.)
  * @param {Object} options - Opciones adicionales
- * @param {Object} options.queryFilters - Filtros adicionales de query (ej: {modulo, cohort})
- * @param {boolean} options.studentOnly - Si true, agrega filtro {role: 'alumno'} (para profesores)
+ * @param {Object} options.queryFilters - Filtros adicionales de query (ej: {modulo, cohorte})
+ * @param {boolean} options.studentOnly - Si true, agrega filtro {rol: 'alumno'} (para profesores)
  * @param {string} options.studentField - Campo student para filtro de alumno (ej: 'student')
  * @param {string} options.userId - ID del usuario para filtros específicos
  * 
@@ -23,59 +25,55 @@
  */
 export function buildModuleFilter(requester, options = {}) {
   const { queryFilters = {}, studentOnly = false, studentField = null, userId = null } = options;
-  const { role, moduleNumber, moduleCode, cohorte, id } = requester;
-  const moduloActual = Number(moduleNumber ?? moduleCode ?? cohorte);
+  const { rol, modulo, id } = requester;
   
   let filtro = {};
 
   // === SUPERADMIN ===
-  if (role === "superadmin") {
+  if (rol === "superadmin") {
     // Superadmin ve todo, pero puede aplicar filtros opcionales de query
-    // No forzamos módulo, solo aplicamos si viene en query
-    if (
-      queryFilters.cohort !== undefined ||
-      queryFilters.cohorte !== undefined ||
-      queryFilters.moduleNumber !== undefined ||
-      queryFilters.moduleCode !== undefined
-    ) {
-      const queryCohort = Number(
-        queryFilters.cohort ??
-          queryFilters.cohorte ??
-          queryFilters.moduleNumber ??
-          queryFilters.moduleCode
-      );
-      if (Number.isFinite(queryCohort)) {
-        filtro.cohorte = queryCohort;
-      }
+    // Si viene modulo en query, lo aplicamos
+    if (queryFilters.modulo) {
+      filtro.modulo = queryFilters.modulo;
+    }
+    // cohorte es solo metadato, pero lo aplicamos si viene explícitamente
+    if (queryFilters.cohorte !== undefined) {
+      filtro.cohorte = Number(queryFilters.cohorte);
     }
     return filtro;
   }
 
   // === PROFESOR ===
-  if (role === "profesor") {
-    if (!Number.isFinite(moduloActual)) {
+  if (rol === "profesor") {
+    if (!modulo || typeof modulo !== "string") {
       throw { status: 403, message: "No autorizado" };
     }
     
-    // Profesor ve solo de su módulo
-    filtro.cohorte = moduloActual;
+    // FILTRO PRINCIPAL: Profesor ve solo de su módulo (String)
+    filtro.modulo = modulo;
+    if (requester.cohorte !== undefined && requester.cohorte !== null) {
+      filtro.cohorte = Number(requester.cohorte);
+    }
     
-    // Si studentOnly es true, agregamos filtro de role: 'alumno'
+    // Si studentOnly es true, agregamos filtro de rol: 'alumno'
     if (studentOnly) {
-      filtro.role = "alumno";
+      filtro.rol = "alumno";
     }
     
     return filtro;
   }
 
   // === ALUMNO ===
-  if (role === "alumno") {
-    if (!Number.isFinite(moduloActual)) {
+  if (rol === "alumno") {
+    if (!modulo || typeof modulo !== "string") {
       throw { status: 403, message: "No autorizado" };
     }
     
-    // Alumno ve solo de su módulo
-    filtro.cohorte = moduloActual;
+    // FILTRO PRINCIPAL: Alumno ve solo de su módulo (String)
+    filtro.modulo = modulo;
+    if (requester.cohorte !== undefined && requester.cohorte !== null) {
+      filtro.cohorte = Number(requester.cohorte);
+    }
     
     // Si studentField está definido, el alumno solo ve sus propios registros
     if (studentField) {
@@ -91,55 +89,42 @@ export function buildModuleFilter(requester, options = {}) {
 
 /**
  * Genera un filtro específico para listado de usuarios con permisos de módulo.
+ * FILTRO PRINCIPAL: `modulo` (String) - Solo ve usuarios de su módulo.
  * 
  * @param {Object} requester - Usuario autenticado
- * @param {Object} queryFilters - Filtros opcionales de query (role, modulo, cohort, etc.)
+ * @param {Object} queryFilters - Filtros opcionales de query (rol, modulo, etc.)
  * @returns {Object} Filtro de Mongoose
  * @throws {Object} Error si el usuario no tiene autorización
  */
 export function buildUserListFilter(requester, queryFilters = {}) {
-  const { role, moduleNumber, moduleCode, cohorte } = requester;
-  const moduloActual = Number(moduleNumber ?? moduleCode ?? cohorte);
+  const { rol, modulo } = requester;
   
   let filtro = {};
 
   // === SUPERADMIN ===
-  if (role === "superadmin") {
+  if (rol === "superadmin") {
     // Superadmin puede filtrar opcionalmente, si no filtra ve todo
-    if (
-      queryFilters.cohort !== undefined ||
-      queryFilters.cohorte !== undefined ||
-      queryFilters.moduleNumber !== undefined ||
-      queryFilters.moduleCode !== undefined
-    ) {
-      const queryCohort = Number(
-        queryFilters.cohort ??
-          queryFilters.cohorte ??
-          queryFilters.moduleNumber ??
-          queryFilters.moduleCode
-      );
-      if (Number.isFinite(queryCohort)) {
-        filtro.cohorte = queryCohort;
-      }
+    if (queryFilters.modulo) {
+      filtro.modulo = queryFilters.modulo;
     }
     
-    // Aplicar filtro de role si viene en query
-    if (queryFilters.role) {
-      filtro.role = queryFilters.role;
+    // Aplicar filtro de rol si viene en query
+    if (queryFilters.rol) {
+      filtro.rol = queryFilters.rol;
     }
     
     return filtro;
   }
 
   // === PROFESOR ===
-  if (role === "profesor") {
-    if (!Number.isFinite(moduloActual)) {
+  if (rol === "profesor") {
+    if (!modulo || typeof modulo !== "string") {
       throw { status: 403, message: "No autorizado" };
     }
     
-    // Profesor solo ve alumnos de su módulo
-    filtro.cohorte = moduloActual;
-    filtro.role = "alumno";
+    // FILTRO PRINCIPAL: Profesor solo ve alumnos de su módulo (String)
+    filtro.modulo = modulo;
+    filtro.rol = "alumno";
     
     return filtro;
   }
@@ -150,13 +135,12 @@ export function buildUserListFilter(requester, queryFilters = {}) {
 }
 
 /**
- * Extrae el número de módulo de un usuario de forma robusta.
+ * Extrae el módulo (String) de un usuario de forma robusta.
  * 
  * @param {Object} user - Usuario (req.user o documento de BD)
- * @returns {number|undefined} Número de módulo
+ * @returns {string|undefined} Módulo del usuario ("HTML-CSS", "JAVASCRIPT", etc.)
  */
-export function getModuleNumber(user) {
+export function getModuleString(user) {
   if (!user) return undefined;
-  const moduleNum = Number(user.cohorte ?? user.moduleNumber ?? user.moduleCode);
-  return Number.isFinite(moduleNum) ? moduleNum : undefined;
+  return user.modulo && typeof user.modulo === "string" ? user.modulo : undefined;
 }

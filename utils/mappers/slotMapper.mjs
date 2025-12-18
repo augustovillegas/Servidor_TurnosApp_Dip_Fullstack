@@ -1,12 +1,10 @@
 import { ensureModuleLabel, moduleToLabel } from "../moduleMap.mjs";
 import {
-  coerceNumber,
   normaliseObjectId,
-  normaliseString,
   ESTADO_TO_REVIEW_STATUS,
   VALID_ESTADOS,
 } from "../normalizers/normalizers.mjs";
-import { REVIEW_STATUS_TO_ESTADO, timeFormatter } from '../../constants/constantes.mjs';
+import { REVIEW_STATUS_TO_ESTADO, timeFormatter } from "../../constants/constantes.mjs";
 
 export { timeFormatter };
 
@@ -16,7 +14,7 @@ export function parseIsoDate(value) {
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
-function parseFecha(fecha) {
+export function parseFecha(fecha) {
   if (!fecha || typeof fecha !== "string") return undefined;
   const parts = fecha.split("/").map((part) => part.trim());
   if (parts.length !== 3) return undefined;
@@ -73,9 +71,9 @@ function buildDateWithTime(baseDate, timeParts) {
   return date;
 }
 
-function normalizeDateFromLegacy({ date, startTime }) {
-  if (!date) return undefined;
-  const base = new Date(date);
+function normalizeDateFromLegacy({ fecha, startTime }) {
+  if (!fecha) return undefined;
+  const base = new Date(fecha);
   if (Number.isNaN(base.getTime())) return undefined;
   if (!startTime) return base;
   const [hh, mm] = startTime.split(":").map((part) => Number(part));
@@ -84,9 +82,9 @@ function normalizeDateFromLegacy({ date, startTime }) {
   return base;
 }
 
-function normalizeEndFromLegacy({ date, endTime }, fallbackStart) {
-  if (!date && !fallbackStart) return undefined;
-  const base = fallbackStart ? new Date(fallbackStart) : new Date(date);
+function normalizeEndFromLegacy({ fecha, endTime }, fallbackStart) {
+  if (!fecha && !fallbackStart) return undefined;
+  const base = fallbackStart ? new Date(fallbackStart) : new Date(fecha);
   if (Number.isNaN(base.getTime())) return undefined;
   if (!endTime) return base;
   const [hh, mm] = endTime.split(":").map((part) => Number(part));
@@ -145,24 +143,24 @@ function formatHorario(start, end, legacyStart, legacyEnd) {
 }
 
 function resolveModulo(doc) {
-  const assignmentModule = doc.assignment?.module;
-  if (assignmentModule !== undefined && assignmentModule !== null) {
-    const label = moduleToLabel(assignmentModule);
-    if (label) return label;
+  if (doc.modulo && typeof doc.modulo === "string") {
+    const ensured = ensureModuleLabel(doc.modulo);
+    if (ensured) return ensured;
   }
 
-  if (doc.module !== undefined && doc.module !== null) {
-    if (typeof doc.module === "string") {
-      const ensured = ensureModuleLabel(doc.module);
+  const assignmentModule = doc.assignment?.modulo ?? doc.assignment?.module;
+  if (assignmentModule !== undefined && assignmentModule !== null) {
+    if (typeof assignmentModule === "string") {
+      const ensured = ensureModuleLabel(assignmentModule);
       if (ensured) return ensured;
     } else {
-      const label = moduleToLabel(doc.module);
+      const label = moduleToLabel(assignmentModule);
       if (label) return label;
     }
   }
 
-  if (doc.cohort !== undefined && doc.cohort !== null) {
-    const label = moduleToLabel(doc.cohort);
+  if (doc.cohorte !== undefined && doc.cohorte !== null) {
+    const label = moduleToLabel(doc.cohorte);
     if (label) return label;
   }
 
@@ -209,9 +207,7 @@ export function toFrontend(slot) {
   const doc = slot.toObject ? slot.toObject() : slot;
   const estado = resolveEstado(doc);
   const start = doc.start ? parseIsoDate(doc.start) : normalizeDateFromLegacy(doc);
-  const end = doc.end
-    ? parseIsoDate(doc.end)
-    : normalizeEndFromLegacy(doc, start);
+  const end = doc.end ? parseIsoDate(doc.end) : normalizeEndFromLegacy(doc, start);
   const modulo = resolveModulo(doc);
   const solicitanteId = normaliseObjectId(doc.student?._id ?? doc.student);
   const profesorId = resolveProfesorId(doc);
@@ -219,36 +215,20 @@ export function toFrontend(slot) {
 
   return {
     id: doc._id?.toString() || doc.id,
-    // Review number (provide both legacy key and canonical key)
-    review: doc.reviewNumber ?? 1,
     reviewNumber: doc.reviewNumber ?? 1,
-    // Cohorte/módulo numérico
-    cohort: doc.cohort ?? doc.cohorte,
-    // Fecha legible (legacy) y fecha ISO normalizada
-    fecha: formatFecha(start ?? doc.date),
-    date: start ? start.toISOString() : (doc.date ? new Date(doc.date).toISOString() : null),
-    dateISO: start ? start.toISOString() : (doc.date ? new Date(doc.date).toISOString() : null),
-    // Horario legible y límites normalizados
+    cohorte: doc.cohorte ?? null,
+    fecha: formatFecha(start ?? doc.fecha),
+    fechaISO: start ? start.toISOString() : doc.fecha ? new Date(doc.fecha).toISOString() : null,
     horario: formatHorario(start, end, doc.startTime, doc.endTime),
-    start: start ? start.toISOString() : null,
-    end: end ? end.toISOString() : null,
-    startISO: start ? start.toISOString() : null,
-    endISO: end ? end.toISOString() : null,
-    // Sala / recursos
-    sala: doc.room || "",
-    room: doc.room || "",
+    sala: doc.sala ?? "",
     zoomLink: doc.zoomLink || "",
-    // Estado y derivados
     estado,
     reviewStatus: doc.reviewStatus || ESTADO_TO_REVIEW_STATUS[estado] || "A revisar",
-    // Texto adicional
     comentarios: doc.comentarios || "",
     titulo: doc.assignment?.title || doc.titulo || "",
     descripcion: doc.assignment?.description || doc.descripcion || "",
-    // Módulo y duración
     modulo: modulo || "",
     duracion,
-    // Identificadores relacionales
     solicitanteId,
     profesorId,
   };
@@ -258,10 +238,4 @@ export function buildScheduleFromInput(input = {}) {
   return parseScheduleFromInput(input);
 }
 
-export {
-  parseFecha,
-  formatFecha,
-  formatHorario,
-  resolveModulo,
-  resolveEstado,
-};
+export { formatFecha, formatHorario, resolveModulo, resolveEstado };

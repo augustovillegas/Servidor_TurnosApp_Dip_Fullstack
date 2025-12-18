@@ -1,45 +1,21 @@
 import userRepository from "../repository/userRepository.mjs";
 import mongoose from "mongoose";
 import { register } from "./authService.mjs";
-import {
-  ensureModuleLabel,
-  labelToModule,
-  resolveModuleMetadata,
-} from "../utils/moduleMap.mjs";
-import {
-  mapToFrontend,
-  mapUsers,
-  getUserModuleLabel,
-  mapEstado,
-} from "../utils/mappers/userMapper.mjs";
-import {
-  normaliseRole,
-  normaliseEstado,
-} from "../utils/common/normalizers.mjs";
+import { ensureModuleLabel, labelToModule } from "../utils/moduleMap.mjs";
+import { mapToFrontend, mapUsers } from "../utils/mappers/userMapper.mjs";
+import { normaliseRole, normaliseEstado } from "../utils/common/normalizers.mjs";
 import { buildUserListFilter } from "../utils/permissionUtils.mjs";
-
-function applyModuleInfo(target, moduleInfo) {
-  if (!moduleInfo) return;
-  if (moduleInfo.label) target.modulo = moduleInfo.label;
-  if (Number.isFinite(moduleInfo.code)) {
-    target.moduleCode = moduleInfo.code;
-  }
-}
 
 export const getUserByEmail = async (email) => {
   return await userRepository.obtenerPorEmail(email);
 };
 
-/**
- * 🔑 Función centralizada para obtener usuario por ID.
- * Única fuente de verdad para getUserById en toda la aplicación.
- */
 export const getUserById = async (id) => {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    throw { status: 401, message: "Sesión inválida" };
+    throw { status: 401, message: "Sesion invalida" };
   }
   const user = await userRepository.obtenerPorId(id);
-  if (!user) throw { status: 401, message: "Sesión inválida" };
+  if (!user) throw { status: 401, message: "Sesion invalida" };
   return user;
 };
 
@@ -65,23 +41,14 @@ export const deleteUser = async (id) => {
   return eliminado;
 };
 
-/**
- * 🔑 Función MAESTRA para listado de usuarios.
- * Centraliza toda la lógica de permisos de módulo y filtros.
- * Única fuente de verdad para listar usuarios en toda la aplicación.
- */
 export const listarUsuarios = async (user, query = {}) => {
-  // Usar utilidad centralizada para generar filtro con permisos
-  const filtro = buildUserListFilter(user, query);
-  
-  // Si hay filtro de módulo en query (para superadmin)
-  if (user.role === "superadmin") {
-    if (query.modulo || query.moduleLabel) {
-      const moduloNormalizado = ensureModuleLabel(query.modulo || query.moduleLabel);
-      const cohortCode = labelToModule(moduloNormalizado);
-      if (cohortCode !== undefined) {
-        filtro.cohorte = cohortCode;
-      }
+  const normalizedQuery = { ...query };
+  const filtro = buildUserListFilter(user, normalizedQuery);
+
+  if (user.rol === "superadmin" && normalizedQuery.modulo) {
+    const moduloNormalizado = ensureModuleLabel(normalizedQuery.modulo);
+    if (moduloNormalizado) {
+      filtro.modulo = moduloNormalizado;
     }
   }
 
@@ -105,30 +72,22 @@ export async function crearUsuario(data) {
   const rol = normaliseRole(data.rol) || "alumno";
   const estado = normaliseEstado(data.estado) || "Pendiente";
 
-  // Use moduleNumber / moduleCode; fallback to modulo label
-  let code = Number(data.moduleNumber ?? data.moduleCode);
-  if (!Number.isFinite(code)) {
-    const moduloSeleccionado = ensureModuleLabel(data.modulo);
-    if (moduloSeleccionado) {
-      const derivado = labelToModule(moduloSeleccionado);
-      if (Number.isFinite(derivado)) code = derivado;
-    }
+  const moduloSeleccionado = ensureModuleLabel(data.modulo);
+  if (!moduloSeleccionado) {
+    throw { status: 400, message: "El modulo es obligatorio" };
   }
-  if (!Number.isFinite(code)) code = 1; // valor por defecto
 
-  // Cohorte independiente: si viene explícita, úsala; si no, usar el código resuelto
-  let cohortValue = Number(data.cohorte ?? data.cohort);
-  if (!Number.isFinite(cohortValue)) {
-    cohortValue = code;
-  }
+  const cohorte = Number.isFinite(Number(data.cohorte))
+    ? Number(data.cohorte)
+    : labelToModule(moduloSeleccionado) ?? 1;
 
   const creado = await register({
-    name: data.nombre,
+    nombre: data.nombre,
     email: data.email,
     password: data.password,
-    cohort: cohortValue,
-    moduleNumber: code,
-    role: rol,
+    modulo: moduloSeleccionado,
+    cohorte,
+    rol,
   });
 
   if (estado !== "Pendiente") {
@@ -149,7 +108,7 @@ export async function actualizarUsuario(id, data) {
   if (!usuario) throw { status: 404, message: "Usuario no encontrado" };
 
   if (data.nombre !== undefined) {
-    usuario.name = data.nombre ? data.nombre.toString().trim() : usuario.name;
+    usuario.nombre = data.nombre ? data.nombre.toString().trim() : usuario.nombre;
   }
   if (data.email !== undefined) {
     usuario.email = data.email.toString().trim().toLowerCase();
@@ -157,28 +116,26 @@ export async function actualizarUsuario(id, data) {
 
   const rol = normaliseRole(data.rol);
   if (rol) {
-    usuario.role = rol;
+    usuario.rol = rol;
   }
 
-  // Cohorte independiente: actualizar si viene
-  if (data.cohorte !== undefined || data.cohort !== undefined) {
-    const cohortValue = Number(data.cohorte ?? data.cohort);
-    if (Number.isFinite(cohortValue)) {
-      usuario.cohorte = cohortValue;
+  if (data.cohorte !== undefined) {
+    const cohorte = Number(data.cohorte);
+    if (Number.isFinite(cohorte)) {
+      usuario.cohorte = cohorte;
     }
   }
 
-  if (data.moduleNumber !== undefined || data.moduleCode !== undefined) {
-    const code = Number(data.moduleNumber ?? data.moduleCode);
-    if (Number.isFinite(code)) {
-      const moduleInfo = resolveModuleMetadata({ cohort: code });
-      applyModuleInfo(usuario, moduleInfo);
-    }
-  } else if (data.modulo !== undefined) {
+  if (data.modulo !== undefined) {
     const moduloSeleccionado = ensureModuleLabel(data.modulo);
     if (moduloSeleccionado) {
-      const moduleInfo = resolveModuleMetadata({ modulo: moduloSeleccionado });
-      applyModuleInfo(usuario, moduleInfo);
+      usuario.modulo = moduloSeleccionado;
+      if (data.cohorte === undefined) {
+        const cohorte = labelToModule(moduloSeleccionado);
+        if (Number.isFinite(cohorte)) {
+          usuario.cohorte = cohorte;
+        }
+      }
     }
   }
 

@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { assertSlotDtoShape } from './helpers/testUtils.mjs';
+import { assertSlotDtoShape } from "./helpers/testUtils.mjs";
 import request from "supertest";
 import {
   disconnectTestDB,
@@ -29,10 +29,10 @@ describe.sequential("Slots", () => {
     await disconnectTestDB();
   });
 
-  test("Alumno de otro módulo no puede reservar un turno", async () => {
+  test("Alumno de otro modulo no puede reservar un turno", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
-    const slotId = turnoRes.res.body._id;
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const reserva = await reservarTurno(context.alumnoC2.token, slotId);
 
@@ -43,12 +43,11 @@ describe.sequential("Slots", () => {
   test("Alumno sin aprobacion no puede solicitar turno", async () => {
     const sinAprobar = await registerAndLogin({
       prefix: "alumno-no-aprobado",
-      moduleNumber: 1,
     });
 
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
-    const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id, { moduleNumber: 1 });
-    const slotId = turnoRes.res.body._id;
+    const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const reserva = await reservarTurno(sinAprobar.token, slotId);
 
@@ -59,7 +58,7 @@ describe.sequential("Slots", () => {
   test("Profesor actualiza estado del turno entre aprobado y pendiente", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
-    const slotId = turnoRes.res.body._id;
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const aprobado = await request(app)
       .patch(`/slots/${slotId}/estado`)
@@ -83,7 +82,7 @@ describe.sequential("Slots", () => {
   test("Alumno no autorizado no puede cambiar estado de turno", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
-    const slotId = turnoRes.res.body._id;
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const intento = await request(app)
       .patch(`/slots/${slotId}/estado`)
@@ -94,24 +93,26 @@ describe.sequential("Slots", () => {
     expect(intento.body.message).toContain("Acceso denegado");
   });
 
-  test("Estado invalido al actualizar turno responde 400", async () => {
+  test("Estado invalido al actualizar turno responde 422", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
     const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
-    const slotId = turnoRes.res.body._id;
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const cambio = await request(app)
       .patch(`/slots/${slotId}/estado`)
       .set("Authorization", `Bearer ${context.profesorOwner.token}`)
       .send({ estado: "desconocido" });
 
-    expect(cambio.status).toBe(400);
-    expect(cambio.body.message).toContain("validacion");
+    expect(cambio.status).toBe(422);
+    expect(cambio.body.message).toBe("Error de validacion");
+    expect(Array.isArray(cambio.body.errores)).toBe(true);
+    expect(cambio.body.errores.length).toBeGreaterThan(0);
   });
 
   test("Alumno no puede reservar dos veces el mismo turno", async () => {
     const { res: asignacionRes } = await crearAsignacion(context.profesorOwner.token);
-    const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id, { moduleNumber: 1 });
-    const slotId = turnoRes.res.body._id;
+    const turnoRes = await crearTurno(context.profesorOwner.token, asignacionRes.body._id);
+    const slotId = turnoRes.res.body.id || turnoRes.res.body._id;
 
     const primera = await reservarTurno(context.alumnoC1.token, slotId);
     expect(primera.status).toBe(200);
@@ -122,4 +123,3 @@ describe.sequential("Slots", () => {
     expect(segunda.body.message).toContain("Turno ya reservado");
   });
 });
-

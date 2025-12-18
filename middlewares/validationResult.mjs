@@ -8,7 +8,7 @@ export const validateRequest = (req, _res, next) => {
       mensaje: err.msg,
     }));
     throw {
-      status: 400,
+      status: 422,
       message: "Error de validacion",
       errores: formatted,
     };

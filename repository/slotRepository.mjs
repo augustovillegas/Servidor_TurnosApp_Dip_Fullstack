@@ -5,11 +5,11 @@ function populateSlot(query) {
   return query
     .populate({
       path: "assignment",
-      select: "module title description createdBy",
+      select: "modulo cohorte title description createdBy",
     })
     .populate({
       path: "student",
-      select: "name role cohort",
+      select: "nombre rol cohorte modulo",
     });
 }
 

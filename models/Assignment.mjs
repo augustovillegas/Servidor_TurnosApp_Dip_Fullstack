@@ -36,7 +36,8 @@ const assignmentSchema = new mongoose.Schema(
     },
     cohorte: {
       type: Number,
-      required: true,      
+      required: true,
+      min: 1      
     },
   },
   {

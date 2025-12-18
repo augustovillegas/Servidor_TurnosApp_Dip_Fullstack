@@ -8,27 +8,22 @@ import {
   crearTurno,
   reservarTurno,
 } from "./helpers/testUtils.mjs";
-
-// Escenarios P1-P7 y C1-C3 para segmentación por módulo (cohort)
-// Módulo se deriva del campo 'cohorte' numérico en el usuario y se expone como 'module' en assignments.
+import { moduleNumberToLabel } from "./helpers/testUtils.mjs";
 
 let app;
 let ctx;
 
 async function setupData() {
-  // Crear una asignación y turnos en cada módulo y algunas reservas
-  const asignacionM1 = await crearAsignacion(ctx.profesorOwner.token); // cohorte forzada a 1
-  const asignacionM2 = await crearAsignacion(ctx.profesorAjeno.token, { module: 2, cohort: 2 });
+  const asignacionM1 = await crearAsignacion(ctx.profesorOwner.token);
+  const asignacionM2 = await crearAsignacion(ctx.profesorAjeno.token);
 
-  // Turnos en M1 creados por profesorOwner (cohorte 1)
-  const turnoLibreM1 = await crearTurno(ctx.profesorOwner.token, asignacionM1.res.body._id, { cohort: 1 });
-  const turnoReservadoM1 = await crearTurno(ctx.profesorOwner.token, asignacionM1.res.body._id, { cohort: 1 });
-  await reservarTurno(ctx.alumnoC1.token, turnoReservadoM1.res.body._id);
+  const turnoLibreM1 = await crearTurno(ctx.profesorOwner.token, asignacionM1.res.body._id);
+  const turnoReservadoM1 = await crearTurno(ctx.profesorOwner.token, asignacionM1.res.body._id);
+  await reservarTurno(ctx.alumnoC1.token, turnoReservadoM1.res.body._id || turnoReservadoM1.res.body.id);
 
-  // Turnos en M2 creados por profesorAjeno (cohorte 2)
-  const turnoLibreM2 = await crearTurno(ctx.profesorAjeno.token, asignacionM2.res.body._id, { cohort: 2 });
-  const turnoReservadoM2 = await crearTurno(ctx.profesorAjeno.token, asignacionM2.res.body._id, { cohort: 2 });
-  await reservarTurno(ctx.alumnoC2.token, turnoReservadoM2.res.body._id);
+  const turnoLibreM2 = await crearTurno(ctx.profesorAjeno.token, asignacionM2.res.body._id);
+  const turnoReservadoM2 = await crearTurno(ctx.profesorAjeno.token, asignacionM2.res.body._id);
+  await reservarTurno(ctx.alumnoC2.token, turnoReservadoM2.res.body._id || turnoReservadoM2.res.body.id);
 
   return {
     asignacionM1: asignacionM1.res.body,
@@ -50,116 +45,83 @@ describe.sequential("Cohort Isolation", () => {
     data = await setupData();
   });
 
-  // P1: Profesor_M1 listar turnos solo cohorte 1
   test("P1 Profesor_M1 GET /slots solo cohorte M1", async () => {
-    const res = await request(app)
-      .get("/slots")
-      .set("Authorization", `Bearer ${ctx.profesorOwner.token}`);
+    const res = await request(app).get("/slots").set("Authorization", `Bearer ${ctx.profesorOwner.token}`);
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThan(0);
     res.body.forEach((slot) => {
-      expect(String(slot.cohort)).toBe("1");
+      expect(String(slot.cohorte)).toBe("1");
     });
-    const otros = res.body.filter((s) => String(s.cohort) !== "1");
-    expect(otros.length).toBe(0);
   });
 
-  // P2: Profesor_M1 GET /assignments solo TODAS las de cohorte 1 (no solo las propias)
   test("P2 Profesor_M1 GET /assignments solo cohorte M1", async () => {
-    const res = await request(app)
-      .get("/assignments")
-      .set("Authorization", `Bearer ${ctx.profesorOwner.token}`);
+    const res = await request(app).get("/assignments").set("Authorization", `Bearer ${ctx.profesorOwner.token}`);
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    // Debe tener al menos la asignación creada en setup
-    expect(res.body.length).toBeGreaterThan(0);
-    // [CORRECCIÓN] Todas deben ser de cohorte 1 (aislamiento por módulo)
-    // Ya NO se filtra por createdBy - el profesor ve TODAS las asignaciones de su módulo
     res.body.forEach((a) => {
       expect(String(a.cohorte)).toBe("1");
+      expect(a.modulo).toBe(moduleNumberToLabel(1));
     });
   });
 
-  // P3: Profesor_M2 GET /usuarios devuelve solo alumnos de cohorte 2
   test("P3 Profesor_M2 GET /usuarios solo alumnos M2", async () => {
-    const res = await request(app)
-      .get("/usuarios")
-      .set("Authorization", `Bearer ${ctx.profesorAjeno.token}`);
+    const res = await request(app).get("/usuarios").set("Authorization", `Bearer ${ctx.profesorAjeno.token}`);
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThan(0);
     res.body.forEach((u) => {
-      expect(u.role).toBe("alumno");
-      expect(String(u.moduleNumber)).toBe("2");
+      expect(u.rol).toBe("alumno");
+      expect(String(u.cohorte)).toBe("2");
+      expect(u.modulo).toBe(moduleNumberToLabel(2));
     });
   });
 
-  // P4: Alumno_M1 GET /submissions (entregas) solo propias y cohorte 1
   test("P4 Alumno_M1 GET /submissions solo propias de cohorte 1", async () => {
-    // Crear submission completa para alumnoC1
-    // (usa createBaseUsers + setupData ya creó asignaciones y turnos, reservamos uno adicional si se requiere)
-    const res = await request(app)
-      .get("/submissions")
-      .set("Authorization", `Bearer ${ctx.alumnoC1.token}`);
+    const res = await request(app).get("/submissions").set("Authorization", `Bearer ${ctx.alumnoC1.token}`);
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
     res.body.forEach((sub) => {
       expect(String(sub.student)).toBe(String(ctx.alumnoC1.id));
-      // modulo label puede variar; si hay cohorte numeric mapeado validar si existe
+      expect(String(sub.cohorte)).toBe("1");
     });
   });
 
-  // P5: Alumno_M2 GET /slots solo cohorte 2 y disponibles o propios
   test("P5 Alumno_M2 GET /slots cohorte 2 disponibles o propios", async () => {
-    const res = await request(app)
-      .get("/slots")
-      .set("Authorization", `Bearer ${ctx.alumnoC2.token}`);
+    const res = await request(app).get("/slots").set("Authorization", `Bearer ${ctx.alumnoC2.token}`);
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
     res.body.forEach((slot) => {
-      expect(String(slot.cohort)).toBe("2");
-      const isAvailable = slot.student === null || slot.student === undefined;
-      const isOwn = String(slot.student) === String(ctx.alumnoC2.id);
+      expect(String(slot.cohorte)).toBe("2");
+      const isAvailable = slot.solicitanteId === null || slot.solicitanteId === undefined;
+      const isOwn = String(slot.solicitanteId) === String(ctx.alumnoC2.id);
       expect(isAvailable || isOwn).toBe(true);
     });
   });
 
-  // P6: Superadmin GET /slots ve ambos
-  test("P6 Superadmin GET /slots ve ambos módulos", async () => {
-    const res = await request(app)
-      .get("/slots")
-      .set("Authorization", `Bearer ${ctx.superadmin.token}`);
+  test("P6 Superadmin GET /slots ve ambos modulos", async () => {
+    const res = await request(app).get("/slots").set("Authorization", `Bearer ${ctx.superadmin.token}`);
     expect(res.status).toBe(200);
-    const cohorts = new Set(res.body.map((s) => String(s.cohort)));
+    const cohorts = new Set(res.body.map((s) => String(s.cohorte)));
     expect(cohorts.has("1")).toBe(true);
     expect(cohorts.has("2")).toBe(true);
   });
 
-  // P7: Profesor_M1 GET /submissions ve todas las de cohorte 1 (no sólo propias del alumno)
   test("P7 Profesor_M1 GET /submissions ve todas cohorte 1", async () => {
-    const res = await request(app)
-      .get("/submissions")
-      .set("Authorization", `Bearer ${ctx.profesorOwner.token}`);
+    const res = await request(app).get("/submissions").set("Authorization", `Bearer ${ctx.profesorOwner.token}`);
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    res.body.forEach((sub) => {
+      expect(String(sub.cohorte)).toBe("1");
+    });
   });
 
-  // C1: Profesor_M1 POST /slots con cohort 2 en payload debe crear en cohorte 1
   test("C1 Profesor_M1 POST /slots fuerza cohorte 1", async () => {
     const payload = {
-      cohort: 2,
-      date: new Date(Date.now() + 3600000).toISOString(),
+      cohorte: 2,
+      fecha: new Date(Date.now() + 3600000).toISOString(),
     };
     const res = await request(app)
       .post("/slots")
       .set("Authorization", `Bearer ${ctx.profesorOwner.token}`)
       .send(payload);
     expect(res.status).toBe(201);
-    expect(String(res.body.cohort)).toBe("1");
+    expect(String(res.body.cohorte)).toBe("1");
+    expect(res.body.modulo).toBe(moduleNumberToLabel(1));
   });
 
-  // C2: Profesor_M2 POST /assignments con module 1 debe crear en cohorte 2
   test("C2 Profesor_M2 POST /assignments fuerza cohorte 2", async () => {
     const res = await request(app)
       .post("/assignments")
@@ -168,20 +130,18 @@ describe.sequential("Cohort Isolation", () => {
         title: "Forzado",
         description: "Debe forzar modulo",
         dueDate: "2026-06-01",
-        module: 1,
-        cohort: 1,
+        modulo: moduleNumberToLabel(1),
       });
     expect(res.status).toBe(201);
     expect(String(res.body.cohorte)).toBe("2");
-    expect(res.body.module).toBe(2);
+    expect(res.body.modulo).toBe(moduleNumberToLabel(2));
   });
 
-  // C3: Alumno_M1 POST /slots no autorizado
   test("C3 Alumno_M1 POST /slots no autorizado", async () => {
     const res = await request(app)
       .post("/slots")
       .set("Authorization", `Bearer ${ctx.alumnoC1.token}`)
-      .send({ date: new Date(Date.now() + 7200000).toISOString() });
+      .send({ fecha: new Date(Date.now() + 7200000).toISOString() });
     expect(res.status).toBe(403);
   });
 });

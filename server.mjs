@@ -7,7 +7,6 @@ import authRoutes from "./routes/authRoutes.mjs";
 import submissionRoutes from "./routes/submissionRoutes.mjs";
 import assignmentRoutes from "./routes/assignmentRoutes.mjs";
 import slotRoutes from "./routes/slotRoutes.mjs";
-import entregasRoutes from "./routes/entregasRoutes.mjs";
 import usuariosRoutes from "./routes/usuariosRoutes.mjs";
 import { errorHandler } from "./middlewares/errorHandler.mjs";
 
@@ -31,7 +30,6 @@ app.get("/health", (_req, res) => {
 
 await conectarDB();
 
-app.use("/entregas", entregasRoutes);
 app.use("/usuarios", usuariosRoutes);
 app.use("/auth", authRoutes);
 app.use("/assignments", assignmentRoutes);

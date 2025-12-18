@@ -16,24 +16,24 @@ function getUserModuleLabel(user) {
   if (typeof user.modulo === "string" && user.modulo.trim()) {
     return user.modulo.trim();
   }
-  return moduleToLabel(user.moduleCode) || null;
+  return moduleToLabel(user.cohorte) || null;
 }
 
 export function mapToFrontend(user) {
   if (!user) return null;
   const plain = user.toObject ? user.toObject() : user;
+  const rol = plain.rol ?? null;
   const estado = mapEstado(plain);
   return {
     id: plain._id?.toString() || plain.id,
-    nombre: plain.name,
+    nombre: plain.nombre,
     email: plain.email,
-    role: plain.role,
-    rol: capitalise(plain.role),
-    estado: estado,
+    rol,
+    estado,
+    status: estado,
     isApproved: estado === "Aprobado",
     cohorte: plain.cohorte ?? null,
-    moduleNumber: plain.cohorte ?? plain.moduleNumber ?? plain.moduleCode ?? null,
-    moduleLabel: plain.moduleLabel || getUserModuleLabel(plain) || "",
+    modulo: getUserModuleLabel(plain) || "",
     creadoEn: plain.createdAt ? new Date(plain.createdAt).toISOString() : null,
   };
 }

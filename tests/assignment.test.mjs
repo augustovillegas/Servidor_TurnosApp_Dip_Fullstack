@@ -7,6 +7,7 @@ import {
   crearAsignacion,
   uniqueValue,
   getApp,
+  moduleNumberToLabel,
 } from "./helpers/testUtils.mjs";
 
 describe.sequential("Assignments", () => {
@@ -34,15 +35,15 @@ describe.sequential("Assignments", () => {
         title: "Intento invalido",
         description: "Esto no deberia crear",
         dueDate: "2026-02-10",
-        module: 1,
-        cohort: 1,
+        modulo: moduleNumberToLabel(1),
+        cohorte: 1,
       });
 
     expect(res.status).toBe(403);
     expect(res.body.message).toContain("Acceso denegado");
   });
 
-  test("Asignacion con dueDate invalido devuelve 400", async () => {
+  test("Asignacion con dueDate invalido devuelve 422", async () => {
     const res = await request(app)
       .post("/assignments")
       .set("Authorization", `Bearer ${context.profesorOwner.token}`)
@@ -50,11 +51,11 @@ describe.sequential("Assignments", () => {
         title: "Fecha invalida",
         description: "Debe fallar",
         dueDate: "31-12-2026",
-        module: 1,
-        cohort: 1,
+        modulo: moduleNumberToLabel(1),
+        cohorte: 1,
       });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(422);
     expect(Array.isArray(res.body.errores)).toBe(true);
     expect(res.body.errores.length).toBeGreaterThan(0);
     const mensajes = res.body.errores.map((err) => (err.mensaje || "").toLowerCase());
@@ -68,7 +69,7 @@ describe.sequential("Assignments", () => {
     expect(res.body).toMatchObject({
       title: expect.any(String),
       description: expect.any(String),
-      module: expect.any(Number),
+      modulo: expect.any(String),
       createdBy: expect.any(String),
     });
     expect(String(res.body.createdBy)).toBe(String(context.profesorOwner.id));
@@ -76,7 +77,7 @@ describe.sequential("Assignments", () => {
 
   test("Profesor ajeno no puede actualizar asignacion de otro profesor", async () => {
     const { res: creada } = await crearAsignacion(context.profesorOwner.token);
-    const assignmentId = creada.body._id;
+    const assignmentId = creada.body._id || creada.body.id;
 
     const update = await request(app)
       .put(`/assignments/${assignmentId}`)
@@ -85,7 +86,7 @@ describe.sequential("Assignments", () => {
         title: "Actualizacion no permitida",
         description: "Intento de otro profesor",
         dueDate: "2026-03-01",
-        module: 2,
+        modulo: moduleNumberToLabel(2),
       });
 
     expect(update.status).toBe(403);
@@ -94,7 +95,7 @@ describe.sequential("Assignments", () => {
 
   test("Superadmin puede actualizar asignacion ajena", async () => {
     const { res: creada } = await crearAsignacion(context.profesorOwner.token);
-    const assignmentId = creada.body._id;
+    const assignmentId = creada.body._id || creada.body.id;
 
     const update = await request(app)
       .put(`/assignments/${assignmentId}`)
@@ -103,7 +104,7 @@ describe.sequential("Assignments", () => {
         title: "Actualizada por superadmin",
         description: "Descripcion nueva",
         dueDate: "2026-04-01",
-        module: 3,
+        modulo: moduleNumberToLabel(3),
       });
 
     expect(update.status).toBe(200);
@@ -113,7 +114,7 @@ describe.sequential("Assignments", () => {
 
   test("Profesor ajeno no puede eliminar asignacion y la misma sigue disponible", async () => {
     const { res: creada } = await crearAsignacion(context.profesorOwner.token);
-    const assignmentId = creada.body._id;
+    const assignmentId = creada.body._id || creada.body.id;
 
     const eliminacion = await request(app)
       .delete(`/assignments/${assignmentId}`)
@@ -127,12 +128,12 @@ describe.sequential("Assignments", () => {
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(consulta.status).toBe(200);
-    expect(consulta.body._id).toBe(assignmentId);
+    expect(consulta.body._id || consulta.body.id).toBe(assignmentId);
   });
 
   test("Superadmin puede eliminar asignacion de terceros", async () => {
     const { res: creada } = await crearAsignacion(context.profesorOwner.token);
-    const assignmentId = creada.body._id;
+    const assignmentId = creada.body._id || creada.body.id;
 
     const eliminacion = await request(app)
       .delete(`/assignments/${assignmentId}`)
@@ -147,8 +148,7 @@ describe.sequential("Assignments", () => {
     expect(consulta.status).toBe(404);
   });
 
-  test("Listado para profesor devuelve TODAS las asignaciones de su módulo", async () => {
-    // Crear asignaciones: 2 por profesorOwner (módulo 1), 1 por profesorAjeno (módulo 2)
+  test("Listado para profesor devuelve todas las asignaciones de su modulo", async () => {
     await crearAsignacion(context.profesorOwner.token, { title: "Asignacion A" });
     await crearAsignacion(context.profesorOwner.token, { title: "Asignacion B" });
     await crearAsignacion(context.profesorAjeno.token, { title: "Asignacion ajena" });
@@ -159,16 +159,13 @@ describe.sequential("Assignments", () => {
 
     expect(listadoOwner.status).toBe(200);
     expect(Array.isArray(listadoOwner.body)).toBe(true);
-    
-    // [CORRECCIÓN] Profesor ahora ve TODAS las asignaciones de su módulo (cohorte 1)
-    // No solo las que él creó - esto permite ver el trabajo de todos los profesores del módulo
+
     expect(listadoOwner.body.length).toBeGreaterThan(0);
     listadoOwner.body.forEach((item) => {
-      expect(String(item.cohorte)).toBe("1"); // Todas deben ser del mismo módulo
+      expect(String(item.cohorte)).toBe("1");
     });
-    
-    // Verificar que NO incluye asignaciones de otros módulos
-    const tieneAjenas = listadoOwner.body.some(item => String(item.cohorte) !== "1");
+
+    const tieneAjenas = listadoOwner.body.some((item) => String(item.cohorte) !== "1");
     expect(tieneAjenas).toBe(false);
   });
 
@@ -181,8 +178,8 @@ describe.sequential("Assignments", () => {
         title: "Con campo extra",
         description: "Debe ignorarse el campo",
         dueDate: "2026-05-01",
-        module: 1,
-        cohort: 1,
+        modulo: moduleNumberToLabel(1),
+        cohorte: 1,
         campoExtra: nombreExtra,
       });
 
@@ -190,5 +187,3 @@ describe.sequential("Assignments", () => {
     expect(res.body.campoExtra).toBeUndefined();
   });
 });
-
-

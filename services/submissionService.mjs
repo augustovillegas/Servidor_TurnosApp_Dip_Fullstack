@@ -3,10 +3,14 @@ import repositorioEntrega from "../repository/submissionRepository.mjs";
 import { ReviewSlot } from "../models/ReviewSlot.mjs";
 import { Assignment } from "../models/Assignment.mjs";
 import { Submission } from "../models/Submission.mjs";
-import { ensureModuleLabel, moduleToLabel } from "../utils/moduleMap.mjs";
+import { ensureModuleLabel, moduleToLabel, labelToModule } from "../utils/moduleMap.mjs";
 import { toFrontend, extractEstado } from "../utils/mappers/submissionMapper.mjs";
-import { coerceNumber, normaliseString, normaliseReviewStatus } from "../utils/normalizers/normalizers.mjs";
-import { FINAL_STATES, ESTADO_DEFAULT } from '../constants/constantes.mjs';
+import {
+  coerceNumber,
+  normaliseString,
+  normaliseReviewStatus,
+} from "../utils/normalizers/normalizers.mjs";
+import { FINAL_STATES, ESTADO_DEFAULT } from "../constants/constantes.mjs";
 import { buildModuleFilter } from "../utils/permissionUtils.mjs";
 
 function buildAdminPayload(data) {
@@ -24,29 +28,26 @@ function buildAdminPayload(data) {
   if (data.sprint !== undefined) {
     payload.sprint = coerceNumber(data.sprint);
   }
-  if (
-    data.assignment !== undefined &&
-    mongoose.Types.ObjectId.isValid(data.assignment)
-  ) {
+  if (data.assignment !== undefined && mongoose.Types.ObjectId.isValid(data.assignment)) {
     payload.assignment = data.assignment;
   }
-  if (
-    data.student !== undefined &&
-    mongoose.Types.ObjectId.isValid(data.student)
-  ) {
+  if (data.student !== undefined && mongoose.Types.ObjectId.isValid(data.student)) {
     payload.student = data.student;
   }
-  if (data.module !== undefined) {
-    const moduloSeleccionado = ensureModuleLabel(data.module);
+  if (data.modulo !== undefined) {
+    const moduloSeleccionado = ensureModuleLabel(data.modulo);
     if (moduloSeleccionado) {
-      payload.module = moduloSeleccionado;
+      payload.modulo = moduloSeleccionado;
+      const cohorte = labelToModule(moduloSeleccionado);
+      if (Number.isFinite(cohorte)) {
+        payload.cohorte = cohorte;
+      }
     }
   }
   if (data.alumnoNombre !== undefined) {
     payload.alumnoNombre = normaliseString(data.alumnoNombre);
   }
 
-  // [FIX] Procesar reviewStatus/estado correctamente - no usar default si uno está presente
   let estado = null;
   if (data.reviewStatus !== undefined) {
     estado = normaliseReviewStatus(data.reviewStatus, { defaultValue: null });
@@ -62,17 +63,11 @@ function buildAdminPayload(data) {
   return payload;
 }
 
-/**
- * 💡 Crea una entrega asociada a un turno (slotId). Solo para alumnos.
- * @param {string} slotId ID del turno al que se asocia la entrega.
- * @param {object} user Usuario autenticado (debe ser el alumno que reservó el turno).
- * @param {object} body Datos de la entrega (githubLink/link, renderLink, comentarios).
- */
 export const crearEntrega = async (slotId, user, body) => {
-  if (!["alumno"].includes(user.role)) {
+  if (!["alumno"].includes(user.rol)) {
     throw {
       status: 403,
-      message: "Solo los alumnos pueden crear entregas de revisión",
+      message: "Solo los alumnos pueden crear entregas de revision",
     };
   }
 
@@ -83,7 +78,6 @@ export const crearEntrega = async (slotId, user, body) => {
     throw { status: 403, message: "Debes reservar el turno antes de entregar" };
   }
 
-  // Normalizar el link de GitHub (acepta 'githubLink' o 'link')
   const githubLinkInput =
     typeof body.githubLink === "string"
       ? body.githubLink
@@ -98,13 +92,11 @@ export const crearEntrega = async (slotId, user, body) => {
 
   const assignment = await Assignment.findById(slot.assignment);
   if (!assignment) {
-    throw { status: 404, message: "Asignación asociada no encontrada" };
+    throw { status: 404, message: "Asignacion asociada no encontrada" };
   }
 
-  // Assignment schema usa 'cohorte' y 'modulo'. Derivamos etiqueta.
   const moduleLabel = assignment.modulo || moduleToLabel(assignment.cohorte);
 
-  // Crear la nueva entrega
   const nuevaEntrega = await repositorioEntrega.crear({
     assignment: slot.assignment,
     student: user.id,
@@ -113,88 +105,61 @@ export const crearEntrega = async (slotId, user, body) => {
     comentarios: normaliseString(body.comentarios) || "",
     reviewStatus: ESTADO_DEFAULT,
     estado: ESTADO_DEFAULT,
-    alumnoNombre: user.name,
+    alumnoNombre: user.nombre,
+    modulo: moduleLabel,
+    cohorte: assignment.cohorte ?? null,
   });
 
   return toFrontend(nuevaEntrega);
 };
 
-/**
- * 💡 Lista las entregas aplicando filtros de Rol y Módulo.
- * @param {object} user Usuario autenticado (para permisos y módulo).
- * @param {object} query Filtros opcionales de query.
- */
 export const listarEntregas = async (user, query) => {
-  // Caso alumno y superadmin: usamos filtro estándar
-  if (user.role === "alumno" || user.role === "superadmin") {
-    const filtro = buildModuleFilter(user, { 
+  if (user.rol === "alumno" || user.rol === "superadmin") {
+    const filtro = buildModuleFilter(user, {
       queryFilters: query,
-      studentField: user.role === "alumno" ? "student" : null 
+      studentField: user.rol === "alumno" ? "student" : null,
     });
-    return await repositorioEntrega.obtenerTodos(filtro);
+    const results = await repositorioEntrega.obtenerTodos(filtro);
+    return results.map(toFrontend);
   }
 
-  // Caso profesor: el modelo Submission NO almacena cohorte/moduleCode directamente.
-  // Debemos resolver los alumnos de su módulo y filtrar por sus IDs.
-  if (user.role === "profesor") {
-    const moduloActual = Number(user.moduleNumber ?? user.moduleCode ?? user.cohorte);
-    if (!Number.isFinite(moduloActual)) return [];
+  if (user.rol === "profesor") {
+    const moduloActual = user.modulo;
+    if (!moduloActual || typeof moduloActual !== "string") return [];
 
-    // Cargar dinámicamente User para evitar ciclos
     const { User } = await import("../models/User.mjs");
-    // Buscar alumnos cuyo moduleCode coincida o cohorte como fallback
     const alumnosModulo = await User.find({
-      role: "alumno",
-      $or: [
-        { moduleCode: moduloActual },
-        { cohorte: moduloActual }
-      ]
+      $and: [{ rol: "alumno" }, { modulo: moduloActual }],
     }).select("_id");
 
     if (!alumnosModulo.length) return [];
-    const ids = alumnosModulo.map(a => a._id);
+    const ids = alumnosModulo.map((a) => a._id);
 
-    return await repositorioEntrega.obtenerTodos({ student: { $in: ids } });
+    const results = await repositorioEntrega.obtenerTodos({ student: { $in: ids } });
+    return results.map(toFrontend);
   }
 
-  // Otros roles (por si se agregan futuros): no devolvemos nada
   return [];
 };
 
-/**
- * 💡 Obtiene entregas de un usuario (filtrado por rol y módulo).
- * @param {string} userId ID del alumno cuyas entregas se buscan.
- * @param {object} user Usuario autenticado (quien realiza la petición).
- */
 export const obtenerEntregasPorUsuario = async (userId, user) => {
-    // 1. Permiso: Un alumno solo puede ver sus propias entregas
-    if (user.role === "alumno" && user.id !== userId) {
-        throw { status: 403, message: "No autorizado a ver las entregas de otros alumnos" };
+  if (user.rol === "alumno" && user.id !== userId) {
+    throw { status: 403, message: "No autorizado a ver las entregas de otros alumnos" };
+  }
+
+  if (user.rol === "profesor") {
+    const userRepository = await import("../repository/userRepository.mjs").then((m) => m.default);
+    const student = await userRepository.obtenerPorId(userId);
+
+    if (!student || student.modulo !== user.modulo) {
+      throw { status: 403, message: "El alumno no pertenece a su modulo" };
     }
-    
-    // 2. Módulo: El profesor solo puede ver entregas de alumnos de SU módulo
-    if (user.role === "profesor") {
-        // Asumo que tienes acceso a `userRepository` o alguna forma de obtener el usuario
-        const userRepository = await import('../repository/userRepository.mjs').then(m => m.default);
-        const student = await userRepository.obtenerPorId(userId);
-        const moduloProfesor = Number(user.moduleNumber ?? user.moduleCode ?? user.cohorte);
-        const moduloAlumno = Number(student?.moduleCode ?? student?.cohorte);
-        
-        if (!Number.isFinite(moduloProfesor) || moduloProfesor !== moduloAlumno) {
-            throw { status: 403, message: "El alumno no pertenece a su módulo" };
-        }
-    }
-    
-    // Superadmin y Alumno viendo sus propias entregas pasan.
-    const submissions = await repositorioEntrega.obtenerPorEstudiante(userId);
-    return submissions.map(toFrontend);
+  }
+
+  const submissions = await repositorioEntrega.obtenerPorEstudiante(userId);
+  return submissions.map(toFrontend);
 };
 
-/**
- * 💡 Obtiene una entrega por su ID.
- * @param {string} id ID de la entrega.
- * @param {object} user Usuario autenticado (para permisos).
- */
 export const obtenerEntregaPorId = async (id, user) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw { status: 404, message: "Entrega no encontrada" };
@@ -203,8 +168,9 @@ export const obtenerEntregaPorId = async (id, user) => {
   const entrega = await repositorioEntrega.obtenerPorId(id);
   if (!entrega) throw { status: 404, message: "Entrega no encontrada" };
 
-  const esPropia = entrega.student && entrega.student.toString() === user.id;
-  const esProfesorOAdmin = ["profesor", "superadmin"].includes(user.role);
+  const studentId = entrega.student?._id?.toString() ?? entrega.student?.toString();
+  const esPropia = studentId === user.id;
+  const esProfesorOAdmin = ["profesor", "superadmin"].includes(user.rol);
 
   if (!esPropia && !esProfesorOAdmin) {
     throw { status: 403, message: "No autorizado para ver esta entrega" };
@@ -213,12 +179,6 @@ export const obtenerEntregaPorId = async (id, user) => {
   return toFrontend(entrega);
 };
 
-/**
- * 💡 Actualiza una entrega.
- * @param {string} id ID de la entrega a actualizar.
- * @param {object} body Datos a actualizar.
- * @param {object} user Usuario autenticado (para permisos).
- */
 export const actualizarEntrega = async (id, body, user) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw { status: 404, message: "Entrega no encontrada" };
@@ -227,16 +187,16 @@ export const actualizarEntrega = async (id, body, user) => {
   const entrega = await repositorioEntrega.obtenerPorId(id);
   if (!entrega) throw { status: 404, message: "Entrega no encontrada" };
 
-  const esPropia = entrega.student && entrega.student.toString() === user.id;
-  const esProfesorOAdmin = ["profesor", "superadmin"].includes(user.role);
+  const studentId = entrega.student?._id?.toString() ?? entrega.student?.toString();
+  const esPropia = studentId === user.id;
+  const esProfesorOAdmin = ["profesor", "superadmin"].includes(user.rol);
+
+  const actualizacion = {};
 
   if (!esPropia && !esProfesorOAdmin) {
     throw { status: 403, message: "No autorizado para modificar esta entrega" };
   }
 
-  const actualizacion = {};
-
-  // Lógica para Alumnos: solo pueden modificar sus enlaces/comentarios si no está en estado final.
   if (esPropia && !esProfesorOAdmin) {
     const estadoActualCanonico = extractEstado(entrega);
     if (FINAL_STATES.has(estadoActualCanonico)) {
@@ -246,7 +206,6 @@ export const actualizarEntrega = async (id, body, user) => {
       };
     }
 
-    // Un alumno solo puede actualizar githubLink, renderLink y comentarios
     const githubLinkInput =
       typeof body.githubLink === "string"
         ? body.githubLink
@@ -273,13 +232,11 @@ export const actualizarEntrega = async (id, body, user) => {
       actualizacion.renderLink = normaliseString(body.renderLink) || null;
     }
 
-    // Si se modifica algo, se restablece a "A revisar"
     if (Object.keys(actualizacion).length > 0) {
       actualizacion.reviewStatus = ESTADO_DEFAULT;
       actualizacion.estado = ESTADO_DEFAULT;
     }
   } else if (esProfesorOAdmin) {
-    // Lógica para Profesor/Admin: pueden modificar todos los campos mapeados
     const payload = buildAdminPayload(body);
     Object.assign(actualizacion, payload);
 
@@ -289,25 +246,18 @@ export const actualizarEntrega = async (id, body, user) => {
   }
 
   if (Object.keys(actualizacion).length === 0) {
-    return toFrontend(entrega); // No hay cambios, devuelve el original.
+    return toFrontend(entrega);
   }
 
-  // Actualizar en la DB
   const actualizado = await repositorioEntrega.actualizar(id, actualizacion);
 
-  // Obtener el objeto completo para mapear (incluyendo poblaciones)
   const final = await Submission.findById(actualizado._id)
-    .populate("student", "name role")
+    .populate("student", "nombre rol modulo cohorte")
     .populate("assignment", "cohorte modulo title");
 
   return toFrontend(final);
 };
 
-/**
- * 💡 Elimina una entrega.
- * @param {string} id ID de la entrega a eliminar.
- * @param {object} user Usuario autenticado (para permisos).
- */
 export const eliminarEntrega = async (id, user) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw { status: 404, message: "Entrega no encontrada" };
@@ -316,14 +266,14 @@ export const eliminarEntrega = async (id, user) => {
   const entrega = await repositorioEntrega.obtenerPorId(id);
   if (!entrega) throw { status: 404, message: "Entrega no encontrada" };
 
-  const esPropia = entrega.student && entrega.student.toString() === user.id;
-  const esProfesorOAdmin = ["profesor", "superadmin"].includes(user.role);
+  const studentId = entrega.student?._id?.toString() ?? entrega.student?.toString();
+  const esPropia = studentId === user.id;
+  const esProfesorOAdmin = ["profesor", "superadmin"].includes(user.rol);
 
   if (!esPropia && !esProfesorOAdmin) {
     throw { status: 403, message: "No autorizado para eliminar esta entrega" };
   }
 
-  // Solo alumnos pueden eliminar si no ha sido Aprobado/Desaprobado
   if (esPropia && !esProfesorOAdmin) {
     const estadoActualCanonico = extractEstado(entrega);
     if (FINAL_STATES.has(estadoActualCanonico)) {

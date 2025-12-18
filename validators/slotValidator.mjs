@@ -4,25 +4,28 @@ export const slotIdParamValidator = [
   param("id", "ID de turno invalido").isMongoId(),
 ];
 
+const fechaValidator = body("fecha")
+  .exists({ checkFalsy: true })
+  .withMessage("La fecha es obligatoria")
+  .bail()
+  .isISO8601()
+  .withMessage("La fecha debe estar en formato ISO 8601");
+
+const salaValidator = body("sala")
+  .optional({ nullable: true })
+  .isInt({ min: 1 })
+  .withMessage("La sala debe ser un numero entero positivo");
+
 export const createSlotValidator = [
   body("assignment")
     .optional({ nullable: true })
     .isMongoId()
     .withMessage("El assignment debe ser un identificador valido"),
-  body("moduleNumber")
-    .optional({ nullable: true })
-    .isInt({ min: 1 })
-    .withMessage("moduleNumber debe ser un entero positivo"),
   body("reviewNumber")
     .optional({ nullable: true })
     .isInt({ min: 1 })
-    .withMessage("El número de review debe ser un entero positivo"),
-  body("date")
-    .exists({ checkFalsy: true })
-    .withMessage("La fecha es obligatoria")
-    .bail()
-    .isISO8601()
-    .withMessage("La fecha debe estar en formato ISO 8601"),
+    .withMessage("El numero de review debe ser un entero positivo"),
+  fechaValidator,
   body("start")
     .optional({ nullable: true })
     .isISO8601()
@@ -43,6 +46,15 @@ export const createSlotValidator = [
     .optional({ nullable: true })
     .isIn(["Disponible", "Solicitado", "Aprobado", "Rechazado"])
     .withMessage("Estado de turno invalido"),
+  salaValidator,
+  body("zoomLink")
+    .optional({ nullable: true })
+    .isString()
+    .withMessage("El enlace de Zoom debe ser texto"),
+  body("comentarios")
+    .optional({ nullable: true })
+    .isString()
+    .withMessage("Los comentarios deben ser texto"),
 ];
 
 export const updateEstadoValidator = [
@@ -63,15 +75,11 @@ export const updateSlotValidator = [
     .optional({ nullable: true })
     .isMongoId()
     .withMessage("El assignment debe ser un identificador valido"),
-  body("moduleNumber")
-    .optional({ nullable: true })
-    .isInt({ min: 1 })
-    .withMessage("moduleNumber debe ser un entero positivo"),
   body("reviewNumber")
     .optional({ nullable: true })
     .isInt({ min: 1 })
-    .withMessage("El número de review debe ser un entero positivo"),
-  body("date")
+    .withMessage("El numero de review debe ser un entero positivo"),
+  body("fecha")
     .optional({ nullable: true })
     .isISO8601()
     .withMessage("La fecha debe estar en formato ISO 8601"),
@@ -95,10 +103,7 @@ export const updateSlotValidator = [
     .optional({ nullable: true })
     .isIn(["Disponible", "Solicitado", "Aprobado", "Rechazado"])
     .withMessage("Estado de turno invalido"),
-  body("room")
-    .optional({ nullable: true })
-    .isInt({ min: 1 })
-    .withMessage("La sala debe ser un número"),
+  salaValidator,
   body("zoomLink")
     .optional({ nullable: true })
     .isString()

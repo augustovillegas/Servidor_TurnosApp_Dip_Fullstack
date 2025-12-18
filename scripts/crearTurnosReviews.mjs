@@ -1,114 +1,21 @@
 /**
- * Genera turnos de revisión completos para cada módulo,
- * asegurando que todas las columnas relevantes tengan información.
+ * Genera 20 turnos por modulo (4 revisiones x 5 turnos) con datos completos.
  */
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import {
-  MODULES,
-  projectRoot,
-  connectMongo,
-  disconnectMongo,
-} from "./lib/seedUtils.mjs";
-import dotenv from "dotenv";
-import { ReviewSlot } from "../models/ReviewSlot.mjs";
+import { crearTurnos } from "./lib/seedGenerators.mjs";
+import { crearAsignaciones } from "./lib/seedGenerators.mjs";
+import { isDirectRun } from "./lib/seedUtils.mjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(projectRoot, ".env") });
-
-const DEFAULT_START_HOUR = 10;
-const SLOT_DURATION_MINUTES = 30;
-const TURNOS_POR_MODULO = 5;
-const TURNOS_POR_REVIEW = 5;
-
-function buildZoomLink(modSlug, reviewNumber) {
-  return `https://zoom.us/j/${modSlug}${String(reviewNumber).padStart(2, "0")}000`;
-}
-
-function buildSlotDates(baseDate, reviewNumber, turnoIndex = 1) {
-  const slotDate = new Date(baseDate);
-  slotDate.setDate(slotDate.getDate() + reviewNumber);
-
-  const minutesOffset = SLOT_DURATION_MINUTES * (turnoIndex - 1);
-  const startHour = DEFAULT_START_HOUR + Math.floor(minutesOffset / 60);
-  const startMinutes = minutesOffset % 60;
-  slotDate.setHours(startHour, startMinutes, 0, 0);
-
-  const endDate = new Date(slotDate);
-  endDate.setMinutes(endDate.getMinutes() + SLOT_DURATION_MINUTES);
-
-  return { slotDate, endDate };
-}
-
-export async function crearTurnosReviews() {
-  const hadConnection = ReviewSlot.db?.readyState && ReviewSlot.db.readyState !== 0;
-  await connectMongo();
-
-  await ReviewSlot.deleteMany({});
-  console.log("[Turnos] Colección limpiada antes de regenerar datos.");
-
-  const now = new Date();
-  const turnos = [];
-
-  for (const mod of MODULES) {
-    for (let reviewNumber = 1; reviewNumber <= TURNOS_POR_MODULO; reviewNumber++) {
-      for (let turnoIndex = 1; turnoIndex <= TURNOS_POR_REVIEW; turnoIndex++) {
-        const { slotDate, endDate } = buildSlotDates(now, reviewNumber, turnoIndex);
-        const startTime = `${String(slotDate.getHours()).padStart(
-          2,
-          "0"
-        )}:${String(slotDate.getMinutes()).padStart(2, "0")}`;
-        const endTime = `${String(endDate.getHours()).padStart(2, "0")}:${String(
-          endDate.getMinutes()
-        ).padStart(2, "0")}`;
-
-        turnos.push({
-          cohorte: mod.code,
-          reviewNumber,
-          date: slotDate,
-          startTime,
-          endTime,
-          start: slotDate,
-          end: endDate,
-          room: turnoIndex,
-          zoomLink: buildZoomLink(mod.slug, reviewNumber),
-          estado: "Disponible",
-          reviewStatus: "A revisar",
-          comentarios: "Disponible para reservas.",
-          modulo: mod.name,
-          moduloSlug: mod.slug,
-          assignment: null,
-          student: null,
-          approvedByProfessor: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
-    }
-  }
-
-  const inserted = await ReviewSlot.insertMany(turnos, { ordered: true });
-  console.log("\n=== TURNOS CREADOS ===");
-  inserted.forEach((slot) => {
-    console.log(
-      `[Turno] ${slot.modulo} | Cohorte ${slot.cohorte} | ${slot.date.toISOString()} | ${slot.room} | ${slot.estado}`
-    );
-  });
-  console.log(`\n[Turnos] Total registrados: ${inserted.length}.`);
-
-  if (!hadConnection) {
-    await disconnectMongo();
-  }
+export async function crearTurnosReviews(options = {}) {
+  const { assignmentsByModule } = await crearAsignaciones(options);
+  const inserted = await crearTurnos({ assignmentsByModule });
   return inserted.length;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectRun(import.meta.url)) {
   crearTurnosReviews()
-    .then(() => console.log("[Turnos] Registros generados correctamente."))
+    .then((total) => console.log(`[Turnos] Total registrados: ${total}`))
     .catch((e) => {
       console.error(e);
       process.exit(1);
     });
 }
-

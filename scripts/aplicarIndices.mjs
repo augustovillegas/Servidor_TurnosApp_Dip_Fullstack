@@ -6,7 +6,7 @@
  */
 
 import mongoose from "mongoose";
-import { connectMongo, disconnectMongo } from "./lib/seedUtils.mjs";
+import { connectMongo, disconnectMongo, isDirectRun } from "./lib/seedUtils.mjs";
 
 function defaultIndexName(keys = {}) {
   return Object.entries(keys)
@@ -40,7 +40,7 @@ export async function aplicarIndices() {
       { unique: true, name: "unique_email_index" },
       ["email_1"]
     );
-    await recreateIndex(usuarios, { role: 1 }, { name: "role_index" }, ["role_1"]);
+    await recreateIndex(usuarios, { rol: 1 }, { name: "rol_index" }, ["rol_1", "role_1"]);
     await recreateIndex(
       usuarios,
       { modulo: 1, cohorte: 1 },
@@ -53,9 +53,9 @@ export async function aplicarIndices() {
     const turnos = db.collection("reviewslots");
     await recreateIndex(
       turnos,
-      { cohorte: 1, date: 1, room: 1 },
+      { cohorte: 1, fecha: 1, sala: 1 },
       { unique: true, name: "unique_cohorte_fecha_sala_index" },
-      ["cohorte_1_date_1_room_1"]
+      ["cohorte_1_date_1_room_1", "cohorte_1_fecha_1_sala_1"]
     );
     await recreateIndex(turnos, { estado: 1 }, { name: "estado_index" }, ["estado_1"]);
     console.log("✅ Índices creados: turnos");
@@ -97,7 +97,7 @@ export async function aplicarIndices() {
 }
 
 // Permite ejecución directa por CLI
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectRun(import.meta.url)) {
   aplicarIndices()
     .then(() => console.log("🧱 Creación de índices finalizada."))
     .catch((e) => {

@@ -28,10 +28,10 @@ export function resolveMongoUri() {
 export const EMAIL_DOMAIN = "gmail.com"; // ✅ dominio final garantizado .com
 
 export const MODULES = [
-  { name: "HTML-CSS", slug: "htmlcss", code: 1 },
-  { name: "JAVASCRIPT", slug: "javascript", code: 2 },
-  { name: "BACKEND - NODE JS", slug: "node", code: 3 },
-  { name: "FRONTEND - REACT", slug: "react", code: 4 },
+  { name: "HTML-CSS", slug: "htmlcss", cohorte: 1 },
+  { name: "JAVASCRIPT", slug: "javascript", cohorte: 2 },
+  { name: "BACKEND - NODE JS", slug: "node", cohorte: 3 },
+  { name: "FRONTEND - REACT", slug: "react", cohorte: 4 },
 ];
 
 export const COHORTS = [
@@ -60,12 +60,18 @@ export function slugifyLocal(value) {
 export async function connectMongo() {
   if (mongoose.connection.readyState === 0) {
     const uri = resolveMongoUri();
-    await mongoose.connect(uri, { dbName: "App-turnos" });
+    await mongoose.connect(uri);
   }
   return mongoose.connection;
 }
 export async function disconnectMongo() {
   await mongoose.disconnect();
+}
+
+export function isDirectRun(metaUrl) {
+  if (!metaUrl) return false;
+  const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
+  return invokedPath && invokedPath === fileURLToPath(metaUrl);
 }
 
 export async function dropIfExists(name) {
@@ -105,21 +111,18 @@ export function queueUser(seedUsers, cfg) {
     ? String(cfg.email || "").trim().toLowerCase()
     : ensureEmailDomain(cfg.email); // fuerza .com por defecto
 
+  const fullName =
+    cfg?.fullName ??
+    (cfg?.apellido ? `${cfg.nombre} ${cfg.apellido}`.trim() : cfg?.nombre ?? normalizedEmail);
+
   const doc = {
-    name: `${cfg?.nombre ?? ""} ${cfg?.apellido ?? ""}`.trim() || normalizedEmail,
-    nombre: cfg?.nombre ?? null,
-    apellido: cfg?.apellido ?? null,
+    nombre: fullName,
     email: normalizedEmail,
-    role: cfg.role,
+    rol: cfg.rol,
     modulo: cfg?.moduloName ?? "-",
-    moduloSlug: cfg?.moduloSlug ?? "",
-    moduleCode: cfg?.moduleCode ?? 0,
-    cohorte: cfg?.cohorte ?? cfg?.moduleCode ?? 0,
-    cohort: cfg?.cohort ?? cfg?.moduleCode ?? 0,
-    cohortLabel: cfg?.cohortLabel ?? "-",
-    isRecursante: Boolean(cfg?.isRecursante),
+    moduloSlug: cfg?.moduloSlug ?? null,
+    cohorte: cfg?.cohorte ?? 0,
     status: cfg?.estado ?? "Aprobado",
-    isApproved: (cfg?.estado ?? "Aprobado") === "Aprobado",
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -128,12 +131,12 @@ export function queueUser(seedUsers, cfg) {
     document: doc,
     plainPassword: cfg.plainPassword,
     tableRow: {
-      rol: cfg.role,
-      nombre: doc.name,
+      rol: cfg.rol,
+      nombre: fullName,
       usuario: normalizedEmail,
       contrasenia: cfg.plainPassword,
       modulo: doc.modulo,
-      cohort: doc.cohortLabel,
+      cohorte: doc.cohorte,
       estado: doc.status,
     },
     source: cfg?.source ?? "module",
@@ -146,6 +149,23 @@ export async function hashPasswords(seedUsers) {
 }
 
 export function buildMarkdown(seedUsers) {
+  const padTable = (headers, rows) => {
+    const widths = headers.map((h, idx) =>
+      Math.max(h.length, ...rows.map((r) => String(r[idx] ?? "").length))
+    );
+
+    const formatRow = (cols) =>
+      `| ${cols
+        .map((c, i) => String(c ?? "").padEnd(widths[i], " "))
+        .join(" | ")} |`;
+
+    const header = formatRow(headers);
+    const separator = `| ${widths.map((w) => "-".repeat(w)).join(" | ")} |`;
+    const body = rows.map((r) => formatRow(r));
+
+    return [header, separator, ...body, ""].join("\n");
+  };
+
   const lines = [
     "# Credenciales de Seed - Proyecto Diplomatura",
     `Fecha: ${new Date().toISOString()}`,
@@ -159,29 +179,25 @@ export function buildMarkdown(seedUsers) {
     .sort((a, b) => a.tableRow.usuario.localeCompare(b.tableRow.usuario));
 
   if (generalEntries.length) {
-    lines.push(
-      "## Credenciales generales",
-      "",
-      "| rol | nombre | usuario | contrasena | modulo | cohort | estado |",
-      "|-----|--------|---------|------------|--------|--------|--------|"
-    );
-
-    generalEntries.forEach((entry) => {
+    lines.push("## Credenciales generales", "");
+    const headers = ["rol", "nombre", "usuario", "contrasena", "modulo", "cohorte", "estado"];
+    const rows = generalEntries.map((entry) => {
       const r = entry.tableRow;
-      lines.push(
-        `| ${r.rol} | ${r.nombre} | ${r.usuario} | ${r.contrasenia} | ${r.modulo} | ${r.cohort} | ${r.estado} |`
-      );
+      return [r.rol, r.nombre, r.usuario, r.contrasenia, r.modulo, r.cohorte ?? r.cohort ?? "-", r.estado];
     });
-
-    lines.push("");
+    lines.push(padTable(headers, rows));
   }
 
   for (const mod of MODULES) {
     const moduleEntries = seedUsers
-      .filter((entry) => entry.source === "module" && entry.document.moduloSlug === mod.slug)
+      .filter(
+        (entry) =>
+          entry.source === "module" &&
+          (entry.document.moduloSlug === mod.slug || entry.document.modulo === mod.name)
+      )
       .sort((a, b) => {
-        const aRole = a.document.role === "profesor" ? 0 : 1;
-        const bRole = b.document.role === "profesor" ? 0 : 1;
+        const aRole = a.document.rol === "profesor" ? 0 : 1;
+        const bRole = b.document.rol === "profesor" ? 0 : 1;
         if (aRole !== bRole) {
           return aRole - bRole;
         }
@@ -192,21 +208,13 @@ export function buildMarkdown(seedUsers) {
       continue;
     }
 
-    lines.push(
-      `## Modulo ${mod.name}`,
-      "",
-      "| modulo | rol | nombre | usuario | contrasena | cohort | estado |",
-      "|--------|-----|--------|---------|------------|--------|--------|"
-    );
-
-    moduleEntries.forEach((entry) => {
+    lines.push(`## Modulo ${mod.name}`, "");
+    const headers = ["modulo", "rol", "nombre", "usuario", "contrasena", "cohorte", "estado"];
+    const rows = moduleEntries.map((entry) => {
       const r = entry.tableRow;
-      lines.push(
-        `| ${r.modulo} | ${r.rol} | ${r.nombre} | ${r.usuario} | ${r.contrasenia} | ${r.cohort} | ${r.estado} |`
-      );
+      return [r.modulo, r.rol, r.nombre, r.usuario, r.contrasenia, r.cohorte ?? "-", r.estado];
     });
-
-    lines.push("");
+    lines.push(padTable(headers, rows));
   }
 
   return `${lines.join("\n")}\n`;

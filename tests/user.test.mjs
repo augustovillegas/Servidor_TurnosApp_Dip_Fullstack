@@ -5,7 +5,6 @@ import {
   ensureDatabaseInitialized,
   createBaseUsers,
   registerAndLogin,
-  uniqueValue,
   getApp,
 } from "./helpers/testUtils.mjs";
 
@@ -40,25 +39,25 @@ describe.sequential("Users", () => {
 
   test("Profesor puede filtrar usuarios por rol", async () => {
     const res = await request(app)
-      .get("/usuarios?role=alumno")
+      .get("/usuarios?rol=alumno")
       .set("Authorization", `Bearer ${context.profesorOwner.token}`);
 
     expect(res.status).toBe(200);
     expect(res.body.length).toBeGreaterThan(0);
-    const roles = new Set(res.body.map((user) => user.role));
+    const roles = new Set(res.body.map((user) => user.rol));
     expect(roles.size).toBe(1);
     expect(roles.has("alumno")).toBe(true);
   });
 
-  test("Superadmin puede filtrar usuarios por módulo", async () => {
+  test("Superadmin puede filtrar usuarios por modulo", async () => {
     const res = await request(app)
-            .get("/usuarios?modulo=FRONTEND - REACT")
+      .get("/usuarios?modulo=FRONTEND - REACT")
       .set("Authorization", `Bearer ${context.superadmin.token}`);
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThan(0);
-    const todosDelModulo = res.body.every((user) => user.moduleLabel === "FRONTEND - REACT");
+    const todosDelModulo = res.body.every((user) => user.modulo === "FRONTEND - REACT");
     expect(todosDelModulo).toBe(true);
   });
 
@@ -74,8 +73,7 @@ describe.sequential("Users", () => {
   test("Superadmin aprueba un usuario pendiente", async () => {
     const pendiente = await registerAndLogin({
       prefix: "usuario-pendiente",
-      role: "profesor",
-      moduleNumber: 1,
+      rol: "profesor",
     });
 
     const approveRes = await request(app)
@@ -87,4 +85,3 @@ describe.sequential("Users", () => {
     expect(body.isApproved).toBe(true);
   });
 });
-

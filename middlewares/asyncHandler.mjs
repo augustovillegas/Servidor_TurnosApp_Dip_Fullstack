@@ -9,7 +9,7 @@ export const asyncHandler = (fn) => (req, res, next) => {
       type: "ASYNC_ERROR",
       method: req.method,
       path: req.originalUrl,
-      user: req.user ? { id: req.user._id, role: req.user.role, email: req.user.email } : null,
+      user: req.user ? { id: req.user._id, rol: req.user.rol, email: req.user.email } : null,
       message: err?.message || String(err),
       stack: err?.stack || undefined,
     };

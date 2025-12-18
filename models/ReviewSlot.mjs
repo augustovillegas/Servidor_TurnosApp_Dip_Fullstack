@@ -8,7 +8,8 @@ const slotSchema = new mongoose.Schema(
       required: false,
     },
     cohorte: {
-      type: Number         
+      type: Number,
+      min: 1         
     },
     modulo: {
       type: String,
@@ -20,18 +21,16 @@ const slotSchema = new mongoose.Schema(
       default: 1,
       min: 1,
     },
-    date: {
+    fecha: {
       type: Date,
       required: true,
     },
     startTime: {
-      type: String,
-      default: "-",
+      type: String,     
       trim: true,
     },
     endTime: {
-      type: String,
-      default: "-",
+      type: String,      
       trim: true,
     },
     start: {
@@ -42,15 +41,14 @@ const slotSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    room: {
-      type: Number,
-      default: 1,
+    sala: {
+      type: Number,      
       min: 1,
     },
     zoomLink: {
       type: String,
       trim: true,
-      default: "-",
+      default: "",
     },
     student: {
       type: mongoose.Schema.Types.ObjectId,
@@ -77,8 +75,7 @@ const slotSchema = new mongoose.Schema(
     },
     comentarios: {
       type: String,
-      trim: true,
-      default: "-",
+      trim: true,      
     },
   },
   {
