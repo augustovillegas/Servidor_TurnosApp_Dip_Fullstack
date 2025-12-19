@@ -229,7 +229,7 @@ npm test
 
 ## 📝 Documentación Generada
 
-### logs/README.md ✅
+### logs/REPORTES_QA.md ✅
 - Arquitectura completa del sistema
 - Uso de cada archivo principal
 - Workflow típico por fase del día
@@ -287,7 +287,7 @@ npm test
 - [x] Implementar `consolidarHistorialDiario()` con prepend
 - [x] Implementar `archivarReporteDiarioAnterior()`
 - [x] Implementar `limpiarArchivosObsoletos()`
-- [x] Actualizar `logs/README.md` con nueva documentación
+- [x] Actualizar `logs/REPORTES_QA.md` con nueva documentación
 - [x] Eliminar archivos legacy (`test-summary.md`, `test-current.log`)
 - [x] Migrar `history/*.log` a `historial/*.md`
 - [x] Probar overwrite con 2 ejecuciones consecutivas
@@ -302,7 +302,7 @@ npm test
 
 ```bash
 # Commit 1: Nueva arquitectura de reportes
-git add scripts/test-reporter.mjs logs/README.md
+git add scripts/test-reporter.mjs logs/REPORTES_QA.md
 git commit -m "feat: implement consolidated reporting system with REPORTE_GLOBAL and REPORTE_DIARIO"
 
 # Commit 2: Limpieza de sistema anterior
@@ -320,3 +320,4 @@ git commit -m "docs: add implementation report for consolidated reporting system
 **Basado en**: OPTIMIZACION.md - Prompt de Optimización de Reportes  
 **Estado**: ✅ Productivo y Verificado  
 **Versión**: 2.0 (Consolidado)
+
