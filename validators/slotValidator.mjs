@@ -66,7 +66,19 @@ export const updateEstadoValidator = [
     .withMessage("Estado debe ser texto")
     .trim()
     .toLowerCase()
-    .isIn(["aprobado", "pendiente", "cancelado"])
+    // Acepta los valores esperados por REVIEW_STATUS_CANONICAL en normalizers
+    .isIn([
+      "aprobado",
+      "aprobada",
+      "rechazado",
+      "rechazada",
+      "desaprobado",
+      "desaprobada",
+      "pendiente",
+      "revisar",
+      "a revisar",
+      "en revision",
+    ])
     .withMessage("Estado no permitido"),
 ];
 

@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
     cohorte: {
       type: Number,
       required: true,
-      min: 1    
+      min: 1,        
     },
     status: {
       type: String,

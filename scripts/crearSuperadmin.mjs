@@ -12,8 +12,12 @@ import {
   hashPasswords,
   validateEmailsCom,
   isDirectRun,
+  MODULES,
 } from "./lib/seedUtils.mjs";
 import { User } from "../models/User.mjs";
+
+const SUPERADMIN_DEFAULT_MODULE =
+  MODULES.find((mod) => mod.slug === "htmlcss") ?? MODULES[0];
 
 export const BASE_USERS_CONFIG = Object.freeze([
   {
@@ -22,7 +26,9 @@ export const BASE_USERS_CONFIG = Object.freeze([
     apellido: "App",
     email: "admin.seed@gmail.com",
     plainPassword: "admin123",
-    moduloName: "-",
+    moduloName: SUPERADMIN_DEFAULT_MODULE.name,
+    moduloSlug: SUPERADMIN_DEFAULT_MODULE.slug,
+    cohorte: SUPERADMIN_DEFAULT_MODULE.cohorte,
     estado: "Aprobado",
     preserveEmail: true,
   },
@@ -32,7 +38,9 @@ export const BASE_USERS_CONFIG = Object.freeze([
     apellido: "AdminApp",
     email: "superadmin.diplomatura@gmail.com",
     plainPassword: "Superadmin#2025",
-    moduloName: "-",
+    moduloName: SUPERADMIN_DEFAULT_MODULE.name,
+    moduloSlug: SUPERADMIN_DEFAULT_MODULE.slug,
+    cohorte: SUPERADMIN_DEFAULT_MODULE.cohorte,
     estado: "Aprobado",
   },
 ]);
@@ -81,11 +89,12 @@ export async function crearSuperadmin(options = {}) {
 
 export function getBaseUserCredentials() {
   return BASE_USERS_CONFIG.map(
-    ({ email, plainPassword, rol, moduloName }) => ({
+    ({ email, plainPassword, rol, moduloName, cohorte }) => ({
       email,
       password: plainPassword,
       rol,
       moduloName,
+      cohorte,
     })
   );
 }
